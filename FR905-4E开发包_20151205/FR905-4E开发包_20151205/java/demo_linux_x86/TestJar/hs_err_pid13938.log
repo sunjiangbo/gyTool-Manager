@@ -1,0 +1,372 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0x0032c656, pid=13938, tid=3086723984
+#
+# JRE version: Java(TM) SE Runtime Environment (8.0_05-b13) (build 1.8.0_05-b13)
+# Java VM: Java HotSpot(TM) Client VM (25.5-b02 mixed mode linux-x86 )
+# Problematic frame:
+# C  [libModuleAPI_Androidjni.so+0x2d656]  SLOS_GetRdrHandle(long, Reader**)+0x6
+#
+# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.sun.com/bugreport/crash.jsp
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x087d3000):  JavaThread "main" [_thread_in_native, id=13939, stack(0xb7f6a000,0xb7fbb000)]
+
+siginfo:si_signo=SIGSEGV: si_errno=0, si_code=1 (SEGV_MAPERR), si_addr=0x00000000
+
+Registers:
+EAX=0x00000000, EBX=0xffffffff, ECX=0x087d312c, EDX=0x087d3000
+ESP=0xb7fb9e98, EBP=0xb7fb9e98, ESI=0xa5b8e654, EDI=0x087d3000
+EIP=0x0032c656, EFLAGS=0x00210297, CR2=0x00000000
+
+Top of Stack: (sp=0xb7fb9e98)
+0xb7fb9e98:   b7fb9ec8 003276d2 00000000 b7fb9ec0
+0xb7fb9ea8:   087d3000 00d27908 a5b8e658 a5b8e654
+0xb7fb9eb8:   087d3000 b7fb9f00 00000000 a5b8e658
+0xb7fb9ec8:   b7fb9f00 b5d34bb6 00000000 b7fb9f14
+0xb7fb9ed8:   00000000 b5d34757 b7fb9ee0 a5b8e654
+0xb7fb9ee8:   b7fb9f14 a5b8ef90 00000000 a5b8e658
+0xb7fb9ef8:   00000000 b7fb9f10 b7fb9f38 b5d29174
+0xb7fb9f08:   00000000 b5d30f19 00000000 a5eed2a0 
+
+Instructions: (pc=0x0032c656)
+0x0032c636:   06 29 ca 8d 84 13 18 fc ff ff 5b 5d c3 90 8d b6
+0x0032c646:   00 00 00 00 8d bf 00 00 00 00 55 89 e5 8b 45 08
+0x0032c656:   8b 10 8b 45 0c 89 10 31 c0 5d c3 90 8d b4 26 00
+0x0032c666:   00 00 00 8d bc 27 00 00 00 00 55 89 e5 83 ec 08 
+
+Register to memory mapping:
+
+EAX=0x00000000 is an unknown value
+EBX=0xffffffff is an unknown value
+ECX=0x087d312c is an unknown value
+EDX=0x087d3000 is a thread
+ESP=0xb7fb9e98 is pointing into the stack for thread: 0x087d3000
+EBP=0xb7fb9e98 is pointing into the stack for thread: 0x087d3000
+ESI=0xa5b8e654 is an unknown value
+EDI=0x087d3000 is a thread
+
+
+Stack: [0xb7f6a000,0xb7fbb000],  sp=0xb7fb9e98,  free space=319k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [libModuleAPI_Androidjni.so+0x2d656]  SLOS_GetRdrHandle(long, Reader**)+0x6
+C  [libModuleAPI_Androidjni.so+0x286d2]  CloseReader+0x32
+j  com.uhf.api.cls.JniModuleAPI.CloseReader(I)V+0
+j  com.uhf.api.cls.Reader.CloseReader()V+10
+j  maintest.main([Ljava/lang/String;)V+24
+v  ~StubRoutines::call_stub
+V  [libjvm.so+0x2ca16f]  JavaCalls::call_helper(JavaValue*, methodHandle*, JavaCallArguments*, Thread*)+0x101f
+V  [libjvm.so+0x45ca69]  os::os_exception_wrapper(void (*)(JavaValue*, methodHandle*, JavaCallArguments*, Thread*), JavaValue*, methodHandle*, JavaCallArguments*, Thread*)+0x19
+V  [libjvm.so+0x2c873f]  JavaCalls::call(JavaValue*, methodHandle, JavaCallArguments*, Thread*)+0x2f
+V  [libjvm.so+0x30f04f]  jni_invoke_static(JNIEnv_*, JavaValue*, _jobject*, JNICallType, _jmethodID*, JNI_ArgumentPusher*, Thread*)+0x38f
+V  [libjvm.so+0x319f7f]  jni_CallStaticVoidMethod+0xdf
+C  [libjli.so+0x71bf]  JavaMain+0x91f
+C  [libpthread.so.0+0x52db]  abort@@GLIBC_2.0+0x52db
+
+Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
+j  com.uhf.api.cls.JniModuleAPI.CloseReader(I)V+0
+j  com.uhf.api.cls.Reader.CloseReader()V+10
+j  maintest.main([Ljava/lang/String;)V+24
+v  ~StubRoutines::call_stub
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0xa520a800 JavaThread "Service Thread" daemon [_thread_blocked, id=13961, stack(0xa53a7000,0xa53f8000)]
+  0x08862000 JavaThread "C1 CompilerThread0" daemon [_thread_blocked, id=13960, stack(0xa53f8000,0xa5479000)]
+  0x0885ac00 JavaThread "JDWP Command Reader" daemon [_thread_in_native, id=13957, stack(0xa5479000,0xa54ca000)]
+  0x08859000 JavaThread "JDWP Event Helper Thread" daemon [_thread_blocked, id=13956, stack(0xa54ca000,0xa551b000)]
+  0x08856400 JavaThread "JDWP Transport Listener: dt_socket" daemon [_thread_blocked, id=13955, stack(0xa551b000,0xa556c000)]
+  0x0884e000 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=13951, stack(0xa556c000,0xa55bd000)]
+  0x0882d000 JavaThread "Finalizer" daemon [_thread_blocked, id=13949, stack(0xa55bd000,0xa560e000)]
+  0x0882a800 JavaThread "Reference Handler" daemon [_thread_blocked, id=13948, stack(0xa560e000,0xa565f000)]
+=>0x087d3000 JavaThread "main" [_thread_in_native, id=13939, stack(0xb7f6a000,0xb7fbb000)]
+
+Other Threads:
+  0x08827400 VMThread [stack: 0xa565f000,0xa56e0000] [id=13947]
+  0xa520c800 WatcherThread [stack: 0xa5326000,0xa53a7000] [id=13962]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap:
+ def new generation   total 4928K, used 1109K [0xa5e00000, 0xa6350000, 0xab2a0000)
+  eden space 4416K,  25% used [0xa5e00000, 0xa5f15648, 0xa6250000)
+  from space 512K,   0% used [0xa6250000, 0xa6250000, 0xa62d0000)
+  to   space 512K,   0% used [0xa62d0000, 0xa62d0000, 0xa6350000)
+ tenured generation   total 10944K, used 0K [0xab2a0000, 0xabd50000, 0xb5c00000)
+   the space 10944K,   0% used [0xab2a0000, 0xab2a0000, 0xab2a0200, 0xabd50000)
+ Metaspace       used 1843K, capacity 2266K, committed 2328K, reserved 4400K
+
+Card table byte_map: [0xb5c25000,0xb5ca5000] byte_map_base: 0xb56f6000
+
+Polling page: 0xb7fca000
+
+CodeCache: size=32768Kb used=675Kb max_used=675Kb free=32092Kb
+ bounds [0xb5d25000, 0xb5dd5000, 0xb7d25000]
+ total_blobs=145 nmethods=16 adapters=70
+ compilation: enabled
+
+Compilation events (10 events):
+Event: 1.154 Thread 0x08862000   12             java.io.DataInputStream::readFully (63 bytes)
+Event: 1.154 Thread 0x08862000 nmethod 12 0xb5dcc5c8 code [0xb5dcc710, 0xb5dcc8b0]
+Event: 1.162 Thread 0x08862000   13             java.io.DataInputStream::readShort (40 bytes)
+Event: 1.162 Thread 0x08862000 nmethod 13 0xb5dcca88 code [0xb5dccbb0, 0xb5dccce0]
+Event: 1.222 Thread 0x08862000   14             java.io.UnixFileSystem::normalize (75 bytes)
+Event: 1.223 Thread 0x08862000 nmethod 14 0xb5dccf08 code [0xb5dcd040, 0xb5dcd1f0]
+Event: 1.802 Thread 0x08862000   15             java.lang.String::indexOf (166 bytes)
+Event: 1.804 Thread 0x08862000 nmethod 15 0xb5dcd408 code [0xb5dcd520, 0xb5dcd770]
+Event: 1.826 Thread 0x08862000   16             java.lang.String::startsWith (72 bytes)
+Event: 1.826 Thread 0x08862000 nmethod 16 0xb5dcdac8 code [0xb5dcdbd0, 0xb5dcdd10]
+
+GC Heap History (0 events):
+No events
+
+Deoptimization events (0 events):
+No events
+
+Internal exceptions (10 events):
+Event: 1.220 Thread 0x087d3000 Exception <a 'java/security/PrivilegedActionException'> (0xa5ee3b90) thrown at [/HUDSON/workspace/8-2-build-linux-i586/jdk8u5/2488/hotspot/src/share/vm/prims/jvm.cpp, line 1248]
+Event: 1.785 Thread 0x087d3000 Exception <a 'java/security/PrivilegedActionException'> (0xa5eed780) thrown at [/HUDSON/workspace/8-2-build-linux-i586/jdk8u5/2488/hotspot/src/share/vm/prims/jvm.cpp, line 1248]
+Event: 1.801 Thread 0x087d3000 Exception <a 'java/security/PrivilegedActionException'> (0xa5ef2df8) thrown at [/HUDSON/workspace/8-2-build-linux-i586/jdk8u5/2488/hotspot/src/share/vm/prims/jvm.cpp, line 1248]
+Event: 1.808 Thread 0x087d3000 Exception <a 'java/security/PrivilegedActionException'> (0xa5ef5348) thrown at [/HUDSON/workspace/8-2-build-linux-i586/jdk8u5/2488/hotspot/src/share/vm/prims/jvm.cpp, line 1248]
+Event: 1.812 Thread 0x087d3000 Exception <a 'java/security/PrivilegedActionException'> (0xa5ef7820) thrown at [/HUDSON/workspace/8-2-build-linux-i586/jdk8u5/2488/hotspot/src/share/vm/prims/jvm.cpp, line 1248]
+Event: 1.821 Thread 0x087d3000 Exception <a 'java/security/PrivilegedActionException'> (0xa5efe208) thrown at [/HUDSON/workspace/8-2-build-linux-i586/jdk8u5/2488/hotspot/src/share/vm/prims/jvm.cpp, line 1248]
+Event: 1.825 Thread 0x087d3000 Exception <a 'java/security/PrivilegedActionException'> (0xa5f007c8) thrown at [/HUDSON/workspace/8-2-build-linux-i586/jdk8u5/2488/hotspot/src/share/vm/prims/jvm.cpp, line 1248]
+Event: 1.831 Thread 0x087d3000 Exception <a 'java/security/PrivilegedActionException'> (0xa5f02ce0) thrown at [/HUDSON/workspace/8-2-build-linux-i586/jdk8u5/2488/hotspot/src/share/vm/prims/jvm.cpp, line 1248]
+Event: 1.838 Thread 0x087d3000 Exception <a 'java/security/PrivilegedActionException'> (0xa5f067d0) thrown at [/HUDSON/workspace/8-2-build-linux-i586/jdk8u5/2488/hotspot/src/share/vm/prims/jvm.cpp, line 1248]
+Event: 1.842 Thread 0x087d3000 Exception <a 'java/security/PrivilegedActionException'> (0xa5f08ef8) thrown at [/HUDSON/workspace/8-2-build-linux-i586/jdk8u5/2488/hotspot/src/share/vm/prims/jvm.cpp, line 1248]
+
+Events (10 events):
+Event: 1.821 loading class com/uhf/api/cls/Reader$Inv_Potls_ST
+Event: 1.821 loading class com/uhf/api/cls/Reader$Inv_Potls_ST done
+Event: 1.824 loading class com/uhf/api/cls/Reader$Inv_Potl
+Event: 1.824 loading class com/uhf/api/cls/Reader$Inv_Potl done
+Event: 1.830 loading class com/uhf/api/cls/Reader$SL_TagProtocol
+Event: 1.830 loading class com/uhf/api/cls/Reader$SL_TagProtocol done
+Event: 1.838 loading class com/uhf/api/cls/Reader$HoptableData_ST
+Event: 1.838 loading class com/uhf/api/cls/Reader$HoptableData_ST done
+Event: 1.842 loading class com/uhf/api/cls/Reader$TAGINFO
+Event: 1.842 loading class com/uhf/api/cls/Reader$TAGINFO done
+
+
+Dynamic libraries:
+00110000-00134000 r-xp 00000000 fd:00 1315241    /dkg/Program/jdk1.8.0_05/jre/lib/i386/libjava.so
+00134000-00135000 rwxp 00023000 fd:00 1315241    /dkg/Program/jdk1.8.0_05/jre/lib/i386/libjava.so
+00224000-0025b000 r-xp 00000000 fd:00 1315254    /dkg/Program/jdk1.8.0_05/jre/lib/i386/libjdwp.so
+0025b000-0025c000 rwxp 00037000 fd:00 1315254    /dkg/Program/jdk1.8.0_05/jre/lib/i386/libjdwp.so
+002ff000-0034b000 r-xp 00000000 fd:00 688392     /dkg/eclipsewrpla/TestJar/libModuleAPI_Androidjni.so
+0034b000-0034c000 rwxp 0004b000 fd:00 688392     /dkg/eclipsewrpla/TestJar/libModuleAPI_Androidjni.so
+0034c000-0034d000 rwxp 0034c000 00:00 0 
+00399000-0039b000 r-xp 00000000 fd:00 1315196    /dkg/Program/jdk1.8.0_05/jre/lib/i386/libnpt.so
+0039b000-0039c000 rwxp 00002000 fd:00 1315196    /dkg/Program/jdk1.8.0_05/jre/lib/i386/libnpt.so
+005b4000-005bf000 r-xp 00000000 fd:00 1315261    /dkg/Program/jdk1.8.0_05/jre/lib/i386/libverify.so
+005bf000-005c0000 rwxp 0000b000 fd:00 1315261    /dkg/Program/jdk1.8.0_05/jre/lib/i386/libverify.so
+00785000-0078e000 r-xp 00000000 fd:00 917545     /lib/libnss_files-2.5.so
+0078e000-0078f000 r-xp 00008000 fd:00 917545     /lib/libnss_files-2.5.so
+0078f000-00790000 rwxp 00009000 fd:00 917545     /lib/libnss_files-2.5.so
+0088f000-00890000 r-xp 0088f000 00:00 0          [vdso]
+00a56000-00a59000 r-xp 00000000 fd:00 1315212    /dkg/Program/jdk1.8.0_05/jre/lib/i386/libdt_socket.so
+00a59000-00a5a000 rwxp 00003000 fd:00 1315212    /dkg/Program/jdk1.8.0_05/jre/lib/i386/libdt_socket.so
+00b6c000-00b85000 r-xp 00000000 fd:00 1315210    /dkg/Program/jdk1.8.0_05/jre/lib/i386/libzip.so
+00b85000-00b86000 rwxp 00018000 fd:00 1315210    /dkg/Program/jdk1.8.0_05/jre/lib/i386/libzip.so
+00bee000-00c02000 r-xp 00000000 fd:00 1314008    /dkg/Program/jdk1.8.0_05/lib/i386/jli/libjli.so
+00c02000-00c03000 rwxp 00013000 fd:00 1314008    /dkg/Program/jdk1.8.0_05/lib/i386/jli/libjli.so
+00c03000-01202000 r-xp 00000000 fd:00 1315247    /dkg/Program/jdk1.8.0_05/jre/lib/i386/client/libjvm.so
+01202000-01226000 rwxp 005fe000 fd:00 1315247    /dkg/Program/jdk1.8.0_05/jre/lib/i386/client/libjvm.so
+01226000-01646000 rwxp 01226000 00:00 0 
+08048000-08049000 r-xp 00000000 fd:00 1315525    /dkg/Program/jdk1.8.0_05/bin/java
+08049000-0804a000 rwxp 00000000 fd:00 1315525    /dkg/Program/jdk1.8.0_05/bin/java
+087ca000-088c6000 rwxp 087ca000 00:00 0 
+49793000-497ac000 r-xp 00000000 fd:00 919761     /lib/ld-2.5.so
+497ac000-497ad000 r-xp 00018000 fd:00 919761     /lib/ld-2.5.so
+497ad000-497ae000 rwxp 00019000 fd:00 919761     /lib/ld-2.5.so
+497b0000-498e7000 r-xp 00000000 fd:00 919762     /lib/libc-2.5.so
+498e7000-498e9000 r-xp 00137000 fd:00 919762     /lib/libc-2.5.so
+498e9000-498ea000 rwxp 00139000 fd:00 919762     /lib/libc-2.5.so
+498ea000-498ed000 rwxp 498ea000 00:00 0 
+498ef000-49914000 r-xp 00000000 fd:00 919764     /lib/libm-2.5.so
+49914000-49915000 r-xp 00024000 fd:00 919764     /lib/libm-2.5.so
+49915000-49916000 rwxp 00025000 fd:00 919764     /lib/libm-2.5.so
+49918000-4991a000 r-xp 00000000 fd:00 919763     /lib/libdl-2.5.so
+4991a000-4991b000 r-xp 00001000 fd:00 919763     /lib/libdl-2.5.so
+4991b000-4991c000 rwxp 00002000 fd:00 919763     /lib/libdl-2.5.so
+4991e000-49931000 r-xp 00000000 fd:00 919765     /lib/libpthread-2.5.so
+49931000-49932000 r-xp 00012000 fd:00 919765     /lib/libpthread-2.5.so
+49932000-49933000 rwxp 00013000 fd:00 919765     /lib/libpthread-2.5.so
+49933000-49935000 rwxp 49933000 00:00 0 
+4994c000-49953000 r-xp 00000000 fd:00 919766     /lib/librt-2.5.so
+49953000-49954000 r-xp 00006000 fd:00 919766     /lib/librt-2.5.so
+49954000-49955000 rwxp 00007000 fd:00 919766     /lib/librt-2.5.so
+4a0b9000-4a0c4000 r-xp 00000000 fd:00 919783     /lib/libgcc_s-4.1.1-20070105.so.1
+4a0c4000-4a0c5000 rwxp 0000a000 fd:00 919783     /lib/libgcc_s-4.1.1-20070105.so.1
+4a206000-4a2e6000 r-xp 00000000 fd:00 1614693    /usr/lib/libstdc++.so.6.0.8
+4a2e6000-4a2e9000 r-xp 000e0000 fd:00 1614693    /usr/lib/libstdc++.so.6.0.8
+4a2e9000-4a2eb000 rwxp 000e3000 fd:00 1614693    /usr/lib/libstdc++.so.6.0.8
+4a2eb000-4a2f1000 rwxp 4a2eb000 00:00 0 
+a509e000-a5247000 rwxp a509e000 00:00 0 
+a5247000-a5300000 --xp a5247000 00:00 0 
+a5326000-a5327000 --xp a5326000 00:00 0 
+a5327000-a53a7000 rwxp a5327000 00:00 0 
+a53a7000-a53aa000 --xp a53a7000 00:00 0 
+a53aa000-a53f8000 rwxp a53aa000 00:00 0 
+a53f8000-a53fb000 --xp a53f8000 00:00 0 
+a53fb000-a5479000 rwxp a53fb000 00:00 0 
+a5479000-a547c000 --xp a5479000 00:00 0 
+a547c000-a54ca000 rwxp a547c000 00:00 0 
+a54ca000-a54cd000 --xp a54ca000 00:00 0 
+a54cd000-a551b000 rwxp a54cd000 00:00 0 
+a551b000-a551e000 --xp a551b000 00:00 0 
+a551e000-a556c000 rwxp a551e000 00:00 0 
+a556c000-a556f000 --xp a556c000 00:00 0 
+a556f000-a55bd000 rwxp a556f000 00:00 0 
+a55bd000-a55c0000 --xp a55bd000 00:00 0 
+a55c0000-a560e000 rwxp a55c0000 00:00 0 
+a560e000-a5611000 --xp a560e000 00:00 0 
+a5611000-a565f000 rwxp a5611000 00:00 0 
+a565f000-a5660000 --xp a565f000 00:00 0 
+a5660000-a572f000 rwxp a5660000 00:00 0 
+a572f000-a5904000 r-xs 03c4d000 fd:00 1315272    /dkg/Program/jdk1.8.0_05/jre/lib/rt.jar
+a5904000-a5ba5000 rwxp a5904000 00:00 0 
+a5ba5000-a5dab000 --xp a5ba5000 00:00 0 
+a5dab000-a5db1000 rwxp a5dab000 00:00 0 
+a5db1000-a5e00000 --xp a5db1000 00:00 0 
+a5e00000-a6350000 rwxp a5e00000 00:00 0 
+a6350000-ab2a0000 --xp a6350000 00:00 0 
+ab2a0000-abd50000 rwxp ab2a0000 00:00 0 
+abd50000-b5c00000 --xp abd50000 00:00 0 
+b5c25000-b5c28000 rwxp b5c25000 00:00 0 
+b5c28000-b5c4f000 --xp b5c28000 00:00 0 
+b5c4f000-b5c55000 rwxp b5c4f000 00:00 0 
+b5c55000-b5ca4000 --xp b5c55000 00:00 0 
+b5ca4000-b5ca8000 rwxp b5ca4000 00:00 0 
+b5ca8000-b5d25000 --xp b5ca8000 00:00 0 
+b5d25000-b5dd5000 rwxp b5d25000 00:00 0 
+b5dd5000-b7d25000 --xp b5dd5000 00:00 0 
+b7d25000-b7d2d000 rwxs 00000000 fd:00 1671823    /tmp/hsperfdata_root/13938
+b7d2d000-b7d2e000 r-xp 00eb1000 fd:00 1611522    /usr/lib/locale/locale-archive
+b7d2e000-b7d6a000 r-xp 00e71000 fd:00 1611522    /usr/lib/locale/locale-archive
+b7d6a000-b7f6a000 r-xp 00000000 fd:00 1611522    /usr/lib/locale/locale-archive
+b7f6a000-b7f6d000 --xp b7f6a000 00:00 0 
+b7f6d000-b7fbd000 rwxp b7f6d000 00:00 0 
+b7fc4000-b7fc7000 rwxp b7fc4000 00:00 0 
+b7fc7000-b7fc8000 r-xp b7fc7000 00:00 0 
+b7fc8000-b7fc9000 r-xs 00008000 fd:00 688876     /dkg/eclipsewrpla/ModuleAPIJni_linux.jar
+b7fc9000-b7fca000 rwxp b7fc9000 00:00 0 
+b7fca000-b7fcb000 r-xp b7fca000 00:00 0 
+b7fcb000-b7fcc000 rwxp b7fcb000 00:00 0 
+bfa31000-bfa32000 rwxp bfa31000 00:00 0 
+bfa70000-bfa85000 rw-p bfa70000 00:00 0          [stack]
+
+VM Arguments:
+jvm_args: -agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:51726 -Dfile.encoding=UTF-8 
+java_command: maintest
+java_class_path (initial): /dkg/eclipsewrpla/TestJar/bin:/dkg/eclipsewrpla/ModuleAPIJni_linux.jar
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=/dkg/Program/jdk1.8.0_05
+JRE_HOME=/dkg/Program/jdk1.8.0_05/jre
+CLASSPATH=.:/dkg/Program/jdk1.8.0_05/lib:/dkg/Program/jdk1.8.0_05/jre/lib
+PATH=/dkg/Program/jdk1.8.0_05/bin:/usr/kerberos/sbin:/usr/kerberos/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/X11R6/bin:/dkg/Program/jdk1.8.0_05/jre/bin:/usr/local/arm/3.4.1/bin:/root/bin:/opt/nxp/gcc-4.3.2-glibc-2.7/bin
+LD_LIBRARY_PATH=/dkg/Program/jdk1.8.0_05/jre/lib/i386/client:/dkg/Program/jdk1.8.0_05/jre/lib/i386:
+SHELL=/bin/bash
+DISPLAY=:0.0
+
+Signal Handlers:
+SIGSEGV: [libjvm.so+0x573a60], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGBUS: [libjvm.so+0x573a60], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGFPE: [libjvm.so+0x45e940], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGPIPE: [libjvm.so+0x45e940], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGXFSZ: [libjvm.so+0x45e940], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGILL: [libjvm.so+0x45e940], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGUSR1: SIG_DFL, sa_mask[0]=0x00000000, sa_flags=0x00000000
+SIGUSR2: [libjvm.so+0x460050], sa_mask[0]=0x00000004, sa_flags=0x10000004
+SIGHUP: [libjvm.so+0x461460], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGINT: [libjvm.so+0x461460], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGTERM: [libjvm.so+0x461460], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGQUIT: [libjvm.so+0x461460], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+
+
+---------------  S Y S T E M  ---------------
+
+OS:Red Hat Enterprise Linux Server release 5 (Tikanga)
+
+uname:Linux 2.6.18-8.el5 #1 SMP Fri Jan 26 14:15:21 EST 2007 i686
+libc:glibc 2.5 NPTL 2.5 
+rlimit: STACK 10240k, CORE 0k, NPROC 16448, NOFILE 1024, AS infinity
+load average:1.54 1.12 0.86
+
+/proc/meminfo:
+MemTotal:      1039460 kB
+MemFree:        133436 kB
+Buffers:        137016 kB
+Cached:         385724 kB
+SwapCached:          0 kB
+Active:         610948 kB
+Inactive:       233392 kB
+HighTotal:      135104 kB
+HighFree:          268 kB
+LowTotal:       904356 kB
+LowFree:        133168 kB
+SwapTotal:     1048568 kB
+SwapFree:      1048568 kB
+Dirty:             248 kB
+Writeback:           0 kB
+AnonPages:      321576 kB
+Mapped:          59836 kB
+Slab:            50472 kB
+PageTables:       4312 kB
+NFS_Unstable:        0 kB
+Bounce:              0 kB
+CommitLimit:   1568296 kB
+Committed_AS:   672312 kB
+VmallocTotal:   114680 kB
+VmallocUsed:      3676 kB
+VmallocChunk:   110860 kB
+HugePages_Total:     0
+HugePages_Free:      0
+HugePages_Rsvd:      0
+Hugepagesize:     4096 kB
+
+
+CPU:total 1 (2 cores per cpu, 1 threads per core) family 6 model 15 stepping 13, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, tsc
+
+/proc/cpuinfo:
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 15
+model name	: Intel(R) Core(TM)2 Duo CPU     T5670  @ 1.80GHz
+stepping	: 8
+cpu MHz		: 1795.557
+cache size	: 2048 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 10
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss nx constant_tsc up pni ds_cpl
+bogomips	: 3594.26
+
+
+
+Memory: 4k page, physical 1039460k(133436k free), swap 1048568k(1048568k free)
+
+vm_info: Java HotSpot(TM) Client VM (25.5-b02) for linux-x86 JRE (1.8.0_05-b13), built on Mar 18 2014 00:49:32 by "java_re" with gcc 4.3.0 20080428 (Red Hat 4.3.0-8)
+
+time: Wed Aug 20 02:52:04 2014
+elapsed time: 2 seconds
+

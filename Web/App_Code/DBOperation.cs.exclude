@@ -1,0 +1,122 @@
+﻿using System;
+using System.Data;
+using System.Configuration;
+using System.Web;
+using System.Web.Security;
+using System.Web.UI;
+using System.Web.UI.HtmlControls;
+using System.Web.UI.WebControls;
+using System.Web.UI.WebControls.WebParts;
+using System.Data.SqlClient;
+using System.Text.RegularExpressions;
+using System.Collections;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
+using System.IO;
+
+
+/// <summary>  
+/// 一个操作数据库的类，所有对SQLServer的操作都写在这个类中，使用的时候实例化一个然后直接调用就可以  
+/// </summary>  
+public class DBOperation : IDisposable
+{
+    public static SqlConnection sqlCon;  //用于连接数据库  
+
+    //将下面的引号之间的内容换成上面记录下的属性中的连接字符串  
+    //private String ConServerStr = "Data Source=USER-20141013UU\\ZKSQL;Initial Catalog=CCAR;Persist Security Info=True;User ID=sa;Password=yuanzhi";
+    //private String ConServerStr = "server=(local);database=CAD;Trusted_Connection=False;uid=sa;pwd=yuanzhi";
+    //默认构造函数  
+    public DBOperation()
+    {
+        if (sqlCon == null)
+        {
+            sqlCon = new SqlConnection();
+            sqlCon.ConnectionString = ConServerStr;
+            sqlCon.Open();
+        }
+    }
+
+    //关闭/销毁函数，相当于Close()  
+    public void Dispose()
+    {
+        if (sqlCon != null)
+        {
+            sqlCon.Close();
+            sqlCon = null;
+        }
+    }
+
+    public String ExecSQLGetMyFormat(String SQLText)
+    {
+        SqlConnection sqlCon;
+        sqlCon = new SqlConnection(System.Configuration.ConfigurationSettings.AppSettings["DB.CONNECTIONSTRING"]);
+        sqlCon.Open();
+        SqlDataAdapter da = new SqlDataAdapter(SQLText, sqlCon);
+        //数据集对象。
+        DataSet ds = new DataSet();
+        //填充到数据集。
+        da.Fill(ds);
+        DataTable dt = ds.Tables[0];
+        //填充之后你就可以使用数据集里面的表了。
+        int i, j;
+        StringWriter sw = new StringWriter();
+        JsonWriter jWrite = new JsonTextWriter(sw);
+        jWrite.WriteStartObject();
+
+        jWrite.WritePropertyName("DataRowsCount");
+        jWrite.WriteValue(dt.Rows.Count);
+
+        jWrite.WritePropertyName("DataFieldsCount");
+        jWrite.WriteValue(dt.Columns.Count);
+
+        jWrite.WritePropertyName("DataFieldsNames");
+        jWrite.WriteStartArray();
+        for (i = 0; i < dt.Columns.Count; i++)
+        {
+            jWrite.WriteValue(dt.Columns[i].ColumnName.ToString());
+        }
+        jWrite.WriteEndArray();
+
+        for (j = 0; j < dt.Columns.Count; j++)
+        {
+            jWrite.WritePropertyName(dt.Columns[j].ColumnName.ToString());
+            jWrite.WriteStartArray();
+            for (i = 0; i < dt.Rows.Count; i++)
+            {
+                jWrite.WriteValue(dt.Rows[i][j].ToString());
+            }
+            jWrite.WriteEndArray();
+        }
+
+        jWrite.WriteEndObject();//for (i=0;i<)
+        sqlCon.Close();
+        return sw.GetStringBuilder().ToString();
+    }
+ 
+    public String ExecNoQuerySQL(String SQLText)
+    {
+        int iCount = 0;
+        String sRet;
+        SqlConnection sqlCon;
+        sqlCon = new SqlConnection(System.Configuration.ConfigurationSettings.AppSettings["DB.CONNECTIONSTRING"]);
+        sqlCon.Open();
+        SqlDataAdapter da = new SqlDataAdapter(SQLText, sqlCon);
+        SqlCommand sCmd = new SqlCommand(SQLText, sqlCon);
+        try
+            {
+               iCount =  sCmd.ExecuteNonQuery();
+               sRet = "RowCount= " + iCount;
+           }
+            catch (Exception ex)
+            {
+                // You might want to pass these errors
+                // back out to the caller.
+                sRet = ex.Message;
+            }
+        sqlCon.Close();
+        return sRet;
+    }
+
+}

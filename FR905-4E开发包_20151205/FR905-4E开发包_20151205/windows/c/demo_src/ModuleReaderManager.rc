@@ -1,0 +1,818 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文(中华人民共和国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 4, 2\r\n"
+    "#pragma code_page(936)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\ModuleReaderManager.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""l.chs\\afxres.rc""          // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\ModuleReaderManager.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG  0, 0, 235, 55
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "关于 ModuleReaderManager"
+FONT 9, "宋体"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "ModuleReaderManager 1.0 版",IDC_STATIC,40,10,119,8,SS_NOPREFIX
+    LTEXT           "版权所有 (C) 2009",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "确定",IDOK,178,7,50,14,WS_GROUP
+END
+
+IDD_MODULEREADERMANAGER_DIALOG DIALOGEX 0, 0, 586, 457
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "读写器管理工具"
+FONT 9, "宋体", 0, 0, 0x1
+BEGIN
+    LTEXT           "读写器地址",IDC_STATIC,22,19,41,8
+    EDITTEXT        IDC_tbsrcstr,75,15,102,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "连接",IDC_btnconnect,187,16,29,14
+    PUSHBUTTON      "开始",IDC_btnstart,21,56,40,14
+    PUSHBUTTON      "停止",IDC_btnstop,75,55,39,14
+    PUSHBUTTON      "清空",IDC_btnclear,129,55,40,14
+    LTEXT           "过滤bank",IDC_STATIC,271,34,33,8
+    LTEXT           "起始地址",IDC_STATIC,361,33,33,8
+    EDITTEXT        IDC_tbfaddr,397,30,18,14,ES_AUTOHSCROLL
+    LTEXT           "匹配数据",IDC_STATIC,271,57,33,8
+    EDITTEXT        IDC_tbfdata,307,53,98,14,ES_AUTOHSCROLL
+    LTEXT           "访问密码",IDC_STATIC,262,99,33,8
+    EDITTEXT        IDC_tbaccesspwd,300,95,99,14,ES_AUTOHSCROLL
+    CONTROL         "密码",IDC_ccpwd,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,418,97,32,10
+    CONTROL         "过滤",IDC_ccfilter,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,423,32,32,10
+    LTEXT           "bank",IDC_STATIC,269,196,17,8
+    LTEXT           "地址",IDC_STATIC,270,175,17,8
+    EDITTEXT        IDC_tbaddr,292,171,50,14,ES_AUTOHSCROLL
+    LTEXT           "块数",IDC_STATIC,360,174,17,8
+    EDITTEXT        IDC_tbblocks,401,172,48,14,ES_AUTOHSCROLL
+    LTEXT           "数据",IDC_data,271,264,17,8
+    PUSHBUTTON      "读",IDC_btnread,259,373,20,14
+    PUSHBUTTON      "写",IDC_btnwrite,286,373,19,14
+    PUSHBUTTON      "锁",IDC_btnlock,313,373,20,14
+    LTEXT           "锁定对象",IDC_STATIC,265,136,33,8
+    LTEXT           "锁定类型",IDC_STATIC,366,135,33,8
+    CONTROL         "不匹配",IDC_ccInvert,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,408,54,40,10
+    CONTROL         "ant1",IDC_ccant1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,365,33,10
+    CONTROL         "ant2",IDC_ccant2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,65,365,32,10
+    CONTROL         "ant3",IDC_ccant3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,124,365,32,10
+    CONTROL         "ant4",IDC_ccant4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,174,364,32,10
+    LTEXT           "读写器类型",IDC_STATIC,23,37,41,8
+    COMBOBOX        IDC_readertype,75,35,102,100,CBS_DROPDOWNLIST | WS_TABSTOP
+    GROUPBOX        "过滤条件",IDC_STATIC,260,14,198,67
+    COMBOBOX        IDC_fiterbank,307,30,48,56,CBS_DROPDOWNLIST | WS_TABSTOP
+    COMBOBOX        IDC_lockobj,300,133,48,73,CBS_DROPDOWNLIST | WS_TABSTOP
+    GROUPBOX        "读写信息",IDC_STATIC,258,160,199,202
+    COMBOBOX        IDC_wrbank,294,193,48,52,CBS_DROPDOWNLIST | WS_TABSTOP
+    CONTROL         "",IDC_wrdata,"RICHEDIT",TCS_MULTISELECT | WS_BORDER | WS_VSCROLL | WS_TABSTOP,294,261,155,85
+    COMBOBOX        IDC_locktype,406,132,48,60,CBS_DROPDOWNLIST | WS_TABSTOP
+    GROUPBOX        "密码信息",IDC_STATIC,259,85,198,34
+    GROUPBOX        "锁定信息",IDC_STATIC,258,122,199,34
+    LTEXT           "次数",IDC_STATIC,273,235,17,8
+    EDITTEXT        IDC_repcnt,292,232,18,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_redloginfo,"RICHEDIT",TCS_MULTISELECT | WS_BORDER | WS_VSCROLL | WS_TABSTOP,24,403,549,39
+    CONTROL         "随机",IDC_repsirand,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,320,233,32,10
+    LTEXT           "数据长度",IDC_STATIC,356,234,33,8
+    EDITTEXT        IDC_reprandlen,392,232,19,14,ES_AUTOHSCROLL
+    GROUPBOX        "重复操作信息",IDC_STATIC,267,216,186,35
+    LTEXT           "统计信息",IDC_STATIC,24,381,33,8
+    CONTROL         "重复",IDC_repisrep,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,416,234,32,10
+    LTEXT           "超时时间",IDC_STATIC,360,196,33,8
+    EDITTEXT        IDC_timeout,399,193,49,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "停止测试",IDC_btnstoptest,406,373,50,14
+    GROUPBOX        "附加数据",IDC_STATIC,468,14,106,86
+    LTEXT           "起始地址",IDC_STATIC,474,28,33,8
+    EDITTEXT        IDC_tbebstartaddr,510,25,48,14,ES_AUTOHSCROLL
+    LTEXT           "字节数",IDC_STATIC,476,46,25,8
+    LTEXT           "bank",IDC_STATIC,478,63,17,8
+    COMBOBOX        IDC_cbaddbank,510,62,50,51,CBS_DROPDOWNLIST | WS_TABSTOP
+    CONTROL         "启用附加数据",IDC_ckisaddtiondata,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,477,81,64,10
+    GROUPBOX        "读写器设置",IDC_STATIC,469,107,105,282
+    GROUPBOX        "读功率",IDC_STATIC,472,121,99,49
+    LTEXT           "天线1",IDC_STATIC,478,134,21,8
+    EDITTEXT        IDC_tbant1rp,500,131,22,14,ES_AUTOHSCROLL
+    LTEXT           "天线2",IDC_STATIC,524,134,21,8
+    EDITTEXT        IDC_tbant2rp,545,131,22,14,ES_AUTOHSCROLL
+    LTEXT           "天线3",IDC_STATIC,478,150,21,8
+    EDITTEXT        IDC_tbant3rp,500,148,22,14,ES_AUTOHSCROLL
+    LTEXT           "天线4",IDC_STATIC,524,151,21,8
+    EDITTEXT        IDC_tbant4rp,546,148,22,14,ES_AUTOHSCROLL
+    GROUPBOX        " 写功率",IDC_STATIC,472,172,99,46
+    LTEXT           "天线1",IDC_STATIC,477,184,21,8
+    LTEXT           "天线2",IDC_STATIC,524,184,21,8
+    LTEXT           "天线3",IDC_STATIC,478,203,21,8
+    LTEXT           "天线4",IDC_STATIC,525,202,21,8
+    EDITTEXT        IDC_tbant1wp,500,182,22,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_tbant2wp,545,181,22,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_tbant3wp,500,200,22,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_tbant4wp,546,199,22,14,ES_AUTOHSCROLL
+    GROUPBOX        "IP信息",IDC_STATIC,473,223,97,75
+    LTEXT           "IP",IDC_STATIC,476,238,9,8
+    EDITTEXT        IDC_tbip,495,235,69,14,ES_AUTOHSCROLL
+    LTEXT           "网关",IDC_STATIC,476,279,17,8
+    EDITTEXT        IDC_tbgateway,496,275,69,14,ES_AUTOHSCROLL
+    LTEXT           "掩码",IDC_STATIC,476,258,17,8
+    EDITTEXT        IDC_tbsubnet,496,254,69,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "设置",IDC_btnsetconf,472,361,27,14
+    PUSHBUTTON      "获取",IDC_btngetconf,506,361,22,14
+    LTEXT           "Session",IDC_STATIC,473,306,29,8
+    COMBOBOX        IDC_cbsess,506,304,61,61,CBS_DROPDOWNLIST | WS_TABSTOP
+    PUSHBUTTON      "标签特殊指令",IDC_btnCustomCmd,187,54,61,14
+    PUSHBUTTON      "写EPC",IDC_btnwriteepc,373,373,28,14
+    COMBOBOX        IDC_cbmaxepc,527,333,41,47,CBS_DROPDOWNLIST | WS_TABSTOP
+    LTEXT           "最大EPC长度",IDC_STATIC,473,335,45,8
+    CONTROL         "Gen2",IDC_CKGEN2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,75,32,10
+    CONTROL         "180006b",IDC_CKISO180006B,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,58,75,44,10
+    PUSHBUTTON      "180006b操作",IDC_btn180006bop,187,73,61,14
+    PUSHBUTTON      "gpio psam",IDC_btntestgpio,187,36,61,14
+    PUSHBUTTON      "其它参数",IDC_btnotherparam,534,361,36,14
+    LTEXT           "主板类型：",IDC_STATIC,22,348,41,8
+    LTEXT           "模块类型：",IDC_STATIC,134,348,41,8
+    LTEXT           "  ",IDC_STATIC_boardtype,67,348,60,8
+    LTEXT           "  ",IDC_STATIC_moduletype,175,347,64,8
+    CONTROL         "Ipx64",IDC_CKIPX64,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,102,75,36,10
+    CONTROL         "Ipx256",IDC_CKIPX256,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,137,75,40,10
+    LTEXT           "读时长：",IDC_STATIC,22,96,33,8
+    LTEXT           "读间隔：",IDC_STATIC,98,97,33,8
+    EDITTEXT        IDC_tbreaddur,55,94,38,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_tbsleepdur,133,94,40,14,ES_AUTOHSCROLL
+    CONTROL         "List2",IDC_listtags,"SysListView32",WS_BORDER | WS_TABSTOP,21,119,229,221
+    EDITTEXT        IDC_tbemdbytes,509,43,50,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "16天线设置",IDC_btn16antsset,71,379,50,14
+    PUSHBUTTON      "随机读写测试",IDC_btnrandrw,138,379,50,14
+    PUSHBUTTON      "清除日志",IDC_btnclearlog,209,379,38,14
+    PUSHBUTTON      "销毁",IDC_btnkill,340,373,28,14
+    CONTROL         "异步读取",IDC_Chkasyncread,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,189,96,48,10
+    PUSHBUTTON      "断开",IDC_btndisconnect,219,16,29,14
+END
+
+IDD_CUSTOMDLG_DIALOG DIALOGEX 0, 0, 316, 429
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "特殊指令"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    GROUPBOX        "NXP",IDC_STATIC,40,141,234,76
+    PUSHBUTTON      "ChangeEAS",IDC_btnChangeEAS,49,157,50,14
+    PUSHBUTTON      "EASAlarm",IDC_btnEASAlarm,50,194,50,14
+    GROUPBOX        "EAS状态",IDC_STATIC,132,150,124,28
+    CONTROL         "set",IDC_rdset,"Button",BS_AUTORADIOBUTTON | WS_GROUP,142,161,28,10
+    CONTROL         "reset",IDC_rdreset,"Button",BS_AUTORADIOBUTTON,192,161,36,10
+    GROUPBOX        "天线设置",IDC_STATIC,39,10,235,29
+    CONTROL         "ant1",IDC_rdant1,"Button",BS_AUTORADIOBUTTON | WS_GROUP,50,22,32,10
+    CONTROL         "ant2",IDC_rdant2,"Button",BS_AUTORADIOBUTTON,112,22,32,10
+    CONTROL         "ant3",IDC_rdant3,"Button",BS_AUTORADIOBUTTON,173,22,32,10
+    CONTROL         "ant4",IDC_rdant4,"Button",BS_AUTORADIOBUTTON,226,23,32,10
+    GROUPBOX        "标签参数",IDC_STATIC,39,41,235,31
+    LTEXT           "访问密码",IDC_STATIC,57,55,30,8
+    EDITTEXT        IDC_editpwd,105,52,102,14,ES_AUTOHSCROLL
+    LTEXT           "EASData:",IDC_STATIC,113,196,33,8
+    LTEXT           "",IDC_statEASData,149,197,105,8
+    GROUPBOX        "ALIENHiggs3",IDC_STATIC,39,222,235,51,WS_GROUP
+    PUSHBUTTON      "BlockReadLock",IDC_btnBlockReadLock,155,256,78,14
+    CONTROL         "1",IDC_blkck1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,60,242,20,10
+    CONTROL         "2",IDC_blkck2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,84,242,20,10
+    CONTROL         "3",IDC_blkck3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,108,242,20,10
+    CONTROL         "4",IDC_blkck4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,242,20,10
+    CONTROL         "5",IDC_blkck5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,154,242,20,10
+    CONTROL         "6",IDC_blkck6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,175,242,20,10
+    CONTROL         "7",IDC_blkck7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,196,242,20,10
+    CONTROL         "8",IDC_blkck8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,217,242,20,10
+    LTEXT           "过滤bank",IDC_STATIC,50,96,33,9
+    LTEXT           "起始地址",IDC_STATIC,140,95,33,9
+    EDITTEXT        IDC_tbfaddr,176,92,31,15,ES_AUTOHSCROLL
+    LTEXT           "匹配数据",IDC_STATIC,50,121,33,9
+    EDITTEXT        IDC_tbfdata,86,116,120,15,ES_AUTOHSCROLL
+    CONTROL         "过滤",IDC_ccfilter,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,225,93,32,11
+    CONTROL         "不匹配",IDC_ccInvert,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,225,117,40,11
+    GROUPBOX        "过滤条件",IDC_STATIC,39,74,234,66
+    COMBOBOX        IDC_fiterbank,86,92,48,56,CBS_DROPDOWNLIST | WS_TABSTOP
+    GROUPBOX        "IMPINJ_QT",IDC_STATIC,39,275,235,76
+    GROUPBOX        "命令类型",IDC_STATIC,49,284,59,28
+    CONTROL         "读",IDC_rbimpinjqtcmdtread,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,54,296,23,10
+    CONTROL         "写",IDC_rbimpinjqtcmdtwrite,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,81,296,23,10
+    GROUPBOX        "内存视图",IDC_STATIC,121,284,66,28
+    CONTROL         "公共",IDC_rbimpinjqtmemtpublic,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,123,296,31,10
+    CONTROL         "私密",IDC_rbimpinjqtmemtprivate,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,155,296,31,10
+    GROUPBOX        "识别距离",IDC_STATIC,200,284,66,28
+    CONTROL         "近场",IDC_rbimpinjqtrangetnear,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,203,296,31,10
+    CONTROL         "远场",IDC_rbimpinjqtrangetfar,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,234,296,31,10
+    GROUPBOX        "状态类型",IDC_STATIC,49,315,72,28,WS_GROUP
+    CONTROL         "永久",IDC_rbimpinjqtpersistperm,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,54,327,31,10
+    CONTROL         "临时",IDC_rbimpinjqtpersisttemp,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,87,327,31,10
+    PUSHBUTTON      "设置",IDC_btnsetimpinjqt,215,325,50,14
+    GROUPBOX        "分块永久锁",IDC_STATIC,39,357,235,58,WS_GROUP
+    CONTROL         "1",IDC_ckperm1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,60,372,20,10
+    CONTROL         "2",IDC_ckperm2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,84,372,20,10
+    CONTROL         "3",IDC_ckperm3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,108,372,20,10
+    CONTROL         "4",IDC_ckperm4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,372,20,10
+    CONTROL         "5",IDC_ckperm5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,154,372,20,10
+    CONTROL         "6",IDC_ckperm6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,175,372,20,10
+    CONTROL         "7",IDC_ckperm7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,196,372,20,10
+    CONTROL         "8",IDC_ckperm8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,217,372,20,10
+    LTEXT           "起始块",IDC_STATIC,59,396,23,8
+    EDITTEXT        IDC_tbstartblk,83,393,30,14,ES_AUTOHSCROLL
+    LTEXT           "块范围",IDC_STATIC,118,397,23,8
+    EDITTEXT        IDC_tbblkrange,142,393,29,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "获取",IDC_btnpermlockget,183,394,28,14
+    PUSHBUTTON      "设置",IDC_btnpermlockset,233,394,28,14
+END
+
+IDD_ISO180006BOPDLG_DIALOG DIALOG  0, 0, 407, 214
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "ant1",IDC_ckant1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,26,23,32,10
+    CONTROL         "ant2",IDC_ckant2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,63,23,32,10
+    CONTROL         "ant3",IDC_ckant3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,101,24,32,10
+    CONTROL         "ant4",IDC_ckant4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,25,32,10
+    LISTBOX         IDC_listtag,18,44,167,96,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "开始",IDC_btnstart,18,165,36,14
+    PUSHBUTTON      "停止",IDC_btnstop,150,165,31,14
+    CONTROL         "",IDC_rtbdata,"RICHEDIT",TCS_MULTISELECT | WS_BORDER | WS_TABSTOP,206,84,174,87
+    LTEXT           "起始地址",IDC_STATIC,205,28,30,8
+    EDITTEXT        IDC_tbstaddr,240,27,52,14,ES_AUTOHSCROLL
+    LTEXT           "块数",IDC_STATIC,300,28,16,8
+    EDITTEXT        IDC_tbblks,325,26,51,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "读",IDC_btnread,209,55,37,14
+    PUSHBUTTON      "写",IDC_btnwrite,276,56,37,14
+    PUSHBUTTON      "锁",IDC_btnlock,341,56,37,14
+    PUSHBUTTON      "清空",IDC_btnclear,82,166,36,14
+END
+
+IDD_TESTGPIODLG_DIALOG DIALOGEX 0, 0, 272, 179
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "GPIO PSAM"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "GPI1",IDC_ckgpi1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,30,32,10
+    CONTROL         "GPI2",IDC_ckgpi2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,76,30,32,10
+    CONTROL         "GPI3",IDC_ckgpi3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,125,30,32,10
+    CONTROL         "GPI4",IDC_ckgpi4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,179,30,32,10
+    PUSHBUTTON      "获取",IDC_btngetgpi,213,29,39,14
+    CONTROL         "GPO1",IDC_ckgpo1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,56,32,10
+    CONTROL         "GPO2",IDC_ckgpo2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,76,56,32,10
+    CONTROL         "GPO3",IDC_ckgpo3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,125,56,32,10
+    CONTROL         "GPO4",IDC_ckgpo4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,181,56,32,10
+    PUSHBUTTON      "设置",IDC_btnsetgpo,213,54,40,14
+    GROUPBOX        "GPIO",IDC_STATIC,21,15,234,63
+    GROUPBOX        "PSAM",IDC_STATIC,21,91,234,71
+    PUSHBUTTON      "执行",IDC_btnexec,188,101,54,14
+    LTEXT           "发送",IDC_STATIC,31,122,16,8
+    LTEXT           "接收",IDC_STATIC,31,142,16,8
+    EDITTEXT        IDC_etsend,53,119,188,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_etrecv,53,139,188,14,ES_AUTOHSCROLL
+    LTEXT           "PSAM卡槽",IDC_STATIC,33,105,32,8
+    COMBOBOX        IDC_cmbpsam,71,101,67,49,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_OTHERPARAMS_DIALOG DIALOGEX 0, 0, 586, 363
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "其它参数"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    PUSHBUTTON      "设置",IDC_btnsetqval,20,48,32,14
+    LTEXT           "Gen2Q值",IDC_STATIC,21,26,28,8
+    PUSHBUTTON      "获取",IDC_btngetqval,63,48,32,14
+    GROUPBOX        "天线检测设置",IDC_STATIC,109,21,163,40
+    GROUPBOX        "filter设置",IDC_STATIC,23,79,249,60
+    LTEXT           "bank",IDC_STATIC,31,95,17,8
+    LTEXT           "起始bit",IDC_STATIC,89,96,28,8
+    LTEXT           "匹配数据",IDC_STATIC,32,117,30,8
+    PUSHBUTTON      "设置",IDC_btnsetfilter,234,86,32,14
+    PUSHBUTTON      "获取",IDC_btngetfilter,234,104,32,14
+    GROUPBOX        "附加数据设置",IDC_STATIC,23,153,250,61
+    PUSHBUTTON      "设置",IDC_btnsetemb,234,161,32,14
+    PUSHBUTTON      "获取",IDC_btngetemb,233,177,32,14
+    LTEXT           "bank",IDC_STATIC,34,168,17,8
+    LTEXT           "起始地址",IDC_STATIC,95,168,30,8
+    LTEXT           "字节长度",IDC_STATIC,167,167,30,8
+    LTEXT           "访问密码",IDC_STATIC,33,187,48,8
+    LTEXT           "Gen2编码",IDC_STATIC,25,224,32,8
+    PUSHBUTTON      "设置",IDC_btnsetmval,24,241,32,14
+    PUSHBUTTON      "获取",IDC_btngetmval,64,241,32,14
+    EDITTEXT        IDC_EDITqval,57,24,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDITfbank,53,92,27,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDITfbitstart,120,93,27,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDITfmdata,68,115,152,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDITebank,57,165,27,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDITestart,129,164,27,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDITmbytescnt,198,165,27,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDITmpwd,67,184,125,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_cbchkant,119,37,48,36,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "设置",IDC_btnsetchk,176,36,32,14
+    PUSHBUTTON      "获取",IDC_btngetchk,223,37,32,14
+    LTEXT           "是否匹配",IDC_STATIC,162,95,30,8
+    EDITTEXT        IDC_EDITfmatch,198,92,21,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "重置",IDC_btnresetfilter,234,122,32,14
+    PUSHBUTTON      "重置",IDC_btnresetemb,234,194,32,14
+    PUSHBUTTON      "设置Region",IDC_setRegion,105,241,47,14
+    COMBOBOX        IDC_SelectRegion,112,221,92,75,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "获取Region",IDC_getRegion,157,241,47,14
+    PUSHBUTTON      "获取",IDC_btngethtb,210,290,32,14
+    CONTROL         "List5",IDC_listhtb,"SysListView32",LVS_REPORT | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,208,220,76,64
+    PUSHBUTTON      "设置",IDC_btnsethtb,250,290,32,14
+    LTEXT           "gen2_blf",IDC_STATIC,25,273,33,8
+    EDITTEXT        IDC_tbgen2blf,62,270,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "设置",IDC_btnsetgen2blf,73,290,32,14
+    PUSHBUTTON      "获取",IDC_btngetgen2blf,27,291,32,14
+    COMBOBOX        IDC_cbuniant,355,195,48,53,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "数据-天线唯一性",IDC_STATIC,292,199,56,8
+    PUSHBUTTON      "获取",IDC_btnuniantget,295,215,32,14
+    PUSHBUTTON      "设置",IDC_btnuniantset,369,215,32,14
+    LTEXT           "数据-附加数据唯一性",IDC_STATIC,420,197,71,8
+    COMBOBOX        IDC_cbuniemd,499,195,48,42,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "获取",IDC_btnuniemdget,422,215,32,14
+    PUSHBUTTON      "设置",IDC_btnuniemdset,509,213,32,14
+    LTEXT           "是否记录最大Rssi",IDC_STATIC,294,239,61,8
+    COMBOBOX        IDC_cbrechrssi,358,235,48,52,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "获取",IDC_btnrechrssiget,299,255,32,14
+    PUSHBUTTON      "设置",IDC_btnrechrssiset,371,255,32,14
+    LTEXT           "Gen2Tari",IDC_STATIC,412,239,33,8
+    PUSHBUTTON      "获取",IDC_btngen2tariget,411,255,32,14
+    PUSHBUTTON      "设置",IDC_btngen2tariset,458,255,32,14
+    LTEXT           "Gen2Target",IDC_STATIC,296,275,41,8
+    COMBOBOX        IDC_cbgen2target,341,271,48,51,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "获取",IDC_btngen2targetget,301,289,32,14
+    PUSHBUTTON      "设置",IDC_btngen2targetset,354,289,32,14
+    LTEXT           "hoptime",IDC_STATIC,393,274,29,8
+    EDITTEXT        IDC_tbhoptime,435,271,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "获取",IDC_btnhoptimeget,396,290,32,14
+    PUSHBUTTON      "设置",IDC_btnhoptimeset,442,290,32,14
+    LTEXT           "lbt 使能",IDC_STATIC,485,275,32,8
+    PUSHBUTTON      "获取",IDC_btnlbtenbleget,486,291,32,14
+    PUSHBUTTON      "设置",IDC_btnlbtenbleset,531,291,32,14
+    COMBOBOX        IDC_cbgen2tari,446,235,48,55,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_cblbtenable,520,272,48,57,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "gen2写模式",IDC_STATIC,113,272,39,8
+    COMBOBOX        IDC_cbgen2wmode,155,268,48,46,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "获取",IDC_btngen2wmodeget,116,290,32,14
+    PUSHBUTTON      "设置",IDC_btngen2wmodeset,171,290,32,14
+    COMBOBOX        IDC_cbgen2enc,59,222,48,60,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "180006b_blf",IDC_STATIC,500,239,45,8
+    EDITTEXT        IDC_tb6bblf,547,235,26,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "获取",IDC_btn6bblfget,501,253,32,14
+    PUSHBUTTON      "设置",IDC_btn6bblfset,541,253,32,14
+    GROUPBOX        "flash写入",IDC_STATIC,289,121,268,63
+    PUSHBUTTON      "写入",IDC_btnflashwrite,497,159,50,14
+    LTEXT           "写入数据",IDC_STATIC,302,139,43,8
+    LTEXT           "写入地址",IDC_STATIC,303,159,44,8
+    EDITTEXT        IDC_tbflashwrtieaddr,351,159,73,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_tbflashwrtiedata,351,134,196,14,ES_AUTOHSCROLL
+    GROUPBOX        "安全附加数据",IDC_STATIC,289,22,268,94
+    LTEXT           "密码方式",IDC_STATIC,301,38,40,8
+    COMBOBOX        IDC_cbpwdtype,333,35,43,44,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "标签类型",IDC_STATIC,385,37,48,8
+    COMBOBOX        IDC_cbtagtype,419,35,43,44,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "bank",IDC_STATIC,303,59,17,8
+    EDITTEXT        IDC_tbsrbank,333,54,42,14,ES_AUTOHSCROLL
+    LTEXT           "起始地址",IDC_STATIC,387,59,41,8
+    EDITTEXT        IDC_tbsraddress,425,54,36,14,ES_AUTOHSCROLL
+    LTEXT           "块数",IDC_STATIC,470,56,16,8
+    EDITTEXT        IDC_tbsrblks,516,53,33,14,ES_AUTOHSCROLL
+    LTEXT           "索引bit数",IDC_STATIC,468,37,45,8
+    EDITTEXT        IDC_tbindexbitnum,515,35,34,14,ES_AUTOHSCROLL
+    LTEXT           "索引起始bit",IDC_STATIC,303,77,52,8
+    EDITTEXT        IDC_tbindexbitaddr,347,75,40,14,ES_AUTOHSCROLL
+    LTEXT           "访问密码",IDC_STATIC,395,78,40,8
+    EDITTEXT        IDC_tbsracspwd,427,75,49,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "获取",IDC_btngetsecureread,489,75,28,14
+    PUSHBUTTON      "设置",IDC_btnsetsecureread,523,75,28,14
+    PUSHBUTTON      "重置",IDC_btnresetsr,305,93,50,14
+    LTEXT           "发射模式",IDC_STATIC,298,314,30,8
+    COMBOBOX        IDC_cbtransmitmode,340,311,48,41,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "获取",IDC_btngettransmitmod,302,332,32,14
+    PUSHBUTTON      "设置",IDC_btnsettransmitmod2,353,332,32,14
+    LTEXT           "省电模式",IDC_STATIC,398,315,30,8
+    COMBOBOX        IDC_cbpowersave,434,313,48,61,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "获取",IDC_btngetpowersavemode,399,332,32,14
+    PUSHBUTTON      "设置",IDC_btnsetpowersavemode,451,332,32,14
+    COMBOBOX        IDC_Cbbinvmode,62,317,51,39,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "盘存模式",IDC_STATIC,27,319,30,8
+    PUSHBUTTON      "设置",IDC_btnsetinvmode,81,336,32,14
+    PUSHBUTTON      "获取",IDC_btngetinvmode,27,336,32,14
+    PUSHBUTTON      "永久保存设置",IDC_BUTTON_savesettings,130,335,62,14
+    PUSHBUTTON      "擦除",IDC_BUTTON_eraseconf,210,335,50,14
+END
+
+IDD_ARM7_16ANTSETDLG_DIALOG DIALOG  0, 0, 336, 155
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "ant1",IDC_ckant1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,18,32,10
+    CONTROL         "ant2",IDC_ckant2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,61,19,32,10
+    CONTROL         "ant3",IDC_ckant3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,104,19,32,8
+    CONTROL         "ant4",IDC_ckant4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,138,18,32,10
+    CONTROL         "ant5",IDC_ckant5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,20,32,10
+    CONTROL         "ant6",IDC_ckant6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,207,20,32,10
+    CONTROL         "ant7",IDC_ckant7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,246,20,32,10
+    CONTROL         "ant8",IDC_ckant8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,283,20,32,10
+    CONTROL         "ant9",IDC_ckant9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,24,42,32,10
+    CONTROL         "ant10",IDC_ckant10,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,61,42,36,10
+    CONTROL         "ant11",IDC_ckant11,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,103,43,32,8
+    CONTROL         "ant12",IDC_ckant12,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,135,43,36,10
+    CONTROL         "ant13",IDC_ckant13,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,171,43,36,10
+    CONTROL         "ant14",IDC_ckant14,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,208,43,36,10
+    CONTROL         "ant15",IDC_ckant15,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,247,43,36,10
+    CONTROL         "ant16",IDC_ckant16,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,283,43,36,10
+    PUSHBUTTON      "确定",IDC_btnok,139,119,50,14
+    LTEXT           "读功率：",IDC_STATIC,24,88,30,8
+    EDITTEXT        IDC_tbreadpwr,59,85,40,14,ES_AUTOHSCROLL
+    LTEXT           "写功率：",IDC_STATIC,120,89,30,8
+    EDITTEXT        IDC_writepwr,155,86,40,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "设置",IDC_btnset,245,87,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "FileDescription", "ModuleReaderManager Microsoft 基础类应用程序"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "ModuleReaderManager"
+            VALUE "LegalCopyright", "版权所有 (C) 2009"
+            VALUE "OriginalFilename", "ModuleReaderManager.EXE"
+            VALUE "ProductName", "ModuleReaderManager 应用程序"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_MODULEREADERMANAGER_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 579
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 450
+    END
+
+    IDD_CUSTOMDLG_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 309
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 422
+    END
+
+    IDD_ISO180006BOPDLG_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 400
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 207
+    END
+
+    IDD_TESTGPIODLG_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 265
+        TOPMARGIN, 15
+        BOTTOMMARGIN, 172
+    END
+
+    IDD_OTHERPARAMS_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 579
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 356
+    END
+
+    IDD_ARM7_16ANTSETDLG_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 329
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 148
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_MODULEREADERMANAGER_DIALOG DLGINIT
+BEGIN
+    IDC_readertype, 0x403, 21, 0
+0xa5b5, 0xeccc, 0xdfcf, 0xb72f, 0xbfa2, 0xbba8, 0x2ffa, 0xbbd2, 0xe5cc, 
+0xfabb, "\000" 
+    IDC_readertype, 0x403, 7, 0
+0xbdc1, 0xeccc, 0xdfcf, "\000" 
+    IDC_readertype, 0x403, 7, 0
+0xfdc8, 0xeccc, 0xdfcf, "\000" 
+    IDC_readertype, 0x403, 7, 0
+0xc4cb, 0xeccc, 0xdfcf, "\000" 
+    IDC_readertype, 0x403, 7, 0
+0x3631, 0xeccc, 0xdfcf, "\000" 
+    IDC_fiterbank, 0x403, 6, 0
+0x5045, 0xc743, 0x00f8, 
+    IDC_fiterbank, 0x403, 6, 0
+0x4954, 0xc744, 0x00f8, 
+    IDC_fiterbank, 0x403, 7, 0
+0x5355, 0x5245, 0xf8c7, "\000" 
+    IDC_lockobj, 0x403, 9, 0
+0xfacf, 0xd9bb, 0xdcc3, 0xebc2, "\000" 
+    IDC_lockobj, 0x403, 9, 0
+0xc3b7, 0xcace, 0xdcc3, 0xebc2, "\000" 
+    IDC_lockobj, 0x403, 6, 0
+0x5045, 0xc743, 0x00f8, 
+    IDC_lockobj, 0x403, 6, 0
+0x4954, 0xc744, 0x00f8, 
+    IDC_lockobj, 0x403, 7, 0
+0x5355, 0x5245, 0xf8c7, "\000" 
+    IDC_wrbank, 0x403, 7, 0
+0xa3b1, 0xf4c1, 0xf8c7, "\000" 
+    IDC_wrbank, 0x403, 6, 0
+0x5045, 0xc743, 0x00f8, 
+    IDC_wrbank, 0x403, 6, 0
+0x4954, 0xc744, 0x00f8, 
+    IDC_wrbank, 0x403, 7, 0
+0x5355, 0x5245, 0xf8c7, "\000" 
+    IDC_locktype, 0x403, 7, 0
+0xe2bd, 0xf8cb, 0xa8b6, "\000" 
+    IDC_locktype, 0x403, 9, 0
+0xddd4, 0xb1ca, 0xf8cb, 0xa8b6, "\000" 
+    IDC_locktype, 0x403, 9, 0
+0xc0d3, 0xc3be, 0xf8cb, 0xa8b6, "\000" 
+    IDC_cbaddbank, 0x403, 13, 0
+0x6552, 0x6573, 0x7672, 0x6465, 0x6162, 0x6b6e, "\000" 
+    IDC_cbaddbank, 0x403, 8, 0
+0x5045, 0x6243, 0x6e61, 0x006b, 
+    IDC_cbaddbank, 0x403, 8, 0
+0x4954, 0x6244, 0x6e61, 0x006b, 
+    IDC_cbaddbank, 0x403, 9, 0
+0x5355, 0x5245, 0x6162, 0x6b6e, "\000" 
+    IDC_cbsess, 0x403, 9, 0
+0x6553, 0x7373, 0x6f69, 0x306e, "\000" 
+    IDC_cbsess, 0x403, 9, 0
+0x6553, 0x7373, 0x6f69, 0x316e, "\000" 
+    IDC_cbsess, 0x403, 9, 0
+0x6553, 0x7373, 0x6f69, 0x326e, "\000" 
+    IDC_cbsess, 0x403, 9, 0
+0x6553, 0x7373, 0x6f69, 0x336e, "\000" 
+    IDC_cbmaxepc, 0x403, 7, 0
+0x3639, 0x6962, 0x7374, "\000" 
+    IDC_cbmaxepc, 0x403, 8, 0
+0x3934, 0x6236, 0x7469, 0x0073, 
+    0
+END
+
+IDD_OTHERPARAMS_DIALOG DLGINIT
+BEGIN
+    IDC_cbchkant, 0x403, 9, 0
+0xecbc, 0xe2b2, 0xeccc, 0xdfcf, "\000" 
+    IDC_cbchkant, 0x403, 11, 0
+0xbbb2, 0xecbc, 0xe2b2, 0xeccc, 0xdfcf, "\000" 
+    IDC_SelectRegion, 0x403, 5, 0
+0xb1b1, 0xc0c3, "\000" 
+    IDC_SelectRegion, 0x403, 5, 0
+0xb7c5, 0xded6, "\000" 
+    IDC_SelectRegion, 0x403, 6, 0
+0xb7c5, 0xded6, 0x0032, 
+    IDC_SelectRegion, 0x403, 6, 0
+0xb7c5, 0xded6, 0x0033, 
+    IDC_SelectRegion, 0x403, 5, 0
+0xabba, 0xfab9, "\000" 
+    IDC_SelectRegion, 0x403, 14, 0
+0xd0d6, 0xfab9, 0x3928, 0x3032, 0x392d, 0x3532, 0x0029, 
+    IDC_SelectRegion, 0x403, 15, 0
+0xd0d6, 0xfab9, 0x2832, 0x3438, 0x2d30, 0x3438, 0x2935, "\000" 
+    IDC_SelectRegion, 0x403, 7, 0
+0xabc8, 0xb5c6, 0xceb6, "\000" 
+    IDC_cbuniant, 0x403, 5, 0
+0xa8ce, 0xbbd2, "\000" 
+    IDC_cbuniant, 0x403, 7, 0
+0xbbb2, 0xa8ce, 0xbbd2, "\000" 
+    IDC_cbuniemd, 0x403, 5, 0
+0xa8ce, 0xbbd2, "\000" 
+    IDC_cbuniemd, 0x403, 7, 0
+0xbbb2, 0xa8ce, 0xbbd2, "\000" 
+    IDC_cbrechrssi, 0x403, 5, 0
+0xc7bc, 0xbcc2, "\000" 
+    IDC_cbrechrssi, 0x403, 7, 0
+0xbbb2, 0xc7bc, 0xbcc2, "\000" 
+    IDC_cbgen2target, 0x403, 2, 0
+0x0041, 
+    IDC_cbgen2target, 0x403, 2, 0
+0x0042, 
+    IDC_cbgen2target, 0x403, 5, 0
+0x2d41, 0x423e, "\000" 
+    IDC_cbgen2target, 0x403, 5, 0
+0x2d42, 0x413e, "\000" 
+    IDC_cbgen2tari, 0x403, 7, 0
+0x3532, 0xa2ce, 0xeec3, "\000" 
+    IDC_cbgen2tari, 0x403, 9, 0
+0x3231, 0x352e, 0xa2ce, 0xeec3, "\000" 
+    IDC_cbgen2tari, 0x403, 9, 0
+0x2e36, 0x3532, 0xa2ce, 0xeec3, "\000" 
+    IDC_cblbtenable, 0x403, 5, 0
+0xaabf, 0xf4c6, "\000" 
+    IDC_cblbtenable, 0x403, 7, 0
+0xbbb2, 0xaabf, 0xf4c6, "\000" 
+    IDC_cbgen2wmode, 0x403, 5, 0
+0xd6d7, 0xb4d0, "\000" 
+    IDC_cbgen2wmode, 0x403, 5, 0
+0xe9bf, 0xb4d0, "\000" 
+    IDC_cbgen2enc, 0x403, 4, 0
+0x4d46, 0x0030, 
+    IDC_cbgen2enc, 0x403, 3, 0
+0x324d, "\000" 
+    IDC_cbgen2enc, 0x403, 3, 0
+0x344d, "\000" 
+    IDC_cbgen2enc, 0x403, 3, 0
+0x384d, "\000" 
+    IDC_cbpwdtype, 0x403, 9, 0
+0xb6c7, 0xebc8, 0xe3cb, 0xa8b7, "\000" 
+    IDC_cbpwdtype, 0x403, 9, 0
+0xccb9, 0xa8b6, 0xdcc3, 0xebc2, "\000" 
+    IDC_cbpwdtype, 0x403, 9, 0
+0xc6cd, 0xe3cb, 0xdcc3, 0xebc2, "\000" 
+    IDC_cbtagtype, 0x403, 3, 0
+0x3348, "\000" 
+    IDC_cbtagtype, 0x403, 3, 0
+0x344d, "\000" 
+    IDC_cbtransmitmode, 0x403, 7, 0
+0xdfb8, 0xd4d0, 0xdcc4, "\000" 
+    IDC_cbtransmitmode, 0x403, 7, 0
+0xcdb5, 0xe7b5, 0xbfc1, "\000" 
+    IDC_cbpowersave, 0x403, 7, 0
+0xbbb2, 0xa1ca, 0xe7b5, "\000" 
+    IDC_cbpowersave, 0x403, 9, 0
+0xbbd2, 0xb6bc, 0xa1ca, 0xe7b5, "\000" 
+    IDC_cbpowersave, 0x403, 9, 0
+0xfeb6, 0xb6bc, 0xa1ca, 0xe7b5, "\000" 
+    IDC_cbpowersave, 0x403, 9, 0
+0xfdc8, 0xb6bc, 0xa1ca, 0xe7b5, "\000" 
+    IDC_Cbbinvmode, 0x403, 9, 0
+0xd5c6, 0xa8cd, 0xa3c4, 0xbdca, "\000" 
+    IDC_Cbbinvmode, 0x403, 9, 0
+0xdfb8, 0xd9cb, 0xa3c4, 0xbdca, "\000" 
+    0
+END
+
+IDD_CUSTOMDLG_DIALOG DLGINIT
+BEGIN
+    IDC_fiterbank, 0x403, 6, 0
+0x5045, 0xc743, 0x00f8, 
+    IDC_fiterbank, 0x403, 6, 0
+0x4954, 0xc744, 0x00f8, 
+    IDC_fiterbank, 0x403, 7, 0
+0x5355, 0x5245, 0xf8c7, "\000" 
+    0
+END
+
+IDD_TESTGPIODLG_DIALOG DLGINIT
+BEGIN
+    IDC_cmbpsam, 0x403, 10, 0
+0x5350, 0x4d41, 0xa8bf, 0xdbb2, 0x0031, 
+    IDC_cmbpsam, 0x403, 10, 0
+0x5350, 0x4d41, 0xa8bf, 0xdbb2, 0x0032, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_ABOUTBOX            "关于 ModuleReaderManager(&A)..."
+END
+
+#endif    // 中文(中华人民共和国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+#ifdef _WIN32
+LANGUAGE 4, 2
+#pragma code_page(936)
+#endif //_WIN32
+#include "res\ModuleReaderManager.rc2"  // non-Microsoft Visual C++ edited resources
+#include "l.chs\afxres.rc"          // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

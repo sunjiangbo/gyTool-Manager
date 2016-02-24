@@ -1,0 +1,204 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity" >
+
+    <LinearLayout
+        android:layout_width="308dp"
+        android:layout_height="6dp" >
+
+        <Button
+            android:id="@+id/button_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.47"
+            android:text="上电"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/button_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.61"
+            android:text="下电"
+            android:visibility="invisible" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.76" >
+
+        <EditText
+            android:id="@+id/editText2"
+            android:layout_width="138dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.03"
+            android:ems="10"
+            android:text="/dev/ttyMT3" />
+
+        <EditText
+            android:id="@+id/editText3"
+            android:layout_width="106dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.01"
+            android:ems="10"
+            android:text="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.76" >
+
+        <Button
+            android:id="@+id/button_connect"
+            android:layout_width="117dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.65"
+            android:text="连接" />
+
+        <Button
+            android:id="@+id/button_disconnect"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.47"
+            android:text="断开" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="53dp"
+        android:layout_weight="0.76" >
+
+        <Button
+            android:id="@+id/button_read"
+            android:layout_width="85dp"
+            android:layout_height="wrap_content"
+            android:text="读" />
+
+        <Button
+            android:id="@+id/button_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="清空" />
+
+        <Button
+            android:id="@+id/button_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.10"
+            android:text="test"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/button_setpow"
+            android:layout_width="110dp"
+            android:layout_height="wrap_content"
+            android:text="设置功率" />
+
+        <EditText
+            android:id="@+id/editText4"
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:text="2000" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <EditText
+            android:id="@+id/editText_stblock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.76"
+            android:ems="10" />
+
+        <Button
+            android:id="@+id/button_op"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.76"
+            android:text="操作..." />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/button_setregion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="设置区域" />
+
+        <EditText
+            android:id="@+id/editText_region"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10" >
+
+            <requestFocus />
+        </EditText>
+
+        <Button
+            android:id="@+id/button_setfre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="设置频点" />
+
+        <EditText
+            android:id="@+id/editText_fre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.76" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="60px"
+            android:layout_height="wrap_content"
+            android:text="序号"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/textView_stblock"
+            android:layout_width="450px"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="标签"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/textView_blockcnt"
+            android:layout_width="60px"
+            android:layout_height="wrap_content"
+            android:text="次数"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/listView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="693.06"
+        android:scrollbars="horizontal" >
+
+    </ListView>
+
+</LinearLayout>

@@ -1,0 +1,8 @@
+F:\程序库\RFID+指纹+高拍\FR905-4E开发包_20151205\FR905-4E开发包_20151205\windows\c#\InventoryTool_src\InventoryTool\obj\Debug\ResolveAssemblyReference.cache
+F:\程序库\RFID+指纹+高拍\FR905-4E开发包_20151205\FR905-4E开发包_20151205\windows\c#\InventoryTool_src\InventoryTool\obj\Debug\InventoryTool.CusMsgFrm.resources
+F:\程序库\RFID+指纹+高拍\FR905-4E开发包_20151205\FR905-4E开发包_20151205\windows\c#\InventoryTool_src\InventoryTool\obj\Debug\InventoryTool.Form2.resources
+F:\程序库\RFID+指纹+高拍\FR905-4E开发包_20151205\FR905-4E开发包_20151205\windows\c#\InventoryTool_src\InventoryTool\obj\Debug\InventoryTool.Form1.resources
+F:\程序库\RFID+指纹+高拍\FR905-4E开发包_20151205\FR905-4E开发包_20151205\windows\c#\InventoryTool_src\InventoryTool\obj\Debug\InventoryTool.NumTipFrm.resources
+F:\程序库\RFID+指纹+高拍\FR905-4E开发包_20151205\FR905-4E开发包_20151205\windows\c#\InventoryTool_src\InventoryTool\obj\Debug\InventoryTool.OpFailedTipFrm.resources
+F:\程序库\RFID+指纹+高拍\FR905-4E开发包_20151205\FR905-4E开发包_20151205\windows\c#\InventoryTool_src\InventoryTool\obj\Debug\InventoryTool.Properties.Resources.resources
+F:\程序库\RFID+指纹+高拍\FR905-4E开发包_20151205\FR905-4E开发包_20151205\windows\c#\InventoryTool_src\InventoryTool\obj\Debug\InventoryTool.csproj.GenerateResource.Cache

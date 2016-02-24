@@ -1,0 +1,84 @@
+<body bgcolor='#223344'> 
+
+<object id="Reader" 
+   classid="clsid:9851C7D7-BCC6-49BF-B691-2020BDBB7BD1" Width="0" Height="0"> 
+</object> 
+ 	
+<input type="button" onclick="InitReader_js();" value="连接" />
+<input type="button" onclick="ParamSet_sess_js();" value="设置sess" />
+<input type="button" onclick="ParamSet_power_js();" value="设置功率" />
+<input type="button" onclick="ParamSet_filter_js();" value="设置过滤" />
+<input type="button" onclick="TagInventory_js();" value="盘存" />
+<input type="button" onclick="GetTagData_js();" value="读bank" />
+<input type="button" onclick="WriteTagEpc_js();" value="写epc" />
+<input type="button" onclick="WriteTagData_js();" value="写bank" />
+<input type="button" onclick="CloseReader_js();" value="断开" />
+<input type="button" onclick="StartInventory_js();" value="开始异步读取" />
+<input type="button" onclick="StopInventory_js();" value="停止异步读取" />
+</body> 
+
+ <script language="javascript" type="text/javascript">
+ 	function InitReader_js()
+ 	{
+ 		var str = '{\"PhyUrl\":\"com1\",\"AntPortNumber\":\"1\"}';
+ 	//	var str2 = '{\"ParamType\":\"Reader/Is_Chk_Ant\",\"ParamValue\":\"false\"}';
+ 		
+ 		alert(Reader.InitReader(str));
+ 		alert(Reader.ParamSet(str2));
+ 	}
+ 	function CloseReader_js()
+ 	{
+ 		var str = '';
+ 		alert(Reader.CloseReader(str));
+ 	}
+ 	function ParamSet_sess_js()
+ 	{
+ 		var str = '{\"ParamType\":\"Potl/Gen2/Session\",\"ParamValue\":\"0\"}';
+ 		alert(Reader.ParamSet(str));
+ 	}
+ 	function ParamSet_power_js()
+ 	{
+ 		var str = '{\"ParamType\":\"Rf/Antpower\",\"ParamValue\":[{\"AntId\":\"1\",\"ReadPower\":\"1500\",\"WritePower\":\"1500\"}]}';
+ 		alert(Reader.ParamSet(str));
+ 	}
+ 	function ParamSet_filter_js()
+ 	{
+ 		var str = '{\"ParamType\":\"Tag/Filter\",\"ParamValue\":{\"Bank\":\"1\",\"StartAddress\":\"32\",\"FilterData\":\"0001000100010001\",\"IsInvert\":\"false\"}}';
+ 		alert(Reader.ParamSet(str));
+ 	}
+ 	function TagInventory_js()
+ 	{
+ 		var str = '{\"UseAnts\":\"1\",\"TimeOut\":\"200\"}';
+ 		alert(Reader.TagInventory(str));
+ 	}
+ 	function GetTagData_js()
+ 	{
+ 		var str = '{\"OpAnt\":\"1\",\"Bank\":\"1\",\"StartAddress\":\"2\",\"BlockCount\":\"6\",\"AccessPassword\":\"00000000\",\"TimeOut\":\"1000\"}';
+ 		alert(Reader.GetTagData(str));
+ 	}
+ 	function WriteTagEpc_js()
+ 	{
+ 		var str = '{\"OpAnt\":\"1\",\"EpcId\":\"1111222233334444555566661111222233334444555566661111222233334444555566661111222233334444555566661111222233334444555566664567\",\"AccessPassword\":\"00000000\",\"TimeOut\":\"1000\"}';
+ 		alert(Reader.WriteTagEpc(str));
+ 	}
+ 	function WriteTagData_js()
+ 	{
+ 		var str = '{\"OpAnt\":\"1\",\"Bank\":\"1\",\"StartAddress\":\"2\",\"WriteData\":\"00009999\",\"AccessPassword\":\"00000000\",\"TimeOut\":\"1000\"}';
+ 		alert(Reader.WriteTagData(str));
+ 	}
+ 	function StartInventory_js()
+ 	{
+ 		var str = '{\"UseAnts\":\"1\",\"ReadDur\":\"100\",\"ReadInterval\":\"700\"}';
+ 		alert(Reader.StartInventory(str));
+ 	}
+ 	 function StopInventory_js()
+ 	{
+ 		var str = '';
+ 		alert(Reader.StopInventory(str));
+ 	}
+
+ </script>
+ 
+  <script language="javascript"for="Reader"event="FindTag(tag)"type="text/javascript">
+	alert(tag);
+ </script>

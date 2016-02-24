@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RadioGroup
+        android:id="@+id/radioGroup_ant"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/radio20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="ant1" />
+
+        <RadioButton
+            android:id="@+id/radio21"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ant2" />
+
+        <RadioButton
+            android:id="@+id/radio22"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ant3" />
+
+        <RadioButton
+            android:id="@+id/radio23"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ant4" />
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/radioGroup_bank"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/radio0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="保留区" />
+
+        <RadioButton
+            android:id="@+id/radio1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="EPC区" />
+
+        <RadioButton
+            android:id="@+id/radio2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TID区" />
+
+        <RadioButton
+            android:id="@+id/radio3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="USER区" />
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="212dp"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开始块"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <EditText
+            android:id="@+id/editText_stblock"
+            android:layout_width="66dp"
+            android:layout_height="wrap_content"
+            android:ems="10" >
+
+            <requestFocus />
+        </EditText>
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="块数"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <EditText
+            android:id="@+id/editText_blockcnt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10" />
+    </LinearLayout>
+
+    <EditText
+        android:id="@+id/editText_data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.48"
+        android:ems="10" />
+
+    <Button
+        android:id="@+id/button_connect2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="连接"
+        android:visibility="invisible" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/button_setpow2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="23.96"
+            android:text="功率设置" />
+
+        <EditText
+            android:id="@+id/editText_power2"
+            android:layout_width="131dp"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:text="2300" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/button_readbank"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="读区" />
+
+    <Button
+        android:id="@+id/button_wepc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="写EPC" />
+
+    <Button
+        android:id="@+id/button_wbank"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="写区" />
+
+</LinearLayout>

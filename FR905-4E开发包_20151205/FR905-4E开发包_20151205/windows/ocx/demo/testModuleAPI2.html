@@ -1,0 +1,392 @@
+<body bgcolor='#223344'> 
+
+<object id="Reader" 
+   classid="clsid:9851C7D7-BCC6-49BF-B691-2020BDBB7BD1" Width="0" Height="0"> 
+</object> 
+ 	
+<input type="button" onclick="InitReader_js();" value="连接" />
+<input type="button" onclick="TagInventory_js();" value="盘存" />
+<input type="button" onclick="GetTagData_js();" value="读bank" />
+<input type="button" onclick="WriteTagEpc_js();" value="写epc" />
+<input type="button" onclick="WriteTagData_js();" value="写bank" />
+<input type="button" onclick="CloseReader_js();" value="断开" />
+<input type="button" onclick="lock_js();" value="锁" />
+<input type="button" onclick="kill_js();" value="销毁" />
+<input type="button" onclick="ParamSet_sess_js();" value="设置sess" />
+<input type="button" onclick="ParamGet_sess_js();" value="获取sess" />
+<input type="button" onclick="ParamSet_power_js();" value="设置功率" />
+<input type="button" onclick="ParamGet_power_js();" value="获取功率" />
+<input type="button" onclick="ParamSet_filter_js();" value="设置过滤" />
+<input type="button" onclick="ParamGet_filter_js();" value="获取过滤" />
+<input type="button" onclick="ParamSet_q_js();" value="设置Q值" />
+<input type="button" onclick="ParamGet_q_js();" value="获取Q值" />
+<input type="button" onclick="ParamSet_tagconde_js();" value="设置tagencode" />
+<input type="button" onclick="ParamGet_tagconde_js();" value="获取tagencode" />
+
+<input type="button" onclick="ParamSet_Maxepclen_js();" value="设置Maxepclen" />
+<input type="button" onclick="ParamGet_Maxepclen_js();" value="获取Maxepclen" />
+
+<input type="button" onclick="ParamSet_Embededdata_js();" value="设置Embededdata" />
+<input type="button" onclick="ParamGet_Embededdata_js();" value="获取Embededdata" />
+
+<input type="button" onclick="ParamSet_Invpotl_js();" value="设置Invpotl" />
+<input type="button" onclick="ParamGet_Invpotl_js();" value="获取Invpotl" />
+
+<input type="button" onclick="ParamSet_chkant_js();" value="设置chkant" />
+<input type="button" onclick="ParamGet_chkant_js();" value="获取chkant" />
+
+<input type="button" onclick="ParamSet_IP_js();" value="设置IP" />
+<input type="button" onclick="ParamGet_IP_js();" value="获取IP" />
+
+<input type="button" onclick="ParamSet_Region_js();" value="设置Region" />
+<input type="button" onclick="ParamGet_Region_js();" value="获取Region值" />
+
+<input type="button" onclick="ParamSet_Hoptable_js();" value="设置Hoptable" />
+<input type="button" onclick="ParamGet_Hoptable_js();" value="获取Hoptable" />
+
+<input type="button" onclick="ParamSet_gen2Blf_js();" value="设置gen2Blf" />
+<input type="button" onclick="ParamGet_gen2Blf_js();" value="获取gen2Blf" />
+
+<input type="button" onclick="ParamSet_Writemode_js();" value="设置Writemode" />
+<input type="button" onclick="ParamGet_Writemode_js();" value="获取Writemode" />
+
+<input type="button" onclick="ParamSet_Target_js();" value="设置Target" />
+<input type="button" onclick="ParamGet_Target_js();" value="获取Target" />
+
+<input type="button" onclick="ParamSet_Uniquebyant_js();" value="设置Uniquebyant" />
+<input type="button" onclick="ParamGet_Uniquebyant_js();" value="获取Uniquebyant" />
+
+<input type="button" onclick="ParamSet_Uniquebyemddata_js();" value="设置Uniquebyemddata" />
+<input type="button" onclick="ParamGet_Uniquebyemddata_js();" value="获取Uniquebyemddata" />
+
+<input type="button" onclick="ParamSet_Recordhighestrssi_js();" value="设置Recordhighestrssi" />
+<input type="button" onclick="ParamGet_Recordhighestrssi_js();" value="获取Recordhighestrssi" />
+
+<input type="button" onclick="ParamSet_hoptime_js();" value="设置hoptime" />
+<input type="button" onclick="ParamGet_hoptime_js();" value="获取hoptime" />
+
+<input type="button" onclick="ParamSet_Lbt_js();" value="设置lbt" />
+<input type="button" onclick="ParamGet_Lbt_js();" value="获取lbt" />
+
+<input type="button" onclick="ParamSet_6Bblf_js();" value="设置6b_blf" />
+<input type="button" onclick="ParamGet_6Bblf_js();" value="获取6b_blf" />
+
+<input type="button" onclick="ParamSet_gen2tari_js();" value="设置gen2tari" />
+<input type="button" onclick="ParamGet_gen2tari_js();" value="获取gen2tari" />
+
+<input type="button" onclick="ParamSet_trantime_js();" value="设置trantime" />
+<input type="button" onclick="ParamGet_trantime_js();" value="获取trantime" />
+
+<input type="button" onclick="ParamSet_embsercured_js();" value="设置embsercur" />
+<input type="button" onclick="ParamGet_embsercured_js();" value="获取embsercur" />
+
+<input type="button" onclick="ParamSet_transmitmode_js();" value="设置tranmode" />
+<input type="button" onclick="ParamGet_transmitmode_js();" value="获取tranmode" />
+
+<input type="button" onclick="ParamSet_pwsamode_js();" value="设置powermode" />
+<input type="button" onclick="ParamGet_pwsamode_js();" value="获取powermode" />
+
+<input type="button" onclick="ParamSet_searchmode_js();" value="设置searchmode" />
+<input type="button" onclick="ParamGet_searchmode_js();" value="获取searchmode" />
+
+<input type="button" onclick="ParamSet_6B_Depth_js();" value="设置6B_Depth" />
+<input type="button" onclick="ParamGet_6B_Depth_js();" value="获取6B_Depth" />
+
+</body> 
+
+ <script language="javascript" type="text/javascript">
+ 	function InitReader_js()
+ 	{
+ 		var str = '{\"PhyUrl\":\"192.168.1.100\",\"AntPortNumber\":\"2\"}';
+ 		alert(Reader.InitReader(str));
+ 	}
+ 	function CloseReader_js()
+ 	{
+ 		var str = '';
+ 		alert(Reader.CloseReader(str));
+ 	}
+ 	function ParamSet_sess_js()
+ 	{
+ 		var str = '{\"ParamType\":\"Potl/Gen2/Session\",\"ParamValue\":\"1\"}';
+ 		alert(Reader.ParamSet(str));
+ 	}
+ 	function ParamSet_power_js()
+ 	{
+ 		var str = '{\"ParamType\":\"Rf/Antpower\",\"ParamValue\":[{\"AntId\":\"1\",\"ReadPower\":\"2450\",\"WritePower\":\"2450\"}]}';
+ 		alert(Reader.ParamSet(str));
+ 	}
+ 	function ParamSet_filter_js()
+ 	{
+ 		var str = '{\"ParamType\":\"Tag/Filter\",\"ParamValue\":{\"Bank\":\"1\",\"StartAddress\":\"32\",\"FilterData\":\"0001000100010001\",\"IsInvert\":\"false\"}}';
+ 		alert(Reader.ParamSet(str));
+ 	}
+ 	function TagInventory_js()
+ 	{
+ 		var str = '{\"UseAnts\":\"1\",\"TimeOut\":\"150\"}';
+ 		alert(Reader.TagInventory(str));
+ 	}
+ 	function GetTagData_js()
+ 	{
+ 		var str = '{\"OpAnt\":\"1\",\"Bank\":\"1\",\"StartAddress\":\"2\",\"BlockCount\":\"6\",\"AccessPassword\":\"00000000\",\"TimeOut\":\"1000\"}';
+ 		alert(Reader.GetTagData(str));
+ 	}
+ 	function WriteTagEpc_js()
+ 	{
+ 		var str = '{\"OpAnt\":\"1\",\"EpcId\":\"1111222233334444555566661111222233334444555566661111222233334444555566661111222233334444555566661111222233334444555566664567\",\"AccessPassword\":\"00000000\",\"TimeOut\":\"1000\"}';
+ 		alert(Reader.WriteTagEpc(str));
+ 	}
+ 	function WriteTagData_js()
+ 	{
+ 		var str = '{\"OpAnt\":\"1\",\"Bank\":\"1\",\"StartAddress\":\"2\",\"WriteData\":\"00009999\",\"AccessPassword\":\"00000000\",\"TimeOut\":\"1000\"}';
+ 		alert(Reader.WriteTagData(str));
+    }
+    function lock_js() {
+        var str = '{"OpAnt":"1","LockObjects":"LOCK_OBJECT_BANK1","LockTypes":"BANK1_LOCK","AccessPassword":"11111111","TimeOut":"1000"}';
+        alert(Reader.LockTag(str));
+    }
+    function kill_js() {
+        var str = '{"OpAnt":"1","AccessPassword":"11111111","TimeOut":"1000"}';
+        alert(Reader.KillTag(str));
+    }
+    function ParamGet_power_js() {
+        var str = '{"ParamType":"Rf/Antpower"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamGet_sess_js() {
+        var str = '{"ParamType":"Potl/Gen2/Session"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamGet_filter_js() {
+        var str = '{"ParamType":"Tag/Filter"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_q_js() {
+        var str = '{"ParamType":"Potl/Gen2/Q","ParamValue":"10"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_q_js() {
+        var str = '{"ParamType":"Potl/Gen2/Q"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_tagconde_js() {
+        var str = '{"ParamType":"Potl/Gen2/Tagencoding","ParamValue":"3"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_tagconde_js() {
+        var str = '{"ParamType":"Potl/Gen2/Tagencoding"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_Maxepclen_js() {
+        var str = '{"ParamType":"Potl/Gen2/Maxepclen","ParamValue":"496"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_Maxepclen_js() {
+        var str = '{"ParamType":"Potl/Gen2/Maxepclen"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_Embededdata_js() {
+        var str = '{"ParamType":"Tag/Embededdata","ParamValue":{"Bank":"1","StartAddress":"2","ByteCnt":"6","Accesspwd":"11111111"}}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_Embededdata_js() {
+        var str = '{"ParamType":"Tag/Embededdata"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_Invpotl_js() {
+        var str = '{"ParamType":"Tag/Invpotl","ParamValue":{"Protocol":"GEN2,30;ISO180006B,30","Potlcnt":"2"}}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_Invpotl_js() {
+        var str = '{"ParamType":"Tag/Invpotl"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_chkant_js() {
+        var str = '{"ParamType":"Reader/Is/Chk/Ant","ParamValue":"false"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_chkant_js() {
+        var str = '{"ParamType":"Reader/Is/Chk/Ant"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_IP_js() {
+        var str = '{"ParamType":"Reader/IP","ParamValue":{"Ip":"192.168.1.100","Mask":"255.255.255.0","Gateway":"192.168.1.1"}}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_IP_js() {
+        var str = '{"ParamType":"Reader/Ip"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_Region_js() {
+        var str = '{"ParamType":"Frequency/Region","ParamValue":"KR"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_Region_js() {
+        var str = '{"ParamType":"Frequency/Region"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_Hoptable_js() {
+        var str = '{"ParamType":"Frequency/Hoptable","ParamValue":"925750,920250,925250,925750"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_Hoptable_js() {
+        var str = '{"ParamType":"Frequency/Hoptable"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_gen2Blf_js() {
+        var str = '{"ParamType":"Potl/Gen2/Blf","ParamValue":"40"}'; //40 250 400 640
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_gen2Blf_js() {
+        var str = '{"ParamType":"Potl/Gen2/Blf"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_Writemode_js() {
+        var str = '{"ParamType":"Potl/Gen2/Writemode","ParamValue":"1"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_Writemode_js() {
+        var str = '{"ParamType":"Potl/Gen2/Writemode"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_Target_js() {
+        var str = '{"ParamType":"Potl/Gen2/Target","ParamValue":"1"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_Target_js() {
+        var str = '{"ParamType":"Potl/Gen2/Target"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_Uniquebyant_js() {
+        var str = '{"ParamType":"Tagdata/Uniquebyant","ParamValue":"false"}';
+        alert(Reader.ParamSet(str));
+    }
+
+    function ParamGet_Uniquebyant_js() {
+        var str = '{"ParamType":"Tagdata/Uniquebyant"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_Uniquebyemddata_js() {
+        var str = '{"ParamType":"Tagdata/Uniquebyemddata ","ParamValue":"true"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_Uniquebyemddata_js() {
+        var str = '{"ParamType":"Tagdata/Uniquebyemddata"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_Recordhighestrssi_js() {
+        var str = '{"ParamType":"Tagdata/Recordhighestrssi","ParamValue":"true"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_Recordhighestrssi_js() {
+        var str = '{"ParamType":"Tagdata/Recordhighestrssi"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_hoptime_js() {
+        var str = '{"ParamType":"RF/Hoptime","ParamValue":"0"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_hoptime_js() {
+        var str = '{"ParamType":"Rf/Hoptime"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_Lbt_js() {
+        var str = '{"ParamType":"RF/Lbt/Enable","ParamValue":"true"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_Lbt_js() {
+        var str = '{"ParamType":"Rf/Lbt/Eanble"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_6Bblf_js() {
+        var str = '{"ParamType":"Polt/ISO180006B/Blf","ParamValue":"true"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_6Bblf_js() {
+        var str = '{"ParamType":"Potl/ISO180006B/Blf"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_gen2tari_js() {
+        var str = '{"ParamType":"Potl/Gen2/Tari","ParamValue":"1"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_gen2tari_js() {
+        var str = '{"ParamType":"Potl/Gen2/Tari"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_trantime_js() {
+        var str = '{"ParamType":"Trans/Timeout","ParamValue":"200"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_trantime_js() {
+        var str = '{"ParamType":"Trans/Timeout"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_embsercured_js() {
+        var str = '{"ParamType":"Tag/Embsecureread","ParamValue":{"Tagtype":"0","Pwdtype":"0","ApIndexStartBitsInEpc":"2","ApIndexBitsNumInEpc":"6","Bank":"1","Address":"0","Blkcnt":"6","Accesspwd":"11111111"}}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_embsercured_js() {
+        var str = '{"ParamType":"Tag/Embsecureread"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_transmitmode_js() {
+        var str = '{"ParamType":"Transmit/Mode","ParamValue":"1"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_transmitmode_js() {
+        var str = '{"ParamType":"Transmit/Mode"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_pwsamode_js() {
+        var str = '{"ParamType":"Powersave/Mode","ParamValue":"1"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_pwsamode_js() {
+        var str = '{"ParamType":"Powersave/Mode"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_searchmode_js() {
+        var str = '{"ParamType":"Tag/Search/Mode","ParamValue":"1"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_searchmode_js() {
+        var str = '{"ParamType":"Tag/Search/Mode"}';
+        alert(Reader.ParamGet(str));
+    }
+
+    function ParamSet_6B_Depth_js() {
+        var str = '{"ParamType":"Polt/ISO180006B/Modulation/Depth","ParamValue":"0"}';
+        alert(Reader.ParamSet(str));
+    }
+    function ParamGet_6B_Depth_js() {
+        var str = '{"ParamType":"Potl/ISO180006B/Modulation/Depth"}';
+        alert(Reader.ParamGet(str));
+    }
+
+ </script>
