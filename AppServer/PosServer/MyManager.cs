@@ -22,5 +22,20 @@ namespace WindowsFormsApplication1
             myConn.Close();
             return dt;
         }
+
+        static public int ExecSQL(String SQLTxt)
+        {
+            int iRet = 0;
+            DataTable dt = new DataTable();
+            SqlConnection myConn = new SqlConnection(System.Configuration.ConfigurationSettings.AppSettings["ConnStr"]);
+            myConn.Open();
+            if (myConn.State == System.Data.ConnectionState.Open)
+            {
+                SqlCommand sCmd = new SqlCommand(SQLTxt, myConn);
+                iRet = sCmd.ExecuteNonQuery();
+            }
+            myConn.Close();
+            return iRet;
+        }
     }
 }
