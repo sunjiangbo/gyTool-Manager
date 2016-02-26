@@ -13,8 +13,9 @@ using System.Diagnostics;
 using ModuleTech.Gen2;
 using ModuleLibrary;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Runtime.InteropServices;
-
+using System.Runtime.Serialization.Formatters.Binary;
 namespace WindowsFormsApplication1
 {
     public partial class Form1 : Form
@@ -25,14 +26,26 @@ namespace WindowsFormsApplication1
             public int    MachID;
             public String MachName;
             public String MachIP;
+            public Reader rd;
+            public Thread Mthread;
             public int[] ConnectedAnts;
         };
 
+        class TagInfo{
+            public String EPC;
+            public String ToolNum;
+            public int    Rssi;
+            public DateTime LastSeen;
+            public long   ReadCount;
+            public int    PosX;
+            public int    PosY;
+        };
+
         List<Mach> MachLst = new List<Mach>();
-
-        List<Reader> rds = new List<Reader>();
-
+        Mutex TagMux = new Mutex();
+        Dictionary<String, TagInfo> TagDic = new Dictionary<String, TagInfo>();
         Reader rd;
+        Boolean isInventory = false;
         void  initMach()
         {
             Mach mc;
@@ -45,22 +58,22 @@ namespace WindowsFormsApplication1
                 mc.MachName = dt.Rows[i]["MachineName"].ToString();
                 mc.MachIP = dt.Rows[i]["IP"].ToString();
                // mc.ConnectedAnts = Array.ConvertAll<string, int>(dt.Rows[i]["ConnectedAnt"].ToString().Split('|'), delegate(string s) { return int.Parse(s); });
+                mc.rd = null;
                 MachLst.Add(mc);
             }
         }
-
+        
         String CheckAntAndInitReaders()
         {
             String Ret = "OK";
-            Reader rd;
-            int i, j, k, t;
+            int i, j, k;
             for (i = 0; i < MachLst.Count; i++)
             {
                 try
                 {
-                    rd = Reader.Create(MachLst[i].MachIP, ModuleTech.Region.NA, 4);
+                    MachLst[i].rd = Reader.Create(MachLst[i].MachIP, ModuleTech.Region.NA, 4);
 
-                    int[] connectedants = (int[])rd.ParamGet("ConnectedAntennas");
+                    int[] connectedants = (int[])MachLst[i].rd.ParamGet("ConnectedAntennas");
                     if (connectedants.Length < 2)
                     {
                         Ret = "";
@@ -77,23 +90,102 @@ namespace WindowsFormsApplication1
                             }
                         }
                         Ret = MachLst[i].MachName + "," + Ret + "号天线未连接!!";
-                        MyManager.ExecSQL("INSERT INTO MachMsg(Time,Type,txt) VALUES('" + DateTime.Now.ToString() + "','错误','" + Ret + "')");
+                        MyManager.AddInfoToDB("错误", Ret);                        
                         break;
                     }
                     MachLst[i].ConnectedAnts = (int[])connectedants.Clone();
-                    rds.Add(rd);
-                    MyManager.ExecSQL("INSERT INTO MachMsg(Time,Type,txt) VALUES('" + DateTime.Now.ToString() + "','信息','" + MachLst[i].MachName + "连接成功！')");
+                    MyManager.AddInfoToDB("错误", MachLst[i].MachName + "连接成功！");
                 }
                 catch (Exception ex)
                 {
                     Ret = MachLst[i].MachName + "-->" + ex.ToString();
-                    MyManager.ExecSQL("INSERT INTO MachMsg(Time,Type,txt) VALUES('" + DateTime.Now.ToString() + "','错误','" + Ret + "')");
+                    MyManager.AddInfoToDB("错误",Ret);
                     break;
                 }
             }
             return Ret;
         }
 
+        void AddTagToDic(TagReadData Tag,int MachID)
+        {
+            TagInfo tTagInfo;
+            String EPC = Tag.EPCString;
+            TagMux.WaitOne();
+            
+            if (TagDic.ContainsKey(EPC))
+            {
+                tTagInfo = TagDic[EPC];
+                tTagInfo.LastSeen = Tag.Time;
+                tTagInfo.ReadCount++;
+                if (tTagInfo.Rssi > Tag.Rssi ) //说明新来的定位信号更强，更准确，并且得到的工具位置发生了变更。
+                {
+                    tTagInfo.PosX = MachID;
+                    tTagInfo.PosY = Tag.Antenna;
+                    tTagInfo.Rssi = Tag.Rssi;
+                }
+            }
+            else
+            {
+                tTagInfo = new TagInfo();
+                tTagInfo.ReadCount = 1;
+                tTagInfo.LastSeen = Tag.Time;
+                tTagInfo.PosX = MachID;
+                tTagInfo.PosY = Tag.Antenna;
+                tTagInfo.Rssi = Tag.Rssi;
+                TagDic.Add(EPC, tTagInfo);
+            }
+
+            TagMux.ReleaseMutex();
+        }
+
+        void TagMonitorThread(object Mach)
+        {
+            Mach mc = (Mach)Mach;
+            int MachID = mc.MachID;
+            while (isInventory)
+            {
+               TagReadData[] Tags = mc.rd.Read(500);
+               foreach (TagReadData tag in Tags)
+               {
+                   AddTagToDic(tag,MachID);
+               }
+            }
+        }
+
+
+        void CreateMonitorThreads()
+        {
+            int i,unFinished=0;
+
+            if (MachLst.Count == 0)
+            {
+                return;
+            }
+
+            for (i = 0,unFinished=0; i < MachLst.Count; i++)
+            {
+                if (MachLst[i].rd == null)
+                {
+                    unFinished = 1;
+                    MyManager.AddInfoToDB("错误", MachLst[i].MachName + "未建立连接!");
+                    lst1.Items.Add(MachLst[i].MachName + "未建立连接!");
+                    break;
+                }
+                //只显示EPC以FFFF FFFF开头的标签
+                Gen2TagFilter filter = new Gen2TagFilter(ByteFormat.FromHex("FFFFFFFF"), MemBank.EPC, 32, false);
+                rd.ParamSet("Singulation", filter);
+                SimpleReadPlan searchPlan = new SimpleReadPlan(MachLst[i].ConnectedAnts);
+                rd.ParamSet("ReadPlan", searchPlan);
+                MachLst[i].Mthread = new Thread(new ParameterizedThreadStart(TagMonitorThread));
+            }
+
+            if (unFinished==1) return;
+
+            for (i = 0; i < MachLst.Count; i++)
+            {
+                MachLst[i].Mthread.Start(MachLst[i]);
+            }           
+        }
 //--------------------------------------------------------------------------------------------------------------------------------------
         public Form1()
         {
@@ -127,8 +219,8 @@ namespace WindowsFormsApplication1
           // rd.read
 
             int[] ants = new int[] { 1,4 };
-           // Gen2TagFilter filter = new Gen2TagFilter(ByteFormat.FromHex("AAAABBBB"),MemBank.EPC, 32, false);
-            //rd.ParamSet("Singulation", filter);
+            Gen2TagFilter filter = new Gen2TagFilter(ByteFormat.FromHex("FFFFFFFF"),MemBank.EPC, 32, false);
+            rd.ParamSet("Singulation", filter);
             SimpleReadPlan searchPlan = new SimpleReadPlan(ants);
             rd.ParamSet("ReadPlan", searchPlan);
            
@@ -136,13 +228,13 @@ namespace WindowsFormsApplication1
 
         private void button2_Click(object sender, EventArgs e)
         {
-
-
+            isInventory = true;
+            /*
             TagReadData[] tags = rd.Read(500);
             foreach (TagReadData tag in tags)
             {
                 lst1.Items.Add(tag.EPCString + "->" + tag.Rssi +"->" + tag.Time.ToString() + "->" + tag.Antenna);
-            }
+            }*/
         }
 
 
@@ -175,6 +267,30 @@ namespace WindowsFormsApplication1
             {
                 lst1.Items.Add(Ret);
             }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            ListViewItem item = new ListViewItem(lv1.Items.Count.ToString());
+            item.SubItems.Add("EPC");
+            //item.SubItems.Add(tag.epcid);
+           // item.SubItems.Add(tag.antid.ToString());
+            lv1.Items.Add(item);
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            TagMux.WaitOne();
+            BinaryFormatter Formatter = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.Clone));
+            MemoryStream stream = new MemoryStream();
+            Formatter.Serialize(stream, TagDic);
+            TagMux.ReleaseMutex();
+
+            stream.Position = 0;
+            object clonedObj = Formatter.Deserialize(stream);
+            stream.Close();
+
+            Dictionary<String, TagInfo> tmpTagDic = (Dictionary<String, TagInfo>) clonedObj;
         }
     }
 }

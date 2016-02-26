@@ -8,6 +8,12 @@ namespace WindowsFormsApplication1
 {
     class MyManager
     {
+        static  public int AddInfoToDB( String Type, String Txt)
+        {
+            return MyManager.ExecSQL("INSERT INTO MachMsg(Time,Type,txt) VALUES('" + DateTime.Now.ToString() + "','" + Type + "','" + Txt + "')");
+        }
+
+
         static public DataTable GetDataSet(String SQLTxt)
         {
             DataTable dt = new DataTable();
