@@ -53,48 +53,48 @@ namespace WindowsFormsApplication1
         {
             String Ret = "OK";
             Reader rd;
-            int i,j,k,t;
+            int i, j, k, t;
             for (i = 0; i < MachLst.Count; i++)
             {
                 try
                 {
-                   rd = Reader.Create(MachLst[i].MachIP, ModuleTech.Region.NA, 4);
+                    rd = Reader.Create(MachLst[i].MachIP, ModuleTech.Region.NA, 4);
 
-                   int[] connectedants = (int[])rd.ParamGet("ConnectedAntennas");
-                   if (connectedants.Length < 2)
-                   {
-                       Ret = "";
-                       int[] xx = { 0, 0, 0, 0 };
-                       for (j = 0; j < connectedants.Length; j++)
-                       {
-                           xx[connectedants[j]-1] = 1;
-                       }
-                       for (k = 0; k < 4; k++)
-                       {
-                           if (xx[k] == 0)
-                           {
-                               Ret += (k + 1).ToString() + " ";
-                           }
-                       }
-                       Ret = MachLst[i].MachName + "," + Ret + "号天线未连接!!";
-                       MyManager.ExecSQL("INSERT INTO MachMsg(Time,Type,txt) VALUES('" + DateTime.Now.ToString() + "','错误','" + Ret + "')");
-                       break;
-                   }
-                   MachLst[i].ConnectedAnts = (int[])connectedants.Clone();
-                   rds.Add(rd);
-                   MyManager.ExecSQL("INSERT INTO MachMsg(Time,Type,txt) VALUES('" + DateTime.Now.ToString() + "','信息','" + MachLst[i].MachName + "连接成功！')");
+                    int[] connectedants = (int[])rd.ParamGet("ConnectedAntennas");
+                    if (connectedants.Length < 2)
+                    {
+                        Ret = "";
+                        int[] xx = { 0, 0, 0, 0 };
+                        for (j = 0; j < connectedants.Length; j++)
+                        {
+                            xx[connectedants[j] - 1] = 1;
+                        }
+                        for (k = 0; k < 4; k++)
+                        {
+                            if (xx[k] == 0)
+                            {
+                                Ret += (k + 1).ToString() + " ";
+                            }
+                        }
+                        Ret = MachLst[i].MachName + "," + Ret + "号天线未连接!!";
+                        MyManager.ExecSQL("INSERT INTO MachMsg(Time,Type,txt) VALUES('" + DateTime.Now.ToString() + "','错误','" + Ret + "')");
+                        break;
+                    }
+                    MachLst[i].ConnectedAnts = (int[])connectedants.Clone();
+                    rds.Add(rd);
+                    MyManager.ExecSQL("INSERT INTO MachMsg(Time,Type,txt) VALUES('" + DateTime.Now.ToString() + "','信息','" + MachLst[i].MachName + "连接成功！')");
                 }
                 catch (Exception ex)
                 {
                     Ret = MachLst[i].MachName + "-->" + ex.ToString();
                     MyManager.ExecSQL("INSERT INTO MachMsg(Time,Type,txt) VALUES('" + DateTime.Now.ToString() + "','错误','" + Ret + "')");
                     break;
-                }   
+                }
             }
             return Ret;
         }
 
-
+//--------------------------------------------------------------------------------------------------------------------------------------
         public Form1()
         {
             InitializeComponent();
@@ -145,16 +145,14 @@ namespace WindowsFormsApplication1
             }
         }
 
-        
-     
- 
+
+
+
         private void button3_Click(object sender, EventArgs e)
         {
-
-         
-            
+            lst1.Items.Add(MyManager.DecodeEPC(MyManager.GenerateEPC("ZGT")));
+            lst1.Items.Add((char)67);
         }
-
         private void button4_Click(object sender, EventArgs e)
         {
             for (int i = 0; i < MachLst.Count; i++)
@@ -165,6 +163,7 @@ namespace WindowsFormsApplication1
       
         private void Form1_Load(object sender, EventArgs e)
         {
+            return;
             String Ret;
             initMach();
             Ret = CheckAntAndInitReaders();

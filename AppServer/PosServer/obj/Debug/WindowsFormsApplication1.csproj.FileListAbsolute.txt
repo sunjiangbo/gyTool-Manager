@@ -18,3 +18,12 @@ F:\程序库\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplicatio
 F:\程序库\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.Form1.resources
 F:\程序库\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.Properties.Resources.resources
 F:\程序库\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.csproj.GenerateResource.Cache
+E:\gyTool-Manager\AppServer\PosServer\bin\Debug\WindowsFormsApplication1.exe.config
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.exe
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.pdb
+E:\gyTool-Manager\AppServer\PosServer\bin\Debug\WindowsFormsApplication1.exe
+E:\gyTool-Manager\AppServer\PosServer\bin\Debug\WindowsFormsApplication1.pdb
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\ResolveAssemblyReference.cache
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.Form1.resources
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.Properties.Resources.resources
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.csproj.GenerateResource.Cache
