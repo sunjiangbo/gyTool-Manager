@@ -25,7 +25,52 @@ using Aspose.Cells;
 /// </summary>
 public class MyManager
 {
+    public static String GenerateEPC(String ToolNum)
+    {
+            //现在默认只会传进来 类AA或AAA
+            String EPC = "" ;
+            // AA -> FFFF FFFF FF00 6565 000F
+            // AAA-> FFFF FFFF FF65 6565 000F
 
+            if (ToolNum.Length < 2)
+            {
+                return "";
+            }
+
+            for (int i = 0; i < ToolNum.Length; i++)
+            {
+                EPC += Convert.ToInt16(ToolNum[i]);
+            }
+
+            if (EPC.Length < 6)
+            {
+                EPC = "FFFFFFFFFFFFFF00" + EPC + "000F";
+            }
+            else
+            {
+                EPC = "FFFFFFFFFFFFFF"   + EPC + "000F";
+            }
+
+          return EPC;
+    }
+    
+   public static String DecodeEPC(String EPC)//从EPC得到工具号
+    {
+        //现在默认只会得到 类AA或AAA
+        String ToolNum;
+
+        if (EPC[14] == '0' && EPC[14] == '0')
+        {
+            ToolNum = ((char)Convert.ToInt16(EPC.Substring(16, 2))).ToString() + ((char)Convert.ToInt16(EPC.Substring(18, 2))).ToString();
+        }
+        else
+        {
+            ToolNum = ((char)Convert.ToInt16(EPC.Substring(14, 2))).ToString() + ((char)Convert.ToInt16(EPC.Substring(16, 2))).ToString() + ((char)Convert.ToInt16(EPC.Substring(18, 2))).ToString();
+        }
+
+
+        return ToolNum;
+    }
     public static bool DataTableToExcel(DataTable datatable, string filepath, out string error)
     {
         error = "";
