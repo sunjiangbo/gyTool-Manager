@@ -30,7 +30,7 @@ namespace WindowsFormsApplication1
             public Thread Mthread;
             public int[] ConnectedAnts;
         };
-
+         [Serializable]
         class TagInfo{
             public String EPC;
             public String ToolNum;
@@ -43,9 +43,9 @@ namespace WindowsFormsApplication1
 
         List<Mach> MachLst = new List<Mach>();
         Mutex TagMux = new Mutex();
-        Dictionary<String, TagInfo> TagDic = new Dictionary<String, TagInfo>();
+        static Dictionary<String, TagInfo> TagDic = new Dictionary<String, TagInfo>();
         Reader rd;
-        Boolean isInventory = false;
+        Boolean isInventory = true;
         void  initMach()
         {
             Mach mc;
@@ -94,7 +94,7 @@ namespace WindowsFormsApplication1
                         break;
                     }
                     MachLst[i].ConnectedAnts = (int[])connectedants.Clone();
-                    MyManager.AddInfoToDB("错误", MachLst[i].MachName + "连接成功！");
+                    MyManager.AddInfoToDB("信息", MachLst[i].MachName + "连接成功！");
                 }
                 catch (Exception ex)
                 {
@@ -117,12 +117,9 @@ namespace WindowsFormsApplication1
                 tTagInfo = TagDic[EPC];
                 tTagInfo.LastSeen = Tag.Time;
                 tTagInfo.ReadCount++;
-                if (tTagInfo.Rssi > Tag.Rssi ) //说明新来的定位信号更强，更准确，并且得到的工具位置发生了变更。
-                {
-                    tTagInfo.PosX = MachID;
-                    tTagInfo.PosY = Tag.Antenna;
-                    tTagInfo.Rssi = Tag.Rssi;
-                }
+                tTagInfo.PosX = MachID;
+                tTagInfo.PosY = Tag.Antenna;
+                tTagInfo.Rssi = Tag.Rssi;
             }
             else
             {
@@ -135,14 +132,14 @@ namespace WindowsFormsApplication1
                 TagDic.Add(EPC, tTagInfo);
             }
 
-            TagMux.ReleaseMutex();
+          TagMux.ReleaseMutex();
         }
 
         void TagMonitorThread(object Mach)
         {
             Mach mc = (Mach)Mach;
             int MachID = mc.MachID;
-            while (isInventory)
+           while (isInventory)
             {
                TagReadData[] Tags = mc.rd.Read(500);
                foreach (TagReadData tag in Tags)
@@ -153,7 +150,7 @@ namespace WindowsFormsApplication1
         }
 
 
-        void CreateMonitorThreads()
+        void  CreateMonitorThreads()
         {
             int i,unFinished=0;
 
@@ -172,10 +169,10 @@ namespace WindowsFormsApplication1
                     break;
                 }
                 //只显示EPC以FFFF FFFF开头的标签
-                Gen2TagFilter filter = new Gen2TagFilter(ByteFormat.FromHex("FFFFFFFF"), MemBank.EPC, 32, false);
-                rd.ParamSet("Singulation", filter);
-                SimpleReadPlan searchPlan = new SimpleReadPlan(MachLst[i].ConnectedAnts);
-                rd.ParamSet("ReadPlan", searchPlan);
+               Gen2TagFilter filter = new Gen2TagFilter(ByteFormat.FromHex("FFFFFFFF"), MemBank.EPC, 32, false);
+               MachLst[i].rd.ParamSet("Singulation", filter);
+               SimpleReadPlan searchPlan = new SimpleReadPlan(MachLst[i].ConnectedAnts);
+                MachLst[i].rd.ParamSet("ReadPlan", searchPlan);
                 MachLst[i].Mthread = new Thread(new ParameterizedThreadStart(TagMonitorThread));
             }
 
@@ -184,7 +181,10 @@ namespace WindowsFormsApplication1
             for (i = 0; i < MachLst.Count; i++)
             {
                 MachLst[i].Mthread.Start(MachLst[i]);
-            }           
+                lst1.Items.Add("启动"+ MachLst[i].Mthread);
+            }
+
+            lst1.Items.Add("创建线程完毕!");
         }
 //--------------------------------------------------------------------------------------------------------------------------------------
         public Form1()
@@ -228,7 +228,7 @@ namespace WindowsFormsApplication1
 
         private void button2_Click(object sender, EventArgs e)
         {
-            isInventory = true;
+            isInventory = false;
             /*
             TagReadData[] tags = rd.Read(500);
             foreach (TagReadData tag in tags)
@@ -242,8 +242,7 @@ namespace WindowsFormsApplication1
 
         private void button3_Click(object sender, EventArgs e)
         {
-            lst1.Items.Add(MyManager.DecodeEPC(MyManager.GenerateEPC("ZGT")));
-            lst1.Items.Add((char)67);
+            isInventory = true;
         }
         private void button4_Click(object sender, EventArgs e)
         {
@@ -255,7 +254,6 @@ namespace WindowsFormsApplication1
       
         private void Form1_Load(object sender, EventArgs e)
         {
-            return;
             String Ret;
             initMach();
             Ret = CheckAntAndInitReaders();
@@ -267,11 +265,13 @@ namespace WindowsFormsApplication1
             {
                 lst1.Items.Add(Ret);
             }
+            CreateMonitorThreads();
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
             ListViewItem item = new ListViewItem(lv1.Items.Count.ToString());
+            
             item.SubItems.Add("EPC");
             //item.SubItems.Add(tag.epcid);
            // item.SubItems.Add(tag.antid.ToString());
@@ -291,6 +291,29 @@ namespace WindowsFormsApplication1
             stream.Close();
 
             Dictionary<String, TagInfo> tmpTagDic = (Dictionary<String, TagInfo>) clonedObj;
+
+            foreach (String Key in tmpTagDic.Keys)
+            {
+                lst1.Items.Add(Key + "-->" + tmpTagDic[Key].PosY + "->" + TagDic[Key].Rssi);
+                if (lv1.Items.ContainsKey(Key))
+                {
+                    ListViewItem item = lv1.Items[Key];
+                    item.SubItems[1].Text = tmpTagDic[Key].PosY.ToString();
+                    item.SubItems[2].Text = tmpTagDic[Key].LastSeen.ToString();
+                    item.SubItems[3].Text = tmpTagDic[Key].ReadCount.ToString();
+                    item.SubItems[4].Text = tmpTagDic[Key].Rssi.ToString();
+                }
+                else
+                {
+                    ListViewItem item = new ListViewItem(Key);
+                    item.Name = Key;
+                    item.SubItems.Add(tmpTagDic[Key].PosY.ToString());
+                    item.SubItems.Add(tmpTagDic[Key].LastSeen.ToString());
+                    item.SubItems.Add(tmpTagDic[Key].ReadCount.ToString());
+                    item.SubItems.Add(tmpTagDic[Key].Rssi.ToString());
+                    lv1.Items.Add(item);
+                }
+            }
         }
     }
 }

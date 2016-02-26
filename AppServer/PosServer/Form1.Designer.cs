@@ -36,11 +36,13 @@
             this.dv1 = new System.Windows.Forms.DataGridView();
             this.button4 = new System.Windows.Forms.Button();
             this.lv1 = new System.Windows.Forms.ListView();
-            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             this.button5 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
             ((System.ComponentModel.ISupportInitialize)(this.dv1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -60,26 +62,26 @@
             this.lst1.ItemHeight = 12;
             this.lst1.Location = new System.Drawing.Point(12, 475);
             this.lst1.Name = "lst1";
-            this.lst1.Size = new System.Drawing.Size(951, 76);
+            this.lst1.Size = new System.Drawing.Size(951, 256);
             this.lst1.TabIndex = 1;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(710, 12);
+            this.button2.Location = new System.Drawing.Point(807, 12);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 2;
-            this.button2.Text = "start";
+            this.button2.Text = "Stop";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(807, 12);
+            this.button3.Location = new System.Drawing.Point(708, 12);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 23);
             this.button3.TabIndex = 3;
-            this.button3.Text = "button3";
+            this.button3.Text = "Start";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
@@ -104,10 +106,13 @@
             // 
             // lv1
             // 
+            this.lv1.Alignment = System.Windows.Forms.ListViewAlignment.Default;
             this.lv1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1,
             this.columnHeader2,
-            this.columnHeader3});
+            this.columnHeader3,
+            this.columnHeader4,
+            this.columnHeader1,
+            this.columnHeader5});
             this.lv1.FullRowSelect = true;
             this.lv1.GridLines = true;
             this.lv1.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -118,10 +123,6 @@
             this.lv1.UseCompatibleStateImageBehavior = false;
             this.lv1.View = System.Windows.Forms.View.Details;
             // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "编号";
-            // 
             // columnHeader2
             // 
             this.columnHeader2.Text = "EPC";
@@ -129,8 +130,17 @@
             // 
             // columnHeader3
             // 
-            this.columnHeader3.Text = "最后发现时间";
-            this.columnHeader3.Width = 150;
+            this.columnHeader3.Text = "天线";
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "最后发现时间";
+            this.columnHeader4.Width = 150;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "ReadCount";
+            this.columnHeader1.Width = 94;
             // 
             // button5
             // 
@@ -144,13 +154,19 @@
             // 
             // timer1
             // 
+            this.timer1.Enabled = true;
+            this.timer1.Interval = 500;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "RSSI";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(975, 563);
+            this.ClientSize = new System.Drawing.Size(975, 740);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.lv1);
             this.Controls.Add(this.button4);
@@ -176,11 +192,13 @@
         private System.Windows.Forms.DataGridView dv1;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.ListView lv1;
-        private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.ColumnHeader columnHeader4;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader columnHeader5;
     }
 }
 
