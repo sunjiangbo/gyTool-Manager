@@ -59,7 +59,7 @@ public class MyManager
         //现在默认只会得到 类AA或AAA
         String ToolNum;
 
-        if (EPC[14] == '0' && EPC[14] == '0')
+        if (EPC[14] == '0' && EPC[15] == '0')
         {
             ToolNum = ((char)Convert.ToInt16(EPC.Substring(16, 2))).ToString() + ((char)Convert.ToInt16(EPC.Substring(18, 2))).ToString();
         }

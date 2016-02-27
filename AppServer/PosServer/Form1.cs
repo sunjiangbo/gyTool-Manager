@@ -298,22 +298,30 @@ namespace WindowsFormsApplication1
                 if (lv1.Items.ContainsKey(Key))
                 {
                     ListViewItem item = lv1.Items[Key];
-                    item.SubItems[1].Text = tmpTagDic[Key].PosY.ToString();
+
+                    item.SubItems[1].Text = MyManager.DecodeEPC(Key);
                     item.SubItems[2].Text = tmpTagDic[Key].LastSeen.ToString();
                     item.SubItems[3].Text = tmpTagDic[Key].ReadCount.ToString();
                     item.SubItems[4].Text = tmpTagDic[Key].Rssi.ToString();
+                    item.SubItems[5].Text = tmpTagDic[Key].PosY.ToString();
                 }
                 else
                 {
                     ListViewItem item = new ListViewItem(Key);
                     item.Name = Key;
-                    item.SubItems.Add(tmpTagDic[Key].PosY.ToString());
+                    item.SubItems.Add(MyManager.DecodeEPC(Key));
                     item.SubItems.Add(tmpTagDic[Key].LastSeen.ToString());
                     item.SubItems.Add(tmpTagDic[Key].ReadCount.ToString());
                     item.SubItems.Add(tmpTagDic[Key].Rssi.ToString());
+                    item.SubItems.Add(tmpTagDic[Key].PosY.ToString());
                     lv1.Items.Add(item);
                 }
             }
+        }
+
+        private void lv1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

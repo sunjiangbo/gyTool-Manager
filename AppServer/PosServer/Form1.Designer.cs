@@ -36,13 +36,14 @@
             this.dv1 = new System.Windows.Forms.DataGridView();
             this.button4 = new System.Windows.Forms.Button();
             this.lv1 = new System.Windows.Forms.ListView();
-            this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
-            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
+            this.c1 = new System.Windows.Forms.ColumnHeader();
+            this.c2 = new System.Windows.Forms.ColumnHeader();
+            this.c3 = new System.Windows.Forms.ColumnHeader();
+            this.c4 = new System.Windows.Forms.ColumnHeader();
+            this.c5 = new System.Windows.Forms.ColumnHeader();
             this.button5 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.columnHeader5 = new System.Windows.Forms.ColumnHeader();
+            this.c6 = new System.Windows.Forms.ColumnHeader();
             ((System.ComponentModel.ISupportInitialize)(this.dv1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -108,11 +109,12 @@
             // 
             this.lv1.Alignment = System.Windows.Forms.ListViewAlignment.Default;
             this.lv1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader2,
-            this.columnHeader3,
-            this.columnHeader4,
-            this.columnHeader1,
-            this.columnHeader5});
+            this.c1,
+            this.c2,
+            this.c3,
+            this.c4,
+            this.c5,
+            this.c6});
             this.lv1.FullRowSelect = true;
             this.lv1.GridLines = true;
             this.lv1.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -122,25 +124,30 @@
             this.lv1.TabIndex = 6;
             this.lv1.UseCompatibleStateImageBehavior = false;
             this.lv1.View = System.Windows.Forms.View.Details;
+            this.lv1.SelectedIndexChanged += new System.EventHandler(this.lv1_SelectedIndexChanged);
             // 
-            // columnHeader2
+            // c1
             // 
-            this.columnHeader2.Text = "EPC";
-            this.columnHeader2.Width = 200;
+            this.c1.Text = "EPC";
+            this.c1.Width = 200;
             // 
-            // columnHeader3
+            // c2
             // 
-            this.columnHeader3.Text = "天线";
+            this.c2.Text = "件号";
             // 
-            // columnHeader4
+            // c3
             // 
-            this.columnHeader4.Text = "最后发现时间";
-            this.columnHeader4.Width = 150;
+            this.c3.Text = "最后发现时间";
+            this.c3.Width = 150;
             // 
-            // columnHeader1
+            // c4
             // 
-            this.columnHeader1.Text = "ReadCount";
-            this.columnHeader1.Width = 94;
+            this.c4.Text = "ReadCount";
+            this.c4.Width = 94;
+            // 
+            // c5
+            // 
+            this.c5.Text = "RSSI";
             // 
             // button5
             // 
@@ -158,9 +165,9 @@
             this.timer1.Interval = 500;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // columnHeader5
+            // c6
             // 
-            this.columnHeader5.Text = "RSSI";
+            this.c6.Text = "天线";
             // 
             // Form1
             // 
@@ -192,13 +199,14 @@
         private System.Windows.Forms.DataGridView dv1;
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.ListView lv1;
-        private System.Windows.Forms.ColumnHeader columnHeader2;
-        private System.Windows.Forms.ColumnHeader columnHeader3;
+        private System.Windows.Forms.ColumnHeader c1;
+        private System.Windows.Forms.ColumnHeader c2;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Timer timer1;
-        private System.Windows.Forms.ColumnHeader columnHeader4;
-        private System.Windows.Forms.ColumnHeader columnHeader1;
-        private System.Windows.Forms.ColumnHeader columnHeader5;
+        private System.Windows.Forms.ColumnHeader c3;
+        private System.Windows.Forms.ColumnHeader c4;
+        private System.Windows.Forms.ColumnHeader c5;
+        private System.Windows.Forms.ColumnHeader c6;
     }
 }
 
