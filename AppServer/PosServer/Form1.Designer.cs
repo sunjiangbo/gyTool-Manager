@@ -44,6 +44,7 @@
             this.button5 = new System.Windows.Forms.Button();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.c6 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
             ((System.ComponentModel.ISupportInitialize)(this.dv1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -114,7 +115,8 @@
             this.c3,
             this.c4,
             this.c5,
-            this.c6});
+            this.c6,
+            this.columnHeader1});
             this.lv1.FullRowSelect = true;
             this.lv1.GridLines = true;
             this.lv1.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -169,6 +171,10 @@
             // 
             this.c6.Text = "天线";
             // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "机器";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -207,6 +213,7 @@
         private System.Windows.Forms.ColumnHeader c4;
         private System.Windows.Forms.ColumnHeader c5;
         private System.Windows.Forms.ColumnHeader c6;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
     }
 }
 

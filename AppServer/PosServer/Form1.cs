@@ -28,6 +28,7 @@ namespace WindowsFormsApplication1
             public String MachIP;
             public Reader rd;
             public Thread Mthread;
+            public int ReConnectedCount;
             public int[] ConnectedAnts;
         };
          [Serializable]
@@ -74,7 +75,7 @@ namespace WindowsFormsApplication1
                     MachLst[i].rd = Reader.Create(MachLst[i].MachIP, ModuleTech.Region.NA, 4);
 
                     int[] connectedants = (int[])MachLst[i].rd.ParamGet("ConnectedAntennas");
-                    if (connectedants.Length < 2)
+                    if (connectedants.Length <1)
                     {
                         Ret = "";
                         int[] xx = { 0, 0, 0, 0 };
@@ -135,17 +136,90 @@ namespace WindowsFormsApplication1
           TagMux.ReleaseMutex();
         }
 
+        void ReConnect(Mach mc)
+        {
+
+            int i, j, k;
+            String Ret = "";
+
+            if (mc.ReConnectedCount > 5)
+            {
+                /*本设备重连超过五次不成功，可能连接存在问题
+                 */
+
+                MyManager.AddInfoToDB("错误", mc.MachName + "重连5次不成功,不再尝试连接。");
+                return;
+            }
+
+            try
+            {
+                mc.ReConnectedCount++;
+
+                MyManager.AddInfoToDB("信息", mc.MachName + "开始重连.");
+                mc.rd = Reader.Create(mc.MachIP, ModuleTech.Region.NA, 4);
+
+                int[] connectedants = (int[])mc.rd.ParamGet("ConnectedAntennas");
+
+                if (connectedants.Length < 1)
+                {
+                    Ret = "";
+                    int[] xx = { 0, 0, 0, 0 };
+                    for (j = 0; j < connectedants.Length; j++)
+                    {
+                        xx[connectedants[j] - 1] = 1;
+                    }
+                    for (k = 0; k < 4; k++)
+                    {
+                        if (xx[k] == 0)
+                        {
+                            Ret += (k + 1).ToString() + " ";
+                        }
+                    }
+                    Ret = mc.MachName + "," + Ret + "号天线未连接!!";
+                    MyManager.AddInfoToDB("错误", Ret);
+                }
+                mc.ConnectedAnts = (int[])connectedants.Clone();
+                Gen2TagFilter filter = new Gen2TagFilter(ByteFormat.FromHex("FFFFFFFF"), MemBank.EPC, 32, false);
+                mc.rd.ParamSet("Singulation", filter);
+                SimpleReadPlan searchPlan = new SimpleReadPlan(mc.ConnectedAnts);
+                mc.rd.ParamSet("ReadPlan", searchPlan);
+                mc.Mthread = new Thread(new ParameterizedThreadStart(TagMonitorThread));
+                mc.Mthread.Start(mc);
+                MyManager.AddInfoToDB("信息", mc.MachName + "重连并启动监视线程成功！");
+                mc.ReConnectedCount--;
+            }
+            catch (Exception ex)
+            {
+                Ret = mc.MachName + "，重连-->" + ex.ToString();
+                MyManager.AddInfoToDB("错误", Ret);
+                ReConnect(mc);
+            }
+
+       }
+
         void TagMonitorThread(object Mach)
         {
             Mach mc = (Mach)Mach;
             int MachID = mc.MachID;
            while (isInventory)
             {
-               TagReadData[] Tags = mc.rd.Read(500);
-               foreach (TagReadData tag in Tags)
-               {
-                   AddTagToDic(tag,MachID);
-               }
+                try
+                {
+                    TagReadData[] Tags = mc.rd.Read(500);
+                    foreach (TagReadData tag in Tags)
+                    {
+                        AddTagToDic(tag, MachID);
+                    }
+                }
+                catch (OpFaidedException ex1)
+                {
+                    MyManager.AddInfoToDB("警告", mc.MachName + "->" + ex1.ToString());               
+                }
+                catch (Exception ex2)//需要重新连接机器
+                {
+                    MyManager.AddInfoToDB("错误", mc.MachName + "->" + ex2.ToString() + ",开始重新连接。");            
+                    ReConnect(mc);
+                }
             }
         }
 
@@ -304,6 +378,7 @@ namespace WindowsFormsApplication1
                     item.SubItems[3].Text = tmpTagDic[Key].ReadCount.ToString();
                     item.SubItems[4].Text = tmpTagDic[Key].Rssi.ToString();
                     item.SubItems[5].Text = tmpTagDic[Key].PosY.ToString();
+                    item.SubItems[6].Text = tmpTagDic[Key].PosX.ToString();
                 }
                 else
                 {
@@ -314,6 +389,7 @@ namespace WindowsFormsApplication1
                     item.SubItems.Add(tmpTagDic[Key].ReadCount.ToString());
                     item.SubItems.Add(tmpTagDic[Key].Rssi.ToString());
                     item.SubItems.Add(tmpTagDic[Key].PosY.ToString());
+                    item.SubItems.Add(tmpTagDic[Key].PosX.ToString());
                     lv1.Items.Add(item);
                 }
             }
