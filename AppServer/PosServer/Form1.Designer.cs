@@ -41,10 +41,11 @@
             this.c3 = new System.Windows.Forms.ColumnHeader();
             this.c4 = new System.Windows.Forms.ColumnHeader();
             this.c5 = new System.Windows.Forms.ColumnHeader();
-            this.button5 = new System.Windows.Forms.Button();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.c6 = new System.Windows.Forms.ColumnHeader();
             this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
+            this.button5 = new System.Windows.Forms.Button();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dv1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -151,6 +152,14 @@
             // 
             this.c5.Text = "RSSI";
             // 
+            // c6
+            // 
+            this.c6.Text = "天线";
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "机器";
+            // 
             // button5
             // 
             this.button5.Location = new System.Drawing.Point(495, 12);
@@ -167,19 +176,21 @@
             this.timer1.Interval = 500;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
-            // c6
+            // label1
             // 
-            this.c6.Text = "天线";
-            // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "机器";
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(161, 12);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(41, 12);
+            this.label1.TabIndex = 8;
+            this.label1.Text = "label1";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(975, 740);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.lv1);
             this.Controls.Add(this.button4);
@@ -193,6 +204,7 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dv1)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -214,6 +226,7 @@
         private System.Windows.Forms.ColumnHeader c5;
         private System.Windows.Forms.ColumnHeader c6;
         private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.Label label1;
     }
 }
 

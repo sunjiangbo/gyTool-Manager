@@ -47,6 +47,8 @@ namespace WindowsFormsApplication1
         static Dictionary<String, TagInfo> TagDic = new Dictionary<String, TagInfo>();
         Reader rd;
         Boolean isInventory = true;
+        DataTable CoreTabDT;//CoreTool表的datatable,4秒更新一次
+
         void  initMach()
         {
             Mach mc;
@@ -194,6 +196,7 @@ namespace WindowsFormsApplication1
                 MyManager.AddInfoToDB("错误", Ret);
                 ReConnect(mc);
             }
+            mc.ReConnectedCount = 0;
 
        }
 
@@ -260,7 +263,34 @@ namespace WindowsFormsApplication1
 
             lst1.Items.Add("创建线程完毕!");
         }
-//--------------------------------------------------------------------------------------------------------------------------------------
+
+        public void GetCoreTab(object source, System.Timers.ElapsedEventArgs e)
+        {
+            CoreTabDT = MyManager.GetDataSet("Exec GetCoreTablePRC"); 
+            //this.Invoke(new TextOption(f));//invok 委托实现跨线程的调用
+        }
+
+       /* delegate void TextOption();//定义一个委托
+
+        void f()
+        {
+            label1.Text = DateTime.Now.ToString();//调用内容，并用lable1显示出来。。。
+        }
+       */
+        public void GetCoreTabThread()
+        {
+            System.Timers.Timer t = new System.Timers.Timer(2000);//
+            t.Elapsed += new System.Timers.ElapsedEventHandler(GetCoreTab);
+            t.AutoReset = true;//设置是执行一次（false）还是一直执行(true)；
+            t.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件；
+        }
+
+        public void UpdateAllToolState()
+        {
+                
+        }
+
+//----------------------------------------------------自写函数分解线--------------------------------------------------
         public Form1()
         {
             InitializeComponent();
@@ -340,6 +370,7 @@ namespace WindowsFormsApplication1
                 lst1.Items.Add(Ret);
             }
             CreateMonitorThreads();
+            (new Thread(GetCoreTabThread)).Start();
         }
 
         private void button5_Click(object sender, EventArgs e)
