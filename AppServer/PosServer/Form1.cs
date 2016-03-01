@@ -39,12 +39,14 @@ namespace WindowsFormsApplication1
             public DateTime LastSeen;
             public long   ReadCount;
             public int    PosX;
-            public int    PosY;
+            public int    PosY;           
         };
 
         List<Mach> MachLst = new List<Mach>();
         Mutex TagMux = new Mutex();
+        Mutex CoreTabDTMux = new Mutex();
         static Dictionary<String, TagInfo> TagDic = new Dictionary<String, TagInfo>();
+        object clonedObj;
         Reader rd;
         Boolean isInventory = true;
         DataTable CoreTabDT;//CoreTool表的datatable,4秒更新一次
@@ -266,8 +268,10 @@ namespace WindowsFormsApplication1
 
         public void GetCoreTab(object source, System.Timers.ElapsedEventArgs e)
         {
+            CoreTabDTMux.WaitOne();
             CoreTabDT = MyManager.GetDataSet("Exec GetCoreTablePRC"); 
             //this.Invoke(new TextOption(f));//invok 委托实现跨线程的调用
+            CoreTabDTMux.ReleaseMutex();
         }
 
        /* delegate void TextOption();//定义一个委托
@@ -279,15 +283,73 @@ namespace WindowsFormsApplication1
        */
         public void GetCoreTabThread()
         {
-            System.Timers.Timer t = new System.Timers.Timer(2000);//
+            System.Timers.Timer t = new System.Timers.Timer(1500);//
             t.Elapsed += new System.Timers.ElapsedEventHandler(GetCoreTab);
             t.AutoReset = true;//设置是执行一次（false）还是一直执行(true)；
             t.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件；
         }
-
-        public void UpdateAllToolState()
+        public void UpdateAllToolStateThread()
         {
-                
+            System.Timers.Timer t1 = new System.Timers.Timer(2000);//
+            t1.Elapsed += new System.Timers.ElapsedEventHandler(UpdateAllToolState);
+            t1.AutoReset = true;//设置是执行一次（false）还是一直执行(true)；
+            t1.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件；
+        }
+        public void UpdateAllToolState(object source, System.Timers.ElapsedEventArgs e)
+        {
+             Dictionary<String, TagInfo> tmpTagDic = (Dictionary<String, TagInfo>) clonedObj;
+             int i = 0;
+             DataRow[] drs;
+             String EPC;
+             String State;
+             TagInfo tag;
+             CoreTabDTMux.WaitOne();
+
+             foreach (DataRow dr in CoreTabDT.Rows)
+             {
+                 EPC = dr["EPC"].ToString();
+                 State = dr["State"].ToString();
+
+                 if (tmpTagDic.ContainsKey(EPC))//实际在库
+                 {
+                     tag = tmpTagDic[EPC];
+                     dr["PosX"] = tag.PosX;
+                     dr["PosY"] = tag.PosY;
+                     dr["LastSeen"] = tag.LastSeen.ToString();
+
+                     if (State == "0")//理论在库
+                     {
+                         dr["RealState"] = 5;
+                     }
+                     else if (State == "2") //理论借出
+                     {
+                         dr["RealState"] = 6;
+                     }
+                     else
+                     {
+                         dr["RealState"] = 0;
+                     }
+                     tmpTagDic.Remove(EPC);//从tmpTagDic中移除该tag，减小下次dict的查询负担。
+                 }
+                 else//实际不在库
+                 {
+                     if (State == "0")//在库
+                     {
+                         dr["RealState"] = 7;
+                     }
+                     else if (State == "2") //借出
+                     {
+                         dr["RealState"] = 2;
+                     }
+                     else
+                     {
+                         dr["RealState"] = 8;
+                     }
+                 }
+                 
+             }
+            
+            CoreTabDTMux.ReleaseMutex();
         }
 
 //----------------------------------------------------自写函数分解线--------------------------------------------------
@@ -392,7 +454,7 @@ namespace WindowsFormsApplication1
             TagMux.ReleaseMutex();
 
             stream.Position = 0;
-            object clonedObj = Formatter.Deserialize(stream);
+            clonedObj = Formatter.Deserialize(stream);
             stream.Close();
 
             Dictionary<String, TagInfo> tmpTagDic = (Dictionary<String, TagInfo>) clonedObj;
