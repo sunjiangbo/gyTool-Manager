@@ -29,6 +29,21 @@ namespace WindowsFormsApplication1
             return dt;
         }
 
+        static public SqlDataAdapter GetDataADP(String SQLTxt)
+        {
+            DataTable dt = new DataTable();
+            SqlConnection myConn = new SqlConnection(System.Configuration.ConfigurationSettings.AppSettings["ConnStr"]);
+            myConn.Open();
+            if (myConn.State == System.Data.ConnectionState.Open)
+            {
+                myConn.Close();
+                SqlDataAdapter da = new SqlDataAdapter(SQLTxt, myConn);
+                return da;
+            }
+           
+            return null;
+        }
+
         static public int ExecSQL(String SQLTxt)
         {
             int iRet = 0;
