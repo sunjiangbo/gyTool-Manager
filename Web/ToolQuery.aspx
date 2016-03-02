@@ -277,27 +277,7 @@
                     treeField: 'name',
                     remoteSort: false,
                     rownumbers: true,
-                    toolbar: [{
-                        text: '操作'
-                    }, '-', {
-                        iconCls: 'icon-add',
-                        text: '入编',
-                        singleSelect: true,
-                        handler: function() {
-                            var row = $('#t1').datagrid('getSelected');
-                            if (row) {
-                                if (row.type == 'bntool') { $.messager.alert("提示", "包内工具不能单独入库!"); }
-                                else if (row.type == 'tool') { }
-                                else if (row.type == 'bag') {
-                                    window.location.href = 'HitTool.aspx?BagID=' + row.id;
-                                }
-                                //$('#t1').datagrid('deleteRow', index);
-                            } else {
-                                $.messager.alert("提示", "请选择要入编的工具包!");
-                            }
-                        }
-}],
-                        onLoadSuccess: function(row, data) {
+                    onLoadSuccess: function(row, data) {
                             for (i = 0; i < data.length; i++) {
                                 if (data[i].children != null && data[i].children.length != 0) {
                                     AddTooltip(data[i].id, 1, 'ToolBag.aspx?Type=1&BagID=' + data[i].id);
