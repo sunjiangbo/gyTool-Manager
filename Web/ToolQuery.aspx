@@ -277,27 +277,7 @@
                     treeField: 'name',
                     remoteSort: false,
                     rownumbers: true,
-                    toolbar: [{
-                        text: '操作'
-                    }, '-', {
-                        iconCls: 'icon-add',
-                        text: '入编',
-                        singleSelect: true,
-                        handler: function() {
-                            var row = $('#t1').datagrid('getSelected');
-                            if (row) {
-                                if (row.type == 'bntool') { $.messager.alert("提示", "包内工具不能单独入库!"); }
-                                else if (row.type == 'tool') { }
-                                else if (row.type == 'bag') {
-                                    window.location.href = 'HitTool.aspx?BagID=' + row.id;
-                                }
-                                //$('#t1').datagrid('deleteRow', index);
-                            } else {
-                                $.messager.alert("提示", "请选择要入编的工具包!");
-                            }
-                        }
-}],
-                        onLoadSuccess: function(row, data) {
+                    onLoadSuccess: function(row, data) {
                             for (i = 0; i < data.length; i++) {
                                 if (data[i].children != null && data[i].children.length != 0) {
                                     AddTooltip(data[i].id, 1, 'ToolBag.aspx?Type=1&BagID=' + data[i].id);
@@ -322,7 +302,8 @@
                     return '<a  class = "myCell" id="tip' + row.id + '">' + val + '</a>';
                 }
                         },
-                { field: 'toolstate', title: '工具状态', width: 20, sortable: true },
+                { field: 'toolstate', title: '理论状态', width: 20, sortable: true },
+                { field: 'realtoolstate', title: '实际状态', width: 20, sortable: true },
                 { field: 'modifytime', title: '最后修改时间', width: 80, sortable: true },
             ]],
                         enableHeaderClickMenu: false,
@@ -434,6 +415,12 @@
             var ToolBagClassName = '', ToolClassName = '', PropertyName = '';
             var bContinue = true;
 
+            /*{ range: -1, name: "所有", ret: "all", specific:[
+            *                                                  { tid: ToolClassID, name: ToolClassName, vals: [
+            *                                                                                                  { name: PropertyName, pid: PropertyID, val: Value }
+            * ] }
+            * ] };*/
+            
             ToolBagClassID = $("#ToolBagList").combobox("getValue");
             ToolClassID = $("#ToolList").combobox("getValue");
             PropertyID = $("#PropertyList").combobox("getValue");
@@ -481,7 +468,7 @@
 
                 var tListAr = JSON.parse(JSON.stringify(Filter.specific));
                 var iFind;
-
+                //开始在specific中查找该ToolClassID
                 for (i = 0, iFind = -1; i < tListAr.length; i++) {
                     if (tListAr[i].tid == ToolClassID) {
                         iFind = i;

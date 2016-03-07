@@ -44,12 +44,13 @@ namespace WindowsFormsApplication1
 
         List<Mach> MachLst = new List<Mach>();
         Mutex TagMux = new Mutex();
-        Mutex CoreTabDTMux = new Mutex();
+        Mutex CoreTabDAMux = new Mutex();
         static Dictionary<String, TagInfo> TagDic = new Dictionary<String, TagInfo>();
         object clonedObj;
         Reader rd;
         Boolean isInventory = true;
         DataTable CoreTabDT;//CoreTool表的datatable,4秒更新一次
+        SqlDataAdapter CoreTabDA;
 
         void  initMach()
         {
@@ -268,10 +269,10 @@ namespace WindowsFormsApplication1
 
         public void GetCoreTab(object source, System.Timers.ElapsedEventArgs e)
         {
-            CoreTabDTMux.WaitOne();
-            CoreTabDT = MyManager.GetDataSet("Exec GetCoreTablePRC"); 
+            CoreTabDAMux.WaitOne();
+            CoreTabDA = MyManager.GetDataADP("Exec GetCoreTablePRC"); 
             //this.Invoke(new TextOption(f));//invok 委托实现跨线程的调用
-            CoreTabDTMux.ReleaseMutex();
+            CoreTabDAMux.ReleaseMutex();
         }
 
        /* delegate void TextOption();//定义一个委托
@@ -303,7 +304,10 @@ namespace WindowsFormsApplication1
              String EPC;
              String State;
              TagInfo tag;
-             CoreTabDTMux.WaitOne();
+
+             CoreTabDAMux.WaitOne();
+             CoreTabDA.Fill(CoreTabDT);
+             
 
              foreach (DataRow dr in CoreTabDT.Rows)
              {
@@ -348,8 +352,10 @@ namespace WindowsFormsApplication1
                  }
                  
              }
-            
-            CoreTabDTMux.ReleaseMutex();
+
+             SqlCommandBuilder cmd = new SqlCommandBuilder(CoreTabDA);
+             CoreTabDA.Update(CoreTabDT);
+             CoreTabDAMux.ReleaseMutex();            
         }
 
 //----------------------------------------------------自写函数分解线--------------------------------------------------

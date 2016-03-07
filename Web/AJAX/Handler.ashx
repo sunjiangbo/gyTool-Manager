@@ -1270,9 +1270,9 @@ public String Test(HttpContext ctx)
     }
     public String ToolSearch(JObject JO)/*对coretable中的工具进行查询，已经编号的*/
     {
-        /*{ range: -1, name: "所有", ret: "all", specific:[
-         *                                                 { tid: ToolClassID, name: ToolClassName, vals: [
-         *                                                                                                  { name: PropertyName, pid: PropertyID, val: Value }
+        /*{ range: -1, name: "所有", ret:返回范围 "all"所有 "tool"工具 "bag"工具包, specific:[
+         *                                                                              { tid: ToolClassID, name: ToolClassName, vals: [
+         *                                                                                                                                  { name: PropertyName, pid: PropertyID, val: Value }
          * ] }
          * ] };*/
         String json = "";
@@ -1367,7 +1367,7 @@ public String Test(HttpContext ctx)
         jWrite.WriteStartArray();
         if ((fw == 1 || fw == 0) && IDbn != "")
         {
-            dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID WHERE ID IN(" + IDbn + ")");//工具包
+            dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ID IN(" + IDbn + ")");//工具包
             dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + IDbn + ")");//包内工具集合
             dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + IDbn + ")");//属性集合
             for (i = 0; i < dt.Rows.Count; i++)
@@ -1381,6 +1381,8 @@ public String Test(HttpContext ctx)
                 jWrite.WriteValue(dt.Rows[i]["toolid"].ToString());
                 jWrite.WritePropertyName("toolstate");
                 jWrite.WriteValue(dt.Rows[i]["StateName"].ToString());
+                jWrite.WritePropertyName("realtoolstate");
+                jWrite.WriteValue(dt.Rows[i]["RStateName"].ToString());
                 jWrite.WritePropertyName("name");
                 jWrite.WriteValue(dt.Rows[i]["ToolName"].ToString());
                 jWrite.WritePropertyName("modifytime");
@@ -1416,8 +1418,8 @@ public String Test(HttpContext ctx)
                     jWrite.WriteValue(dr[j]["rkID"].ToString());
                     jWrite.WritePropertyName("toolid");
                     jWrite.WriteValue(dr[j]["toolid"].ToString());
-                    jWrite.WritePropertyName("toolstate");
-                    jWrite.WriteValue(dr[j]["StateName"].ToString());
+                    //jWrite.WritePropertyName("toolstate");
+                    //jWrite.WriteValue(dr[j]["StateName"].ToString());
                     jWrite.WritePropertyName("name");
                     jWrite.WriteValue(dr[j]["name"].ToString());
                     jWrite.WritePropertyName("iconCls");
@@ -1447,7 +1449,7 @@ public String Test(HttpContext ctx)
 
         if ((fw == 2 || fw == 0) && IDdl != "")
         {
-            dt1 = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID WHERE ID IN(" + IDdl + ")");
+            dt1 = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ID IN(" + IDdl + ")");
             dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[CoreID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where ValueType = 0 AND  CoreID IN(" + IDdl + ")");//属性集合
             for (i = 0; i < dt1.Rows.Count; i++)
             {
@@ -1460,6 +1462,8 @@ public String Test(HttpContext ctx)
                 jWrite.WriteValue(dt1.Rows[i]["rkID"].ToString());
                 jWrite.WritePropertyName("toolstate");
                 jWrite.WriteValue(dt1.Rows[i]["statename"].ToString());
+                jWrite.WritePropertyName("realtoolstate");
+                jWrite.WriteValue(dt1.Rows[i]["RStateName"].ToString());
                 jWrite.WritePropertyName("toolid");
                 jWrite.WriteValue(dt1.Rows[i]["toolid"].ToString());
                 jWrite.WritePropertyName("modifytime");
