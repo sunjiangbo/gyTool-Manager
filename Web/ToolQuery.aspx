@@ -302,7 +302,8 @@
                     return '<a  class = "myCell" id="tip' + row.id + '">' + val + '</a>';
                 }
                         },
-                { field: 'toolstate', title: '工具状态', width: 20, sortable: true },
+                { field: 'toolstate', title: '理论状态', width: 20, sortable: true },
+                { field: 'realtoolstate', title: '实际状态', width: 20, sortable: true },
                 { field: 'modifytime', title: '最后修改时间', width: 80, sortable: true },
             ]],
                         enableHeaderClickMenu: false,
@@ -414,6 +415,12 @@
             var ToolBagClassName = '', ToolClassName = '', PropertyName = '';
             var bContinue = true;
 
+            /*{ range: -1, name: "所有", ret: "all", specific:[
+            *                                                  { tid: ToolClassID, name: ToolClassName, vals: [
+            *                                                                                                  { name: PropertyName, pid: PropertyID, val: Value }
+            * ] }
+            * ] };*/
+            
             ToolBagClassID = $("#ToolBagList").combobox("getValue");
             ToolClassID = $("#ToolList").combobox("getValue");
             PropertyID = $("#PropertyList").combobox("getValue");
@@ -461,7 +468,7 @@
 
                 var tListAr = JSON.parse(JSON.stringify(Filter.specific));
                 var iFind;
-
+                //开始在specific中查找该ToolClassID
                 for (i = 0, iFind = -1; i < tListAr.length; i++) {
                     if (tListAr[i].tid == ToolClassID) {
                         iFind = i;
