@@ -179,7 +179,17 @@
                     $.messager.alert("提示", dat.msg);
                     LoadTable();
                 }
-            });             
+            });
+        }
+        function ShowBrwWin() {
+            $('#Win').window({
+                width: 600,
+                height: 400,
+                modal: true,
+            });
+            $("#fr1").attr("src", "preBrowerList.aspx");
+          //  $("#Win").window({ title: "工具箱本体模型选择", modal: true, closed: false});
+            $("#Win").window({ closed: false });
         }
         $(function () {
             LoadTable();
@@ -189,6 +199,9 @@
             if (Type == "1") {
                 $("#Table_Type1").css("display", "");
             }
+
+            $("#brwerCount").bind("click", function () { ShowBrwWin(); });
+             // $("#Win").window({ closed: true });
         });
     </script>
 </head>
@@ -196,6 +209,11 @@
     <form id="form1" runat="server">
 		<div data-options="region:'north'" style=" float:left; overflow:hidden;padding:10px">
 			<a id = "retBtn"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "GoBack();"><--返回</a>
+            领用人:
+            <a id = "brwerCount" style = "cursor:pointer;text-decoration:underline; color:Blue;font-weight:bold; margin-right:20px;margin-left:5px;">(0)</a>
+             <div id="Win" class="easyui-window"  style = "padding:0px; visibility:hidden;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'Test Window'" >
+               <iframe id ="fr1"  width="97%" height="97%" frameborder="0"></iframe>
+            </div>
 		</div>
 		<div id = "tBags"data-options="region:'east',iconCls:'icon-reload',split:true" title="工具预览" style="width:700px;">
              <iframe  id = "Frm1" frameborder="no" border="0" style="width:100%;height:100%;" src=""></iframe>
