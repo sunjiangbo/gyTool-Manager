@@ -1,5 +1,5 @@
-/**
- *  ҳ����صȴ�ҳ��
+﻿/**
+ *  页面加载等待页面
  *
  * @author gxjiang
  * @date 2010/7/24
@@ -33,7 +33,29 @@
  document.write(_html);
  }
  */
- function  ChangeTheme(themeName) {/*����������չ*/
+function MyAjax(jsondat, SuccessFun, ErrorFun) {
+    $.messager.progress({ title: '提示', msg: '正在处理，请稍候!' });
+    $.ajax(
+                    {
+                        url: 'AJAX/Handler.ashx',
+                        type: "POST",
+                        data: JSON.stringify(jsondat),
+                        dataType: 'json',
+                        success: function (data) {
+                            SuccessFun(data);
+                            $.messager.progress('close');
+                        },
+                        error: function (xhr, s, e) {
+                            if (ErrorFun != undefined && ErrorFun != null) {
+                                ErrorFun(xhr, s, e);
+                            } else {
+                                $.messager.progress('close');
+                                $.messager.alert('数据加载错误', e);
+                            }
+                        }
+                    });
+}
+ function  ChangeTheme(themeName) {/*更换主题扩展*/
     var $easyuiTheme = $('#easyuiTheme');
     var url = $easyuiTheme.attr('href');
     var href = url.substring(0, url.indexOf('theme')) + 'theme/' + themeName + '/easyui.css';

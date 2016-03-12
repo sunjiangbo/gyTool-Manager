@@ -12,7 +12,7 @@ public partial class Borrow : System.Web.UI.Page
     {
         int Count = 0;
 
-        if (Request["TaskID"] == null || Session["UserID"]==null) { Response.Write("非法访问!"); Response.End(); return; }
+        //if (Request["TaskID"] == null || Session["UserID"]==null) { Response.Write("非法访问!"); Response.End(); return; }
 
         if (Request["reBack"] != null) { reBack = Request["reBack"].ToString(); }
         

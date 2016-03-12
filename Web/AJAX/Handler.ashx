@@ -28,7 +28,31 @@ const int TOOL_BAG_TYPE          = 1;
 const int TOOL_BAG_PROPERTY      = 2;
 const int TOOL_IN_BAG            = 3;
 const int TOOL_IN_BAG_PROPERTY   = 4;
-    
+public String GetGeneralJSONRetBySQL(String SQLTxt)
+{
+    String ColName;
+    StringWriter sw = new StringWriter();
+    JsonWriter jWrite = new JsonTextWriter(sw);
+    DataTable dt = MyManager.GetDataSet(SQLTxt);
+    jWrite.WriteStartArray();
+
+    for (int i = 0; i < dt.Rows.Count; i++)
+    {
+
+        jWrite.WriteStartObject();
+        for (int j = 0; j < dt.Columns.Count; j++)
+        {
+            ColName = dt.Columns[j].ColumnName;
+            jWrite.WritePropertyName(ColName);
+            jWrite.WriteValue(dt.Rows[i][ColName].ToString());
+        }
+        jWrite.WriteEndObject();
+
+    }
+
+    jWrite.WriteEndArray();
+    return sw.ToString();
+}  
 public String Test(HttpContext ctx)
 {
 
@@ -2401,7 +2425,7 @@ public String Test(HttpContext ctx)
         
         return "任务提交成功，请记住任务编号:" +TaskID; 
     }
-    
+
     public String CreateBagExcel(JObject JO)
     {
         String ExcelURL = "";
@@ -2614,7 +2638,54 @@ public String Test(HttpContext ctx)
 
         return "{\"status\":\""+(bRight==true?"success":"failed")+"\",\"msg\":\"" + Msg + "\",\"taskid\":\""+TaskID+"\"}";
     }
-       
+    public String GetPeronList(int TaskID)
+    {       
+        return GetGeneralJSONRetBySQL("SELECT ID as id ,Name as name From UserList Order by UserName");        
+    }
+
+    public String GetBorrowPeronListByTaskID(int TaskID)
+    {
+        return GetGeneralJSONRetBySQL("SELECT A.UserID as id,B.Name as name From PreBrowersList AS A join UserList AS B on A.UserID = B.ID where A.Taskid = " + TaskID + " Order by name");
+    }
+    public String ModifyBorrowPerson(int TaskID,int UserID,String Type)
+    {
+        //String okjson = "{\"status\":\"success\",\"msg\":\"添加成功!\",\"borrowcount\":";
+        if (Type == "Add")
+        {
+            if (MyManager.SELCount("select count(id) as icount from PreBrowersList where taskid=" + TaskID + " and userid =" + UserID, "icount") > 0)
+            {
+                return "{\"status\":\"failed\",\"msg\":\"该人员已经存在!\"}";
+            }
+            else
+            {
+                MyManager.ExecSQL("insert into PreBrowersList(taskid,userid) values(" + TaskID + "," + UserID + ") ");
+                return "{\"status\":\"success\",\"msg\":\"添加成功!\"}";
+            }
+        }
+        if (Type == "Del")
+        {
+            if (MyManager.SELCount("select count(id) as icount from PreBrowersList where taskid=" + TaskID + " and userid =" + UserID, "icount") > 0)
+            {
+                if (MyManager.SELCount("select count(id) as icount from PreBrowersList where taskid=" + TaskID, "icount") > 1)
+                {
+                    MyManager.ExecSQL("delete from PreBrowersList where taskid = " + TaskID + " and userid=" + UserID);
+                    return "{\"status\":\"success\",\"msg\":\"添加成功!\"}";
+                }else
+                    return "{\"status\":\"failed\",\"msg\":\"至少要保留一个人来借工具!\"}";                
+            }
+            else
+            {
+                return "{\"status\":\"failed\",\"msg\":\"该人员不存在!\"}";
+            }
+        }
+        return "";
+    }
+
+    public String GetbrwerCount( int TaskID)
+    {
+        return MyManager.GetFiledByInput("SELECT count(ID) as iCount from [PreBrowersList] Where TaskID = " + TaskID, "iCount");
+    } 
+   
    public void ProcessRequest (HttpContext context) 
    {
 
@@ -2826,9 +2897,22 @@ public String Test(HttpContext ctx)
            {
                retJSON = AddToCoreTool(JO); 
            }
-           
-           
-           
+           if (Cmd == "GetPeronList")
+           {
+               retJSON = GetPeronList(Convert.ToInt32(JO["TaskID"].ToString()));
+           }
+           if (Cmd == "GetBorrowPeronListByTaskID")
+           {
+               retJSON = GetBorrowPeronListByTaskID(Convert.ToInt32(JO["TaskID"].ToString()));  
+           }
+           if (Cmd == "ModifyBorrowPerson")
+           {
+               retJSON = ModifyBorrowPerson(Convert.ToInt32(JO["taskid"].ToString()), Convert.ToInt32(JO["userid"].ToString()), JO["type"].ToString());
+           }
+           if (Cmd == "GetbrwerCount")
+           {
+               retJSON = GetbrwerCount(Convert.ToInt32(JO["taskid"].ToString()));
+           }
            context.Response.Write(retJSON);
            
         }

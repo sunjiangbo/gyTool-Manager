@@ -181,16 +181,31 @@
                 }
             });
         }
+        function GetbrwerCount()
+        {
+            o={};
+            o.cmd="GetbrwerCount";
+            o.taskid=TaskID;
+            MyAjax(o,function(count){
+                $("#brwerCount").text("(" + count+")");
+                $("#brwerCount").val("(" + count+")");
+            });
+        }
         function ShowBrwWin() {
             $('#Win').window({
-                width: 600,
-                height: 400,
+                width: 450,
+                height: 350,
                 modal: true,
             });
-            $("#fr1").attr("src", "preBrowerList.aspx");
-          //  $("#Win").window({ title: "工具箱本体模型选择", modal: true, closed: false});
+            
+            $("#Win").window({ title: "工具箱本体模型选择", closed: false,onClose:function(){
+                GetbrwerCount();
+            }});
             $("#Win").window({ closed: false });
         }
+
+        
+
         $(function () {
             LoadTable();
             if (reBack == "") {
@@ -199,9 +214,11 @@
             if (Type == "1") {
                 $("#Table_Type1").css("display", "");
             }
-
+            $("#fr1").attr("src", "preBrowerList.aspx?TaskID="+TaskID);
+             $("#Win").window({ closed: true });
             $("#brwerCount").bind("click", function () { ShowBrwWin(); });
              // $("#Win").window({ closed: true });
+             GetbrwerCount();
         });
     </script>
 </head>
@@ -210,10 +227,7 @@
 		<div data-options="region:'north'" style=" float:left; overflow:hidden;padding:10px">
 			<a id = "retBtn"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "GoBack();"><--返回</a>
             领用人:
-            <a id = "brwerCount" style = "cursor:pointer;text-decoration:underline; color:Blue;font-weight:bold; margin-right:20px;margin-left:5px;">(0)</a>
-             <div id="Win" class="easyui-window"  style = "padding:0px; visibility:hidden;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'Test Window'" >
-               <iframe id ="fr1"  width="97%" height="97%" frameborder="0"></iframe>
-            </div>
+             <a id = "brwerCount" style = "cursor:pointer;text-decoration:underline; color:Blue;font-weight:bold; margin-right:20px;margin-left:5px;">(0)</a>
 		</div>
 		<div id = "tBags"data-options="region:'east',iconCls:'icon-reload',split:true" title="工具预览" style="width:700px;">
              <iframe  id = "Frm1" frameborder="no" border="0" style="width:100%;height:100%;" src=""></iframe>
@@ -358,6 +372,9 @@
             </table>
             </div>
 		</div>
+             <div id="Win" class="easyui-window"  style = "padding:0px; width:300px; height:500px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true" >
+               <iframe id ="fr1"  width="97%" height="97%" frameborder="0"></iframe>
+            </div>
     </form>
 </body>
 </html>
