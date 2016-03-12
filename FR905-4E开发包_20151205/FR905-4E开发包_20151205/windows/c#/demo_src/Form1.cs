@@ -323,6 +323,7 @@ namespace ModuleReaderManager
                 }
                 catch (OpFaidedException exxx)
                 {
+                    
                     Debug.WriteLine("inventory failed --------------------------------------------------");
                     this.BeginInvoke(new OpFailedHandler(ShowOpFailedMsg), exxx);
                 //    Debug.WriteLine(exxx.ToString());

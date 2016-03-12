@@ -8,6 +8,12 @@ namespace WindowsFormsApplication1
 {
     class MyManager
     {
+        static  public int AddInfoToDB( String Type, String Txt)
+        {
+            return MyManager.ExecSQL("INSERT INTO MachMsg(Time,Type,txt) VALUES('" + DateTime.Now.ToString() + "','" + Type + "','" + Txt + "')");
+        }
+
+
         static public DataTable GetDataSet(String SQLTxt)
         {
             DataTable dt = new DataTable();
@@ -21,6 +27,21 @@ namespace WindowsFormsApplication1
 
             myConn.Close();
             return dt;
+        }
+
+        static public SqlDataAdapter GetDataADP(String SQLTxt)
+        {
+            DataTable dt = new DataTable();
+            SqlConnection myConn = new SqlConnection(System.Configuration.ConfigurationSettings.AppSettings["ConnStr"]);
+            myConn.Open();
+            if (myConn.State == System.Data.ConnectionState.Open)
+            {
+                myConn.Close();
+                SqlDataAdapter da = new SqlDataAdapter(SQLTxt, myConn);
+                return da;
+            }
+           
+            return null;
         }
 
         static public int ExecSQL(String SQLTxt)
@@ -70,7 +91,7 @@ namespace WindowsFormsApplication1
             //现在默认只会得到 类AA或AAA
             String ToolNum;
 
-            if (EPC[14] == '0' && EPC[14] == '0')
+            if (EPC[14] == '0' && EPC[15] == '0')
             {
                 ToolNum = ((char)Convert.ToInt16(EPC.Substring(16, 2))).ToString() + ((char)Convert.ToInt16(EPC.Substring(18, 2))).ToString();
             }

@@ -1,0 +1,42 @@
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\ResolveAssemblyReference.cache
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\Interop.ZKFPEngXControl.dll
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\AxInterop.ZKFPEngXControl.dll
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\RegFinger.csproj.ResolveComReference.cache
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\指纹登机.Form1.resources
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\指纹登机.Properties.Resources.resources
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\GenerateResource.read.1.tlog
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\GenerateResource.write.1.tlog
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\bin\Debug\指纹登机.exe
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\bin\Debug\指纹登机.pdb
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\bin\Debug\Interop.ZKFPEngXControl.dll
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\bin\Debug\AxInterop.ZKFPEngXControl.dll
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\指纹登机.exe
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\指纹登机.pdb
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\bin\Debug\指纹登机.exe.config
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\bin\Debug\sq-AL\指纹登机.resources.dll
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\bin\Debug\sq\指纹登机.resources.dll
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\指纹登机.Form1.sq-AL.resources
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\指纹登机.Form1.sq.resources
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\sq-AL\指纹登机.resources.dll
+d:\我的文档\visual studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\sq\指纹登机.resources.dll
+C:\我的文档\Visual Studio 2010\Projects\指纹登机\指纹登机\bin\Debug\指纹登机.exe.config
+C:\我的文档\Visual Studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\RegFinger.csproj.ResolveComReference.cache
+C:\我的文档\Visual Studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\指纹登机.exe
+C:\我的文档\Visual Studio 2010\Projects\指纹登机\指纹登机\obj\x86\Debug\指纹登机.pdb
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\bin\Debug\指纹登机.exe.config
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\RegFinger.csproj.ResolveComReference.cache
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\指纹登机.exe
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\指纹登机.pdb
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\bin\Debug\指纹登机.exe
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\bin\Debug\指纹登机.pdb
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\bin\Debug\sq-AL\指纹登机.resources.dll
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\bin\Debug\sq\指纹登机.resources.dll
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\bin\Debug\Interop.ZKFPEngXControl.dll
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\RegFinger.csprojResolveAssemblyReference.cache
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\指纹登机.Form1.resources
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\指纹登机.Properties.Resources.resources
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\指纹登机.Form1.sq-AL.resources
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\指纹登机.Form1.sq.resources
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\RegFinger.csproj.GenerateResource.Cache
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\sq-AL\指纹登机.resources.dll
+F:\程序库\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\sq\指纹登机.resources.dll

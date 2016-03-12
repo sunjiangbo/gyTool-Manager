@@ -191,15 +191,15 @@
                 Filter.ret = "all";
             }
         }
-        $(function() {
+        $(function () {
 
             var json = {};
             json.cmd = "GetToolBagList";
 
-            MyAjax(json, function(data) {
+            MyAjax(json, function (data) {
                 if (data.status == "success") {
                     data.data.push({ "name": "所有", "id": "-1" });
-                    $("#ToolBagList").combobox({ editable: false, data: data.data, valueField: "id", textField: "name", onSelect: function(record) { record.isInit = false; ToolBagClassChange(record); } });
+                    $("#ToolBagList").combobox({ editable: false, data: data.data, valueField: "id", textField: "name", onSelect: function (record) { record.isInit = false; ToolBagClassChange(record); } });
                     $("#ToolBagList").combobox('setValue', '-1');
 
                 } else {
@@ -209,10 +209,10 @@
 
             json.cmd = "GetClassList";
 
-            MyAjax(json, function(data) {
+            MyAjax(json, function (data) {
                 if (data.status == "success") {
                     data.data.push({ "name": "所有", "id": "-1" });
-                    $("#ToolList").combobox({ editable: false, data: data.data, valueField: "id", textField: "name", onSelect: function(record) { record.isInit = false; ToolClassChange(record); } });
+                    $("#ToolList").combobox({ editable: false, data: data.data, valueField: "id", textField: "name", onSelect: function (record) { record.isInit = false; ToolClassChange(record); } });
                     $("#ToolList").combobox('setValue', '-1');
                 } else {
                     $.messager.alert('错误', '工具包列表加载失败！');
@@ -233,7 +233,7 @@
 
                 $('#tip' + id).tooltip({
                     position: 'right',
-                    content: function() {
+                    content: function () {
                         if (type == 0) {
                             sx = JSON.parse(JSON.stringify(dat));
                             var table = $('<table class = "MyTable"  border="0" cellpadding="0" cellspacing="0">');
@@ -257,15 +257,15 @@
                 });
 
             }
-            $(function() {
+            $(function () {
 
-                $("#Radio1").bind("click", function() {
+                $("#Radio1").bind("click", function () {
                     Filter.range = -1;
                     Filter.name = "所有";
                     Filter.ret = "all";
                     $("#ToolBagList").combobox("setValue", "-1");
                     ParseFilters();
-                })
+                });
 
                 $("#t1").treegrid({
                     title: '',
@@ -277,61 +277,42 @@
                     treeField: 'name',
                     remoteSort: false,
                     rownumbers: true,
-                    toolbar: [{
-                        text: '操作'
-                    }, '-', {
-                        iconCls: 'icon-add',
-                        text: '入编',
-                        singleSelect: true,
-                        handler: function() {
-                            var row = $('#t1').datagrid('getSelected');
-                            if (row) {
-                                if (row.type == 'bntool') { $.messager.alert("提示", "包内工具不能单独入库!"); }
-                                else if (row.type == 'tool') { }
-                                else if (row.type == 'bag') {
-                                    window.location.href = 'HitTool.aspx?BagID=' + row.id;
+                    onLoadSuccess: function (row, data) {
+                        for (i = 0; i < data.length; i++) {
+                            if (data[i].children != null && data[i].children.length != 0) {
+                                AddTooltip(data[i].id, 1, 'ToolBag.aspx?Type=1&BagID=' + data[i].id);
+                                for (j = 0; j < data[i].children.length; j++) {
+                                    AddTooltip(data[i].children[j].id, 0, data[i].children[j].sx);
                                 }
-                                //$('#t1').datagrid('deleteRow', index);
                             } else {
-                                $.messager.alert("提示", "请选择要入编的工具包!");
+                                AddTooltip(data[i].id, 0, data[i].sx);
                             }
                         }
-}],
-                        onLoadSuccess: function(row, data) {
-                            for (i = 0; i < data.length; i++) {
-                                if (data[i].children != null && data[i].children.length != 0) {
-                                    AddTooltip(data[i].id, 1, 'ToolBag.aspx?Type=1&BagID=' + data[i].id);
-                                    for (j = 0; j < data[i].children.length; j++) {
-                                        AddTooltip(data[i].children[j].id, 0, data[i].children[j].sx);
-                                    }
-                                } else {
-                                    AddTooltip(data[i].id, 0, data[i].sx);
-                                }
-                            }
 
-                        },
-                        columns: [
+                    },
+                    columns: [
                         [{ field: 'ck', checkbox: true },
-                         {field: 'rkid', title: '入库编号', width: 20, sortable: true },
+                         { field: 'rkid', title: '入库编号', width: 20, sortable: true },
                         { field: 'toolid', title: '件号', width: 20, sortable: true },
                         { field: 'name', title: '名称', width: 40, sortable: true, tooltip: true, formatter:
-                function(val, row, index) {
+                function (val, row, index) {
                     Str = '<div style="padding:10px 200px"><p><a  href="javascript:void(0)" class="easyui-tooltip" data-options="hideEvent: \'none\',content: function(){return $("<div>' + val + '</div>");},onShow: function(){var t = $(this);t.tooltip(\'tip\').focus().unbind().bind(\'blur\',function(){tooltip(\'hide\');});}">Hover me</a> to display toolbar.</p>	</div>';
 
                     // return val;
                     return '<a  class = "myCell" id="tip' + row.id + '">' + val + '</a>';
                 }
                         },
-                { field: 'toolstate', title: '工具状态', width: 20, sortable: true },
+                { field: 'toolstate', title: '理论状态', width: 20, sortable: true },
+                { field: 'realtoolstate', title: '实际状态', width: 20, sortable: true },
                 { field: 'modifytime', title: '最后修改时间', width: 80, sortable: true },
             ]],
-                        enableHeaderClickMenu: false,
-                        enableHeaderContextMenu: false,
-                        enableRowContextMenu: false
-                    });
+                    enableHeaderClickMenu: false,
+                    enableHeaderContextMenu: false,
+                    enableRowContextMenu: false
                 });
-
             });
+
+        });
         function FiltersParse() {
 
             $("#FiltersDiv").children().remove();
@@ -434,6 +415,12 @@
             var ToolBagClassName = '', ToolClassName = '', PropertyName = '';
             var bContinue = true;
 
+            /*{ range: -1, name: "所有", ret: "all", specific:[
+            *                                                  { tid: ToolClassID, name: ToolClassName, vals: [
+            *                                                                                                  { name: PropertyName, pid: PropertyID, val: Value }
+            * ] }
+            * ] };*/
+            
             ToolBagClassID = $("#ToolBagList").combobox("getValue");
             ToolClassID = $("#ToolList").combobox("getValue");
             PropertyID = $("#PropertyList").combobox("getValue");
@@ -481,7 +468,7 @@
 
                 var tListAr = JSON.parse(JSON.stringify(Filter.specific));
                 var iFind;
-
+                //开始在specific中查找该ToolClassID
                 for (i = 0, iFind = -1; i < tListAr.length; i++) {
                     if (tListAr[i].tid == ToolClassID) {
                         iFind = i;

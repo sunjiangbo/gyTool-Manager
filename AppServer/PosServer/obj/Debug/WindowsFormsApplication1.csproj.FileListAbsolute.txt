@@ -27,3 +27,6 @@ E:\gyTool-Manager\AppServer\PosServer\obj\Debug\ResolveAssemblyReference.cache
 E:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.Form1.resources
 E:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.Properties.Resources.resources
 E:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.csproj.GenerateResource.Cache
+D:\gyTool-Manager\AppServer\PosServer\bin\Debug\WindowsFormsApplication1.exe.config
+D:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.exe
+D:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.pdb

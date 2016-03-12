@@ -28,7 +28,31 @@ const int TOOL_BAG_TYPE          = 1;
 const int TOOL_BAG_PROPERTY      = 2;
 const int TOOL_IN_BAG            = 3;
 const int TOOL_IN_BAG_PROPERTY   = 4;
-    
+public String GetGeneralJSONRetBySQL(String SQLTxt)
+{
+    String ColName;
+    StringWriter sw = new StringWriter();
+    JsonWriter jWrite = new JsonTextWriter(sw);
+    DataTable dt = MyManager.GetDataSet(SQLTxt);
+    jWrite.WriteStartArray();
+
+    for (int i = 0; i < dt.Rows.Count; i++)
+    {
+
+        jWrite.WriteStartObject();
+        for (int j = 0; j < dt.Columns.Count; j++)
+        {
+            ColName = dt.Columns[j].ColumnName;
+            jWrite.WritePropertyName(ColName);
+            jWrite.WriteValue(dt.Rows[i][ColName].ToString());
+        }
+        jWrite.WriteEndObject();
+
+    }
+
+    jWrite.WriteEndArray();
+    return sw.ToString();
+}  
 public String Test(HttpContext ctx)
 {
 
@@ -1270,9 +1294,9 @@ public String Test(HttpContext ctx)
     }
     public String ToolSearch(JObject JO)/*对coretable中的工具进行查询，已经编号的*/
     {
-        /*{ range: -1, name: "所有", ret: "all", specific:[
-         *                                                 { tid: ToolClassID, name: ToolClassName, vals: [
-         *                                                                                                  { name: PropertyName, pid: PropertyID, val: Value }
+        /*{ range: -1, name: "所有", ret:返回范围 "all"所有 "tool"工具 "bag"工具包, specific:[
+         *                                                                              { tid: ToolClassID, name: ToolClassName, vals: [
+         *                                                                                                                                  { name: PropertyName, pid: PropertyID, val: Value }
          * ] }
          * ] };*/
         String json = "";
@@ -1367,7 +1391,7 @@ public String Test(HttpContext ctx)
         jWrite.WriteStartArray();
         if ((fw == 1 || fw == 0) && IDbn != "")
         {
-            dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID WHERE ID IN(" + IDbn + ")");//工具包
+            dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ID IN(" + IDbn + ")");//工具包
             dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + IDbn + ")");//包内工具集合
             dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + IDbn + ")");//属性集合
             for (i = 0; i < dt.Rows.Count; i++)
@@ -1381,6 +1405,8 @@ public String Test(HttpContext ctx)
                 jWrite.WriteValue(dt.Rows[i]["toolid"].ToString());
                 jWrite.WritePropertyName("toolstate");
                 jWrite.WriteValue(dt.Rows[i]["StateName"].ToString());
+                jWrite.WritePropertyName("realtoolstate");
+                jWrite.WriteValue(dt.Rows[i]["RStateName"].ToString());
                 jWrite.WritePropertyName("name");
                 jWrite.WriteValue(dt.Rows[i]["ToolName"].ToString());
                 jWrite.WritePropertyName("modifytime");
@@ -1416,8 +1442,8 @@ public String Test(HttpContext ctx)
                     jWrite.WriteValue(dr[j]["rkID"].ToString());
                     jWrite.WritePropertyName("toolid");
                     jWrite.WriteValue(dr[j]["toolid"].ToString());
-                    jWrite.WritePropertyName("toolstate");
-                    jWrite.WriteValue(dr[j]["StateName"].ToString());
+                    //jWrite.WritePropertyName("toolstate");
+                    //jWrite.WriteValue(dr[j]["StateName"].ToString());
                     jWrite.WritePropertyName("name");
                     jWrite.WriteValue(dr[j]["name"].ToString());
                     jWrite.WritePropertyName("iconCls");
@@ -1447,7 +1473,7 @@ public String Test(HttpContext ctx)
 
         if ((fw == 2 || fw == 0) && IDdl != "")
         {
-            dt1 = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID WHERE ID IN(" + IDdl + ")");
+            dt1 = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ID IN(" + IDdl + ")");
             dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[CoreID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where ValueType = 0 AND  CoreID IN(" + IDdl + ")");//属性集合
             for (i = 0; i < dt1.Rows.Count; i++)
             {
@@ -1460,6 +1486,8 @@ public String Test(HttpContext ctx)
                 jWrite.WriteValue(dt1.Rows[i]["rkID"].ToString());
                 jWrite.WritePropertyName("toolstate");
                 jWrite.WriteValue(dt1.Rows[i]["statename"].ToString());
+                jWrite.WritePropertyName("realtoolstate");
+                jWrite.WriteValue(dt1.Rows[i]["RStateName"].ToString());
                 jWrite.WritePropertyName("toolid");
                 jWrite.WriteValue(dt1.Rows[i]["toolid"].ToString());
                 jWrite.WritePropertyName("modifytime");
@@ -2397,7 +2425,7 @@ public String Test(HttpContext ctx)
         
         return "任务提交成功，请记住任务编号:" +TaskID; 
     }
-    
+
     public String CreateBagExcel(JObject JO)
     {
         String ExcelURL = "";
@@ -2610,7 +2638,54 @@ public String Test(HttpContext ctx)
 
         return "{\"status\":\""+(bRight==true?"success":"failed")+"\",\"msg\":\"" + Msg + "\",\"taskid\":\""+TaskID+"\"}";
     }
-       
+    public String GetPeronList(int TaskID)
+    {       
+        return GetGeneralJSONRetBySQL("SELECT ID as id ,Name as name From UserList Order by UserName");        
+    }
+
+    public String GetBorrowPeronListByTaskID(int TaskID)
+    {
+        return GetGeneralJSONRetBySQL("SELECT A.UserID as id,B.Name as name From PreBrowersList AS A join UserList AS B on A.UserID = B.ID where A.Taskid = " + TaskID + " Order by name");
+    }
+    public String ModifyBorrowPerson(int TaskID,int UserID,String Type)
+    {
+        //String okjson = "{\"status\":\"success\",\"msg\":\"添加成功!\",\"borrowcount\":";
+        if (Type == "Add")
+        {
+            if (MyManager.SELCount("select count(id) as icount from PreBrowersList where taskid=" + TaskID + " and userid =" + UserID, "icount") > 0)
+            {
+                return "{\"status\":\"failed\",\"msg\":\"该人员已经存在!\"}";
+            }
+            else
+            {
+                MyManager.ExecSQL("insert into PreBrowersList(taskid,userid) values(" + TaskID + "," + UserID + ") ");
+                return "{\"status\":\"success\",\"msg\":\"添加成功!\"}";
+            }
+        }
+        if (Type == "Del")
+        {
+            if (MyManager.SELCount("select count(id) as icount from PreBrowersList where taskid=" + TaskID + " and userid =" + UserID, "icount") > 0)
+            {
+                if (MyManager.SELCount("select count(id) as icount from PreBrowersList where taskid=" + TaskID, "icount") > 1)
+                {
+                    MyManager.ExecSQL("delete from PreBrowersList where taskid = " + TaskID + " and userid=" + UserID);
+                    return "{\"status\":\"success\",\"msg\":\"添加成功!\"}";
+                }else
+                    return "{\"status\":\"failed\",\"msg\":\"至少要保留一个人来借工具!\"}";                
+            }
+            else
+            {
+                return "{\"status\":\"failed\",\"msg\":\"该人员不存在!\"}";
+            }
+        }
+        return "";
+    }
+
+    public String GetbrwerCount( int TaskID)
+    {
+        return MyManager.GetFiledByInput("SELECT count(ID) as iCount from [PreBrowersList] Where TaskID = " + TaskID, "iCount");
+    } 
+   
    public void ProcessRequest (HttpContext context) 
    {
 
@@ -2822,9 +2897,22 @@ public String Test(HttpContext ctx)
            {
                retJSON = AddToCoreTool(JO); 
            }
-           
-           
-           
+           if (Cmd == "GetPeronList")
+           {
+               retJSON = GetPeronList(Convert.ToInt32(JO["TaskID"].ToString()));
+           }
+           if (Cmd == "GetBorrowPeronListByTaskID")
+           {
+               retJSON = GetBorrowPeronListByTaskID(Convert.ToInt32(JO["TaskID"].ToString()));  
+           }
+           if (Cmd == "ModifyBorrowPerson")
+           {
+               retJSON = ModifyBorrowPerson(Convert.ToInt32(JO["taskid"].ToString()), Convert.ToInt32(JO["userid"].ToString()), JO["type"].ToString());
+           }
+           if (Cmd == "GetbrwerCount")
+           {
+               retJSON = GetbrwerCount(Convert.ToInt32(JO["taskid"].ToString()));
+           }
            context.Response.Write(retJSON);
            
         }
