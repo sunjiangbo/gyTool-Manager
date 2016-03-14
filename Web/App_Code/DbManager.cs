@@ -377,15 +377,19 @@ public class MyManager
             +CreateCorpID+ ","//任务刚创建时，任务创建部门和任务发送部分一致
             +RecvCorpID +",'"
             + TaskMemo + "','"
-            +DateTime.Now.ToString() + "')");
-
+            +DateTime.Now.ToString() + "')"); 
         if (iRet < 1)
         {
             return "";
         }
 
+      
+       
         TaskID = GetFiledByInput("SELECT ID FROM Tasks Where TaskCode = '" + TaskCode + "'","ID");
-
+        if (TaskTypeID == "1")
+      {
+           MyManager.ExecSQL("INSERT INTO PreBrowersList (TaskID,UserID) Values("+TaskID+"," + CreateUserID+")");
+      }
         return TaskID;
     }
 
