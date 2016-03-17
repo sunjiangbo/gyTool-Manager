@@ -1,11 +1,11 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2016-03-17T08:54:20
+# Project created by QtCreator 2016-03-17T10:33:00
 #
 #-------------------------------------------------
 
 QT       += core gui
-
+QT       += network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = QTClient
