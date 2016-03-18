@@ -83,7 +83,6 @@ namespace WindowsFormsApplication3
                    do
                     {
                         RDCN = user.NWStream.Read(buff, 0, user.client.ReceiveBufferSize);
-
                         RecvStr += System.Text.Encoding.UTF8.GetString(buff, 0, RDCN);
                      } while (user.NWStream.DataAvailable );
 
@@ -91,6 +90,12 @@ namespace WindowsFormsApplication3
                    {
                        AddMsg("收到消息", RecvStr, 0);
                    }
+                //   do
+                   //   {
+                    byte [] ptrby = System.Text.Encoding.UTF8.GetBytes(RecvStr);
+                    user.NWStream.Write(ptrby, 0, ptrby.Length);
+                       // RecvStr += System.Text.Encoding.UTF8.GetString(buff, 0, RDCN);
+                    // } while (user.NWStream.DataAvailable )
                 }
                 catch(Exception ex)
                 {
@@ -172,6 +177,16 @@ namespace WindowsFormsApplication3
             ThreadStart ts = new ThreadStart(ListenClientConnect);
             Thread myThread = new Thread(ts);
             myThread.Start();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+    
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            System.Environment.Exit(0);
         }
     }
 }
