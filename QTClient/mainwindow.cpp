@@ -27,7 +27,11 @@ MainWindow::MainWindow(QWidget *parent) :
       connect(this,SIGNAL(error_msg(QAbstractSocket::SocketError,QTcpSocket *)),this,SLOT(error(QAbstractSocket::SocketError,QTcpSocket *)));
 
     skt_finger->connectToHost("192.168.1.101",7900);
-
+flash = new Welcome(this);
+this->hide();
+flash->show();
+flash->exec();
+this->show();
 }
 
 QString* MainWindow::SendCmd(QTcpSocket *skt, char * Cmd)

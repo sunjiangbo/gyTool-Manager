@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "welcome.h"
 #include <QMainWindow>
 #include <QtNetwork/QTcpSocket>
 #include<QtNetwork/QHostAddress>
@@ -19,6 +20,7 @@ public:
     QString *SendCmd(QTcpSocket* skt,char *Cmd);
 private:
     Ui::MainWindow *ui;
+    Welcome *flash;
 signals:
     void Srv_Connect_msg(QTcpSocket *skt);
     void  ReadReady_msg(QTcpSocket *skt);
