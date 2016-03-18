@@ -14,3 +14,11 @@ D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\ResolveAs
 D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Form1.resources
 D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Properties.Resources.resources
 D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.GenerateResource.Cache
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.pdb
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\ResolveAssemblyReference.cache
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Form1.resources
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Properties.Resources.resources
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.GenerateResource.Cache

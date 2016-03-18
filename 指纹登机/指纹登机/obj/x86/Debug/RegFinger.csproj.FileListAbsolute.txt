@@ -44,3 +44,7 @@ D:\gyTool-Manager\指纹登机\指纹登机\bin\Debug\指纹登机.exe.config
 D:\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\RegFinger.csproj.ResolveComReference.cache
 D:\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\指纹登机.exe
 D:\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\指纹登机.pdb
+F:\gyTool-Manager\指纹登机\指纹登机\bin\Debug\指纹登机.exe.config
+F:\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\RegFinger.csproj.ResolveComReference.cache
+F:\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\指纹登机.exe
+F:\gyTool-Manager\指纹登机\指纹登机\obj\x86\Debug\指纹登机.pdb
