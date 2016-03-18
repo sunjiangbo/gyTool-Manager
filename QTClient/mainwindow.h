@@ -24,20 +24,20 @@ private:
 signals:
     void Srv_Connect_msg(QTcpSocket *skt);
     void  ReadReady_msg(QTcpSocket *skt);
-   void Srv_disConnected_msg(QTcpSocket *skt);
-    void error_msg(QAbstractSocket::SocketError socketError ,QTcpSocket *sktnger);
+     void Srv_disConnected_msg(QTcpSocket *skt);
+    void error_msg(QAbstractSocket::SocketError socketError);
 
 
   public slots:
     void finger_Srv_Connect();
     void finger_ReadReady();
     void finger_Srv_disConnected();
-    void	finger_error (QAbstractSocket::SocketError socketError ,QTcpSocket *skt );
+    void finger_error (QAbstractSocket::SocketError socketError );
 
     void Srv_Connect(QTcpSocket *skt);
     void ReadReady(QTcpSocket *skt);
     void Srv_disConnected(QTcpSocket *skt);
-    void	error (QAbstractSocket::SocketError socketError ,QTcpSocket *skt );
+    void	error (QAbstractSocket::SocketError socketError );
 private slots:
     void on_pushButton_clicked();
 };

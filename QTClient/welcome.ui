@@ -25,9 +25,6 @@
    <property name="text">
     <string/>
    </property>
-   <property name="pixmap">
-    <pixmap>img/logo.png</pixmap>
-   </property>
   </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">

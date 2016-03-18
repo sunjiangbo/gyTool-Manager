@@ -10,34 +10,32 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    QString xx ="dfdfafa3r43";
 
-    qDebug(xx.toAscii().data());
 
     ui->setupUi(this);
     skt_finger = new QTcpSocket(this);
     connect(skt_finger,SIGNAL(connected()),this,SLOT(finger_Srv_Connect()));
     connect(skt_finger,SIGNAL(disconnected()),this,SLOT(finger_Srv_disConnected()));
-    //connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
-     connect(skt_finger,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(finger_ReadReady()));
+    connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
+    connect(skt_finger,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(finger_error(QAbstractSocket::SocketError)));
 
-     connect(this,SIGNAL(Srv_Connect_msg(QTcpSocket *)),this,SLOT(Srv_Connect(QTcpSocket *)));
-     connect(this,SIGNAL(Srv_disConnected_msg(QTcpSocket *)),this,SLOT(Srv_disConnected(QTcpSocket *)));
-     //connect(this,SIGNAL(ReadReady_msg(QTcpSocket *)),this,SLOT(ReadReady(QTcpSocket *)));
-      connect(this,SIGNAL(error_msg(QAbstractSocket::SocketError,QTcpSocket *)),this,SLOT(error(QAbstractSocket::SocketError,QTcpSocket *)));
+    connect(this,SIGNAL(Srv_Connect_msg(QTcpSocket *)),this,SLOT(Srv_Connect(QTcpSocket *)));
+    connect(this,SIGNAL(Srv_disConnected_msg(QTcpSocket *)),this,SLOT(Srv_disConnected(QTcpSocket *)));
+    connect(this,SIGNAL(ReadReady_msg(QTcpSocket *skt)),this,SLOT(ReadReady(QTcpSocket *skt)));
+    connect(this,SIGNAL(error_msg(QAbstractSocket::SocketError)),this,SLOT(error(QAbstractSocket::SocketError)));
 
-    skt_finger->connectToHost("192.168.1.101",7900);
-flash = new Welcome(this);
-this->hide();
-flash->show();
-flash->exec();
-this->show();
+    skt_finger->connectToHost("192.168.1.108",7900);
+    flash = new Welcome(this);
+    this->hide();
+    flash->show();
+    flash->exec();
+    this->show();
 }
 
 QString* MainWindow::SendCmd(QTcpSocket *skt, char * Cmd)
 {
      qint64 len = 0,size = strlen (Cmd) + 1,t;
-     char  buff[4096];
+     //发信号之前断开
      QString *s= new QString("");
       if (skt->ConnectedState != QAbstractSocket::ConnectedState && sizeof(Cmd)==0){
             return (new QString(""));
@@ -52,10 +50,10 @@ QString* MainWindow::SendCmd(QTcpSocket *skt, char * Cmd)
 
     QTextCodec *codec = QTextCodec::codecForName("UTF8");
     QTextDecoder *decoder = codec->makeDecoder();
-     QByteArray datagram;
+    QByteArray datagram;
     datagram.resize(skt->bytesAvailable());
     skt->read(datagram.data(),datagram.size());
-    *s+= decoder->toUnicode(datagram.data());
+    *s = decoder->toUnicode(datagram.data());
     return s;
 }
 void MainWindow::finger_Srv_Connect()
@@ -73,28 +71,29 @@ void MainWindow::finger_ReadReady()
      emit ReadReady(skt_finger);
 }
 
- void	MainWindow::finger_error (QAbstractSocket::SocketError socketError,QTcpSocket *skt )
+ void	MainWindow::finger_error (QAbstractSocket::SocketError socketError )
  {
-        emit finger_error(socketError,skt_finger);
+        emit error_msg(socketError);
  }
  void MainWindow::Srv_Connect(QTcpSocket * skt)
  {
-            QMessageBox::information(0,"提示","fingerok");
+     qDebug("fingerok");
  }
 
  void MainWindow::Srv_disConnected(QTcpSocket * skt)
  {
-        QMessageBox::information(0,"提示","finger_disConnected");
+     qDebug("finger_disConnected");
  }
 
- void MainWindow::ReadReady(QTcpSocket * skt)
+ void MainWindow::ReadReady(QTcpSocket *skt)
  {
-       QMessageBox::information(0,"提示","finger_ReadReady");
+       qDebug("finger_ReadReady");
  }
 
-  void	MainWindow::error (QAbstractSocket::SocketError socketError ,QTcpSocket *skt )
+  void	MainWindow::error(QAbstractSocket::SocketError socketError )
   {
-       QMessageBox::information(0,"提示","finger_socketError");
+      qDebug("finger_socketError");
+
   }
 MainWindow::~MainWindow()
 {
@@ -104,5 +103,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
     QString *str = SendCmd(skt_finger,"{cmd:333大方大方大方");
+    //qDebug("收到->");
    qDebug(str->toAscii().data());
+    //printf("RECV->%s\n",str->data());
 }

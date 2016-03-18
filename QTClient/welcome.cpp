@@ -8,11 +8,11 @@ Welcome::Welcome(QWidget *parent) :
     ui(new Ui::Welcome)
 {
     ui->setupUi(this);
-    QPixmap map("/home/qt/gyTool-Manager/QTClient/img/zw.jpg");
+    QPixmap map("img/zw.jpg");
     ui->label_2->setPixmap(map);
    ui->label_2->show();
 
-    QPixmap pixmap("/home/qt/gyTool-Manager/QTClient/img/logo.png");
+    QPixmap pixmap("img/logo.png");
     ui->label->setPixmap(pixmap);
     ui->label->show();
 }
