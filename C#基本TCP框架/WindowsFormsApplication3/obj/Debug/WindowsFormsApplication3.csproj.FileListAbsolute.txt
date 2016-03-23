@@ -8,3 +8,5 @@ d:\Documents\Visual Studio 2008\Projects\WindowsFormsApplication3\WindowsFormsAp
 d:\Documents\Visual Studio 2008\Projects\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb
 D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
 D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb
+E:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
+E:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb

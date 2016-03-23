@@ -18,13 +18,15 @@ public:
     ~MainWindow();
     QTcpSocket * skt_finger;
     QString *SendCmd(QTcpSocket* skt,char *Cmd);
+    void DealJsonDat(QString jsonDat);
+    QString httpsPostHelp(const QString &url, const QString &data);
 private:
     Ui::MainWindow *ui;
     Welcome *flash;
 signals:
     void Srv_Connect_msg(QTcpSocket *skt);
     void  ReadReady_msg(QTcpSocket *skt);
-     void Srv_disConnected_msg(QTcpSocket *skt);
+    void Srv_disConnected_msg(QTcpSocket *skt);
     void error_msg(QAbstractSocket::SocketError socketError);
 
 

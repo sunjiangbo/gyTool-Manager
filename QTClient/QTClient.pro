@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += network
+QT        += script
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = QTClient
@@ -14,10 +15,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    welcome.cpp
+    welcome.cpp \
+    codelib.cpp
 
 HEADERS  += mainwindow.h \
-    welcome.h
+    welcome.h \
+    codelib.h
 
 FORMS    += mainwindow.ui \
     welcome.ui

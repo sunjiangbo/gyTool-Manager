@@ -6,6 +6,9 @@
 #include <QString>
 #include <QByteArray>
 #include <QTextDecoder>
+#include <QtScript>
+#include<QNetworkRequest>
+#include<QNetworkReply>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -16,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     skt_finger = new QTcpSocket(this);
     connect(skt_finger,SIGNAL(connected()),this,SLOT(finger_Srv_Connect()));
     connect(skt_finger,SIGNAL(disconnected()),this,SLOT(finger_Srv_disConnected()));
-    connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
+    //connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
     connect(skt_finger,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(finger_error(QAbstractSocket::SocketError)));
 
     connect(this,SIGNAL(Srv_Connect_msg(QTcpSocket *)),this,SLOT(Srv_Connect(QTcpSocket *)));
@@ -30,6 +33,48 @@ MainWindow::MainWindow(QWidget *parent) :
     flash->show();
     flash->exec();
     this->show();
+}
+
+void MainWindow::DealJsonDat(QString jsonDat)
+{
+
+}
+
+const int TIMEOUT = (30 * 1000);
+QString MainWindow::httpsPostHelp(const QString &url, const QString &data)
+{
+    QString _result;
+    QNetworkRequest _request;
+    QNetworkAccessManager * m_pNetworkManager = new QNetworkAccessManager(this);
+    _request.setUrl(QUrl(url));
+    _request.setHeader(QNetworkRequest::ContentTypeHeader,
+                       QString("application/x-www-form-urlencoded"));
+
+    QNetworkReply *_reply = m_pNetworkManager->post(_request, data.toLatin1());
+    _reply->ignoreSslErrors();
+
+
+    QTime _t;
+    _t.start();
+
+    bool _timeout = false;
+
+    while (!_reply->isFinished()) {
+        QApplication::processEvents();
+        if (_t.elapsed() >= TIMEOUT) {
+            _timeout = true;
+            break;
+        }
+    }
+
+    if (!_timeout && _reply->error() == QNetworkReply::NoError) {
+        _result = _reply->readAll();
+    }
+
+    _reply->deleteLater();
+
+    return _result;
+
 }
 
 QString* MainWindow::SendCmd(QTcpSocket *skt, char * Cmd)
@@ -102,8 +147,24 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-    QString *str = SendCmd(skt_finger,"{cmd:333大方大方大方");
+   // QString *str = SendCmd(skt_finger,"{cmd:333大方大方大方");
     //qDebug("收到->");
-   qDebug(str->toAscii().data());
+      //qDebug(str->toAscii().data());
+     /* QString str = "{\"name\":\"xiaotang\", \"age\":\"23\", \"chi\":[{\"a\":\"aa\", \"b\":\"bb\"}, {\"a\":\"aaa\", \"b\":\"bbb\"}]}";
+      QScriptEngine engine;
+      QScriptValue sc = engine.evaluate("("+str+")");
+      qDebug() << sc.property("name").toString(); //解析字段
+      if(sc.property("chi").isArray()) //解析数组
+      {
+      QScriptValueIterator it(sc.property("chi"));
+              while (it.hasNext())
+              {
+                  it.next();
+                  if(!it.value().property("a").toString().isEmpty())
+                      qDebug() << it.value().property("a").toString();
+              }
+      }*/
+    QMessageBox::information(0,"ret",httpsPostHelp("http://172.16.74.61:8080/AJAX/Handler.ashx","{\"cmd\":\"getModelTree\"}"));
+
     //printf("RECV->%s\n",str->data());
 }
