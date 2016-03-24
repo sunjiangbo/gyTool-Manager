@@ -5,12 +5,12 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
-//添加的命名空间引用
+using Newtonsoft.Json;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.IO;
-
+using Newtonsoft.Json.Linq;
 
 
 namespace WindowsFormsApplication3
@@ -65,13 +65,44 @@ namespace WindowsFormsApplication3
                 
             }
         }
+
+        private String DealCmd(rUser user,String CmdDat)
+        {
+
+            JObject JO = JObject.Parse(CmdDat);
+            try{
+                String Cmd = JO["cmd"].ToString();
+
+                if (Cmd == "DeactiveME")
+                {
+
+                    SendToClient("{\"status\":\"success\",\"msg\":\"失活执行成功,提前发送\"}");
+                    user.Active = 0;
+                }
+
+                if (Cmd == "activeME")
+                {
+                    user.Active = 1;
+                }
+
+                AddMsg("信息", "处理完毕-->" +CmdDat, INFO);
+                return "{\"status\":\"success\",\"msg\":\"命令执行成功\"}";
+
+            }catch(Exception e)
+            {
+                AddMsg("警告","解析"+CmdDat+"错误!",WARN);
+                return "{\"status\":\"failed\",\"reason\":\"解析命令失败!\"}";
+            }
+           
+        }
+
         private void ReceiveData(object obj)
         {
             rUser user = (rUser)obj;
             TcpClient client = user.client;
             int RDCN = 0;
             Boolean Continue = true;
-            byte[] buff =  new byte[user.client.ReceiveBufferSize];
+            byte[] buff = new byte[4096];
             AddMsg("信息", "启动一个接收消息线程",1);
             while (Continue)
             {
@@ -85,18 +116,22 @@ namespace WindowsFormsApplication3
                     RecvStr = null;
                    do
                     {
-                        RDCN = user.NWStream.Read(buff, 0, user.client.ReceiveBufferSize);
+                        
+                        RDCN = user.NWStream.Read(buff, 0, 4096);
                         RecvStr += System.Text.Encoding.UTF8.GetString(buff, 0, RDCN);
                      } while (user.NWStream.DataAvailable );
 
-                   if (RecvStr != null || RecvStr != "")
+                   //if (RecvStr != null || RecvStr != "")
                    {
                        AddMsg("收到消息", RecvStr, 0);
                    }
                 //   do
                    //   {
-                    byte [] ptrby = System.Text.Encoding.UTF8.GetBytes(RecvStr);
-                    user.NWStream.Write(ptrby, 0, ptrby.Length);
+                   //Thread.Sleep(3000);
+                  //SendToClient(DateTime.Now.ToString()+"");
+                   SendToClient(DealCmd(user, RecvStr));
+                  //byte [] ptrby = System.Text.Encoding.UTF8.GetBytes(RecvStr);
+                 //  user.NWStream.Write(ptrby, 0, ptrby.Length);
                        // RecvStr += System.Text.Encoding.UTF8.GetString(buff, 0, RDCN);
                     // } while (user.NWStream.DataAvailable )
                 }
@@ -117,18 +152,30 @@ namespace WindowsFormsApplication3
            
         }
 
-        private void SendToClient(rUser user, string str)
+        private void SendToClient( String str)
         {
-            try
+            int i = 0;
+            rUser user;
+            for (i = 0; i < UserList.Count; i++)
             {
-                //将字符串写入网络流，此方法会自动附加字符串长度前缀
-               // user.bw.Write(str);
-                //user.bw.Flush();
- 
-            }
-            catch
-            {//发送失败
-            
+                user = UserList[i];
+                if (user.Active == 1)
+                {
+                    try
+                    {
+                        byte[] ptrby = System.Text.Encoding.UTF8.GetBytes(str);
+                        user.NWStream.Write(ptrby, 0, ptrby.Length);
+                        //将字符串写入网络流，此方法会自动附加字符串长度前缀
+                        // user.bw.Write(str);
+                        //user.bw.Flush();
+                        AddMsg("发送消息->" + i, str, INFO);
+
+                    }
+                    catch
+                    {//发送失败
+                        AddMsg("发送消息失败->" + i, str, WARN);
+                    }
+                }
             }
         }
 
@@ -207,6 +254,8 @@ namespace WindowsFormsApplication3
                 ParameterizedThreadStart pts = new ParameterizedThreadStart(ReceiveData);
                 Thread threadReceive = new Thread(pts);
                 rUser user = new rUser(newClient);
+                user.Active = 0;
+                UserList.Add(user);
                 threadReceive.Start(user);
                 
             }
@@ -266,10 +315,12 @@ namespace WindowsFormsApplication3
             {
                 CurUserID = UserID;
                 AddMsg("信息", "捕获指纹UserID=" + UserID, REMIND);
+                SendToClient("{\"type\":\"UserCapture\",\"userid\":\""+UserID+"\"}");
             }
             else
             {
                 AddMsg("信息", "指纹比对失败!" + UserID,ALERT);
+                SendToClient("{\"type\":\"UserCapture\",\"userid\":\"\null\"}");
             }
         }
     }

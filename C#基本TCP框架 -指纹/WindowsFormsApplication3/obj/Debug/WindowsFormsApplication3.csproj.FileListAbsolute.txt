@@ -30,9 +30,9 @@ F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\W
 F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Properties.Resources.resources
 F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.GenerateResource.Cache
 F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe.config
-F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csprojResolveAssemblyReference.cache
 F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\Interop.ZKFPEngXControl.dll
 F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\AxInterop.ZKFPEngXControl.dll
 F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.ResolveComReference.cache
 F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Debug\Interop.ZKFPEngXControl.dll
 F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Debug\AxInterop.ZKFPEngXControl.dll
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csprojResolveAssemblyReference.cache

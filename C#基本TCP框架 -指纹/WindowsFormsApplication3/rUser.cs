@@ -18,6 +18,7 @@ namespace WindowsFormsApplication3
         public TcpClient client;
         public NetworkStream NWStream;
         public NetworkStream bw;
+        public int Active;
         public rUser(TcpClient client)
         {
             this.client = client;
