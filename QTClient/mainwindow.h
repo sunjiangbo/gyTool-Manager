@@ -20,6 +20,9 @@ public:
     QString *SendCmd(QTcpSocket* skt,char *Cmd);
     void DealJsonDat(QString jsonDat);
     QString httpsPostHelp(const QString &url, const QString &data);
+    QString httpSendCmd(QString Cmd);
+    QString * ReadMsg(QTcpSocket* skt);
+    void DealMsg(QString *Cmd);
 private:
     Ui::MainWindow *ui;
     Welcome *flash;
@@ -42,6 +45,7 @@ signals:
     void	error (QAbstractSocket::SocketError socketError );
 private slots:
     void on_pushButton_clicked();
+    void on_MainWindow_destroyed(QObject *arg1);
 };
 
 #endif // MAINWINDOW_H

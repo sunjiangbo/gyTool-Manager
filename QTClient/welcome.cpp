@@ -10,7 +10,7 @@ Welcome::Welcome(QWidget *parent) :
     ui->setupUi(this);
     QPixmap map("img/zw.jpg");
     ui->label_2->setPixmap(map);
-   ui->label_2->show();
+    ui->label_2->show();
 
     QPixmap pixmap("img/logo.png");
     ui->label->setPixmap(pixmap);
