@@ -2,9 +2,11 @@
 #define MAINWINDOW_H
 
 #include "welcome.h"
+#include "loading.h"
 #include <QMainWindow>
 #include <QtNetwork/QTcpSocket>
 #include<QtNetwork/QHostAddress>
+
 namespace Ui {
 class MainWindow;
 }
@@ -23,9 +25,14 @@ public:
     QString httpSendCmd(QString Cmd);
     QString * ReadMsg(QTcpSocket* skt);
     void DealMsg(QString *Cmd);
+    void ShowLoading(QString msg);
+    void CloseLoading();
 private:
     Ui::MainWindow *ui;
     Welcome *flash;
+    QString HandlerURL;
+    Loading * loadingWin;
+
 signals:
     void Srv_Connect_msg(QTcpSocket *skt);
     void  ReadReady_msg(QTcpSocket *skt);

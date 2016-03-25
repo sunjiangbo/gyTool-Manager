@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include"loading.h"
 #include "ui_mainwindow.h"
 #include <QtNetwork/QTcpSocket>
 #include<QtNetwork/QHostAddress>
@@ -17,6 +18,34 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     ui->setupUi(this);
+    HandlerURL = "http://127.0.0.1/AJAX/handler.ashx";
+  /*  ui->tableWidget->setColumnCount(5);
+    ui->tableWidget->setHorizontalHeaderLabels(QStringList()<<QString("Name")<<QString("Addr")<<QString("Tel")<<QString("btnCol"));
+   QTableWidgetItem *item = new QTableWidgetItem(QIcon("/home/qt/1.ico"),"hello");
+   ui->tableWidget->insertRow(0);
+   ui->tableWidget->setItem(0,0,item);
+    ui->tableWidget->setItem(0,1,new QTableWidgetItem("hello"));
+    QComboBox *pComboBox = new QComboBox();
+     pComboBox->addItem("a");
+     pComboBox->addItem("b");
+    ui->tableWidget->setCellWidget(0, 2, pComboBox );
+
+    QPushButton *btn =  new QPushButton();
+
+    btn->setText("OK");
+
+    ui->tableWidget->setCellWidget(0,3,btn);
+    connect(btn,SIGNAL(clicked()),this,SLOT(btnClk()));
+
+    QLabel* label = new QLabel("<a href =www.cafuc.edu.cn>cafuc</a>",this);
+    ui->tableWidget->setCellWidget(0,4,label);
+      connect(label,SIGNAL(linkActivated(QString)),this,SLOT(openUrl(QString)));  //
+*/
+    QPixmap pixmap("E:\\gyTool-Manager\\QTClient\\img\\logo.png");
+    ui->label->setPixmap(pixmap);
+    ui->label->show();
+    ui->label->setScaledContents(true);
+
     skt_finger = new QTcpSocket(this);
     connect(skt_finger,SIGNAL(connected()),this,SLOT(finger_Srv_Connect()));
     connect(skt_finger,SIGNAL(disconnected()),this,SLOT(finger_Srv_disConnected()));
@@ -33,20 +62,33 @@ MainWindow::MainWindow(QWidget *parent) :
     SendCmd(skt_finger,"{\"cmd\":\"activeME\"}");
     connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
     flash = new Welcome(this);
+    loadingWin = new Loading(this);
     this->hide();
-    flash->show();
-    flash->exec();
+    //flash->show();
+    //flash->exec();
+    ShowLoading("等待用户指纹....");
+    //loadingWin
     this->show();
 }
+void MainWindow::CloseLoading()
+{
+    loadingWin->close();
+}
 
+void MainWindow::ShowLoading(QString msg)
+{
+    loadingWin->setModal(true);
+    loadingWin->setTitle(msg);
+    loadingWin->show();
+    loadingWin->exec();
+}
 void MainWindow::DealJsonDat(QString jsonDat)
 {
 
 }
 QString MainWindow::httpSendCmd(QString Cmd)
 {
-
-    return "";
+    return httpsPostHelp(HandlerURL,Cmd);
 }
 const int TIMEOUT = (30 * 1000);
 QString MainWindow::httpsPostHelp(const QString &url, const QString &data)
@@ -77,6 +119,8 @@ QString MainWindow::httpsPostHelp(const QString &url, const QString &data)
 
     if (!_timeout && _reply->error() == QNetworkReply::NoError) {
         _result = _reply->readAll();
+    }else{
+        return "";
     }
 
     _reply->deleteLater();
@@ -177,11 +221,13 @@ void MainWindow::DealMsg(QString *Msg)
         {
 
 
-            qDebug()<<"进入msgbox";
-            QMessageBox::information(0,"提示",QString("用户指纹->%1").arg(sc.property("userid").toString()));
+            QString cmdtxt = "{\"cmd\":\"GetUserInfoByID\",\"userid\":\"" + sc.property("userid").toString() + "\"}";
+            qDebug("%s\n",cmdtxt);
+            CloseLoading();
+            QMessageBox::information(0,"提示",httpSendCmd(cmdtxt));
 
             disconnect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
-            flash->close();
+
             this->show();
             SendCmd(skt_finger,"{\"cmd\":\"DeactiveME\"}");
         }

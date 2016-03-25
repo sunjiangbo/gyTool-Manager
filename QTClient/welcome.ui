@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>589</width>
-    <height>334</height>
+    <width>687</width>
+    <height>489</height>
    </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>20 db</family>
+    <pointsize>16</pointsize>
+   </font>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
@@ -16,46 +22,52 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>40</x>
      <y>0</y>
-     <width>591</width>
-     <height>71</height>
+     <width>581</width>
+     <height>81</height>
     </rect>
    </property>
    <property name="text">
     <string/>
    </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>200</x>
-     <y>180</y>
-     <width>171</width>
-     <height>121</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>TextLabel</string>
+   <property name="pixmap">
+    <pixmap>img/logo.png</pixmap>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>100</y>
+     <x>130</x>
+     <y>110</y>
      <width>411</width>
      <height>71</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <family>方正书宋_GBK</family>
+     <family>微软雅黑</family>
      <pointsize>36</pointsize>
     </font>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#5833eb;&quot;&gt;工具管理系统 V1.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#000000;&quot;&gt;工具管理系统 V1.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>200</y>
+     <width>181</width>
+     <height>271</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>img/zw1.png</pixmap>
    </property>
   </widget>
  </widget>

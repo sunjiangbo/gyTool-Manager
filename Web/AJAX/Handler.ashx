@@ -2431,6 +2431,7 @@ public String Test(HttpContext ctx)
     public String CreateBagExcel(JObject JO)
     {
         String ExcelURL = "";
+        String DebugStr = "";
         int num = Convert.ToInt32( JO["num"].ToString());
         int BagClassID = Convert.ToInt32(JO["classid"].ToString());
         int comoption = Convert.ToInt32(JO["comoption"].ToString());/*比较选项 0:缺省比较 1：完全比较*/
@@ -2438,6 +2439,7 @@ public String Test(HttpContext ctx)
         int i = 0,j,k;
         String SQL = "",Note= "",tList;
         String myPath = gCtx.Server.MapPath("~");
+        
         Aspose.Cells.Workbook workbook = new Aspose.Cells.Workbook(gCtx.Server.MapPath("~") + "\\Template\\zbmb.xls");
         Aspose.Cells.Worksheet sheet = workbook.Worksheets[0];
         Aspose.Cells.Cells cells = sheet.Cells;
@@ -2446,7 +2448,8 @@ public String Test(HttpContext ctx)
         sheet = workbook.Worksheets[workbook.Worksheets.AddCopy("Bak")];
         cells = sheet.Cells;
         cells[2, 0].PutValue(bagname + "x" + num + " 组包申领表");
-        for (i = 0,SQL=""; i <dr.Length; i++)
+        
+        for (i = 0; i <dr.Length; i++)
         {
             cells[4+i,0].PutValue(i+1);
             cells[4+i,1].PutValue(dr[i]["Name"].ToString().Trim());
@@ -2454,22 +2457,45 @@ public String Test(HttpContext ctx)
             cells[4 + i,4].PutValue(num);
             cells[4 + i, 5].PutValue(num * Convert.ToInt32(dr[i]["num"].ToString().Trim()));
             sxdr/*模型工具属性*/ = dt.Select(" ValueType Not IN(1,3)  AND ParentID =" + dr[i]["ID"].ToString() +(comoption == 0 ? " AND ptype = 0" : ""));
+/*
+            if (sxdr.Length == 0)
+            {
+                DebugStr += dr[i]["ID"].ToString() + "-->0   ";
+                gCtx.Response.Write(DebugStr);
+            }
+            else
+            {
+                DebugStr += dr[i]["ID"].ToString() + "-->" + sxdr.Length+"   ";
+            }
+            
+    */
             for (j=0,Note = "",SQL="";j<sxdr.Length;j++){
                 Note += sxdr[j]["Name"].ToString().Trim() + ":" + sxdr[j]["Value"].ToString().Trim() + "\n\r";
                 if (SQL == "")
                 {
-                    SQL = "SELECT distinct StoredID From  StoredToolValue Where  StoredID IN(SELECT ID FROM  StoredTool WHERE ModelID =" + dr[i]["PropertyID"].ToString() + " AND [State] = 0  )  AND PropertyID = " + sxdr[j]["PropertyID"].ToString() + " AND Value = '" + sxdr[j]["Value"].ToString() + "'";
+                    SQL = " SELECT distinct StoredID From  StoredToolValue Where  StoredID IN(SELECT ID FROM  StoredTool WHERE ModelID =" + dr[i]["PropertyID"].ToString() + " AND [State] = 0  )  AND PropertyID = " + sxdr[j]["PropertyID"].ToString() + " AND Value = '" + sxdr[j]["Value"].ToString() + "'";
                 }else
                 {
                     //SQL += " intersect (SELECT distinct StoredID From  StoredToolValue Where ValueType = " + sxdr[j]["ValueType"].ToString() + " AND PropertyID = " + sxdr[j]["PropertyID"].ToString() + " AND Value = '" + sxdr[j]["Value"].ToString() + "')";
-                    SQL += "intersect (SELECT distinct StoredID From  StoredToolValue Where  PropertyID = " + sxdr[j]["PropertyID"].ToString() + " AND Value = '" + sxdr[j]["Value"].ToString() + "')";
+                    SQL += " intersect (SELECT distinct StoredID From  StoredToolValue Where  PropertyID = " + sxdr[j]["PropertyID"].ToString() + " AND Value = '" + sxdr[j]["Value"].ToString() + "')";
                 }          
             }
            
             sheet.Comments.Add(4+i, 1);
             sheet.Comments[4 + i, 1].Note = Note;
             //最后一步，取rkID 
-            SQL = "SELECT Distinct ID,rkID From  StoredTool Where ID IN("+SQL+")";
+
+            if (SQL == "")//证明这个工具在添加的时候，没有一个属性是匹配属性
+            {
+                SQL = "SELECT ID,rkID FROM  StoredTool WHERE ModelID =" + dr[i]["PropertyID"].ToString() + " AND [State] = 0 ";
+                sheet.Comments[4 + i, 1].Note = "注意，这个工具模型没有匹配属性(用来比较的属性!),请提醒管理员。";
+            }
+            else
+            {
+               SQL = "SELECT Distinct ID,rkID From  StoredTool Where ID IN(" + SQL + ")";
+            }
+            
+           
             DataTable RetDT = MyManager.GetDataSet(SQL);
             if (RetDT.Rows.Count >= Convert.ToInt32(dr[i]["num"].ToString())*num)
             {
@@ -2491,7 +2517,9 @@ public String Test(HttpContext ctx)
                 
                 tList += RetDT.Rows[k]["rkID"].ToString();
             }
+            
             if (tList == "") tList = "无备件";
+            
             cells[4 + i, 7].PutValue(tList);
                     
         }
@@ -2549,6 +2577,7 @@ public String Test(HttpContext ctx)
                 if (tdr.Length == 0) { Msg += " 模型ID错误，ID为" + PID + "的工具不存在!"; break; }
 
                 dr = dt.Select(" ValueType  in(2,4) AND ParentID = " + PID + (ComOption == 0 ? " AND pType = 0" : ""));
+            //当该工具没有匹配属性时，下面的循环会直接结束，认为同类的库存工具和该工具相同
                 dt1 /*从StoreToolvalue中选取工具比较*/ = MyManager.GetDataSet("SELECT * FROM StoredToolValue Where StoredID  IN(SELECT ID From  StoredTool Where rkID = "+SN+") ");
 
             for (j = 0; bContinue == true && j < dr.Length; j++)
@@ -2686,27 +2715,39 @@ public String Test(HttpContext ctx)
     public String GetbrwerCount( int TaskID)
     {
         return MyManager.GetFiledByInput("SELECT count(ID) as iCount from [PreBrowersList] Where TaskID = " + TaskID, "iCount");
-    } 
-   
+    }
+
+    public String GetUserInfoByID(int UserID)
+    {
+        DataTable dt = MyManager.GetDataSet("select name,CorpName  FROM [UserList] AS A join Corps AS B on A.CorpID = B.CorpID where A.ID =" + UserID);
+
+        if (dt.Rows.Count == 0)
+        {
+            return "{\"type\":\"GetUserInfoByID\",\"name\":\"null\"}"; 
+        }
+
+        return "{\"type\":\"GetUserInfoByID\",\"name\":\"" + dt.Rows[0]["name"].ToString() + "\",\"corpname\":\"" + dt.Rows[0]["CorpName"].ToString() + "\"}";
+    }
+    
    public void ProcessRequest (HttpContext context) 
    {
 
         int i = 0;
-        String json = "",Cmd = "",retJSON = "";
+        String json_old = "",Cmd = "",retJSON = "";
         context.Response.ContentType = "text/plain";
         gCtx = context;
        try
         {
    
          StreamReader reader = new StreamReader(context.Request.InputStream);
-            json = reader.ReadToEnd();
+            json_old = reader.ReadToEnd();
            /* if (json == "")
             {
                 context.Response.Write(context.Session["UserID"].ToString());
                 return;
             }*/
            // if (gCtx.Session["UserID"] == null) { context.Response.Write("{\"status\":\"failed\",\"msg\":\"请登陆!\"}"); return; }
-            JObject JO = JObject.Parse(json);
+            JObject JO = JObject.Parse(json_old);
              Cmd = JO["cmd"].ToString();
             
             //获取工具模型树
@@ -2915,11 +2956,16 @@ public String Test(HttpContext ctx)
            {
                retJSON = GetbrwerCount(Convert.ToInt32(JO["taskid"].ToString()));
            }
+           if (Cmd == "GetUserInfoByID")
+           {
+               retJSON = GetUserInfoByID(Convert.ToInt32(JO["userid"].ToString()));
+           }
            context.Response.Write(retJSON);
            
         }
         catch (Exception ee)
         {
+            context.Response.Write(json_old);
             context.Response.Write("{\"status\":\"failed\",\"msg\":\""+ee.ToString()+ "\"}");
         }
         
