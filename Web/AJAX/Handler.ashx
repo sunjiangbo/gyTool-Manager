@@ -2723,12 +2723,33 @@ public String Test(HttpContext ctx)
 
         if (dt.Rows.Count == 0)
         {
-            return "{\"type\":\"GetUserInfoByID\",\"name\":\"null\"}"; 
+            return "{\"status\":\"failed\",\"type\":\"GetUserInfoByID\",\"name\":\"null\",\"msg\":\"该用户不存在!\"}"; 
         }
 
-        return "{\"type\":\"GetUserInfoByID\",\"name\":\"" + dt.Rows[0]["name"].ToString() + "\",\"corpname\":\"" + dt.Rows[0]["CorpName"].ToString() + "\"}";
+        return "{\"status\":\"success\",\"type\":\"GetUserInfoByID\",\"name\":\"" + dt.Rows[0]["name"].ToString() + "\",\"corpname\":\"" + dt.Rows[0]["CorpName"].ToString() + "\"}";
     }
-    
+
+    public String GetBorwTaskListBytUserID(int UserID)
+    {
+        StringWriter sw = new StringWriter();
+        JsonWriter jWrite = new JsonTextWriter(sw);
+        int i = 0;
+        DataTable dt = MyManager.GetDataSet("SELECT  B.Name+'('+C.Name+')' as showName,B.ID FROM [PreBrowersList] AS A join Tasks AS B on A.Taskid = B.ID join UserList as C on B.CreateUser = C.ID where (B.State = 1 OR B.State = 2 ) AND UserID = " + UserID);
+
+        jWrite.WriteStartArray();
+        for (i = 0; i < dt.Rows.Count; i++)
+        {
+            jWrite.WriteStartObject();
+            jWrite.WritePropertyName("showname");
+            jWrite.WriteValue(dt.Rows[i]["showName"].ToString());
+            jWrite.WritePropertyName("taskid");
+            jWrite.WriteValue(dt.Rows[i]["ID"].ToString());
+            jWrite.WriteEndObject();
+        }
+        jWrite.WriteEndArray();
+
+       return "{\"status\":\"success\",\"tasklist\":"+sw.ToString()+"}";
+    }
    public void ProcessRequest (HttpContext context) 
    {
 
@@ -2959,6 +2980,10 @@ public String Test(HttpContext ctx)
            if (Cmd == "GetUserInfoByID")
            {
                retJSON = GetUserInfoByID(Convert.ToInt32(JO["userid"].ToString()));
+           }
+           if (Cmd == "GetBorwTaskListBytUserID")
+           {
+               retJSON = GetBorwTaskListBytUserID(Convert.ToInt32(JO["userid"].ToString()));
            }
            context.Response.Write(retJSON);
            

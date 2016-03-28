@@ -6,7 +6,7 @@
 #include <QMainWindow>
 #include <QtNetwork/QTcpSocket>
 #include<QtNetwork/QHostAddress>
-
+#include<QTreeWidgetItem>
 namespace Ui {
 class MainWindow;
 }
@@ -27,6 +27,8 @@ public:
     void DealMsg(QString *Cmd);
     void ShowLoading(QString msg);
     void CloseLoading();
+    QString FillNameAndCorp(QString userid);
+    QString FillTaskList(QString userid);
 private:
     Ui::MainWindow *ui;
     Welcome *flash;
@@ -53,6 +55,7 @@ signals:
 private slots:
     void on_pushButton_clicked();
     void on_MainWindow_destroyed(QObject *arg1);
+    void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
 };
 
 #endif // MAINWINDOW_H

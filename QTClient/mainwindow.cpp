@@ -63,12 +63,16 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
     flash = new Welcome(this);
     loadingWin = new Loading(this);
-    this->hide();
-    //flash->show();
-    //flash->exec();
-    ShowLoading("等待用户指纹....");
+
+
+   this->hide();
+   //flash->exec();
+   flash->setModal(true);
+   flash->show();
+   flash->exec();
+    //ShowLoading("等待用户指纹....");
     //loadingWin
-    this->show();
+   // this->show();
 }
 void MainWindow::CloseLoading()
 {
@@ -80,7 +84,7 @@ void MainWindow::ShowLoading(QString msg)
     loadingWin->setModal(true);
     loadingWin->setTitle(msg);
     loadingWin->show();
-    loadingWin->exec();
+    //loadingWin->exec();
 }
 void MainWindow::DealJsonDat(QString jsonDat)
 {
@@ -206,28 +210,105 @@ void MainWindow::finger_ReadReady()
  {
      qDebug("finger_disConnected");
  }
+QString MainWindow::FillTaskList(QString userid)
+{
+    QString cmdtxt = "{\"cmd\":\"GetBorwTaskListBytUserID\",\"userid\":\"" + userid + "\"}";
+    QString cmdret =  httpSendCmd(cmdtxt);
+    QScriptEngine engine;
+    QScriptValue sc = engine.evaluate("("+cmdret+")");
+    qDebug("-->%s",cmdtxt);
+    ui->treeWidget->clear();
+    ui->treeWidget->setColumnCount(1);
+    ui->treeWidget->setHeaderLabels(QStringList()<<"任务列表");
+    if (sc.property("status").toString() !="success"){
+
+    }
+    /*
+     *  if(sc.property("chi").isArray()) //解析数组
+      {
+      QScriptValueIterator it(sc.property("chi"));
+              while (it.hasNext())
+              {
+                  it.next();
+                  if(!it.value().property("a").toString().isEmpty())
+                      qDebug() << it.value().property("a").toString();
+              }
+      }*/
+
+    QTreeWidgetItem * root=new QTreeWidgetItem(QStringList()<<"TaskList");
+    root->setData(0,Qt::UserRole,"root");
+
+    QScriptValueIterator it(sc.property("tasklist"));
+    while (it.hasNext())
+    {
+        it.next();
+       if(!it.value().property("showname").toString().isEmpty()){
+           //qDebug() << it.value().property("a").toString();
+            QTreeWidgetItem * chd=new QTreeWidgetItem( QStringList()<<it.value().property("showname").toString());
+
+            chd->setData(0,Qt::UserRole,it.value().property("taskid").toString());
+            root->addChild(chd);
+       }
+
+    }
+    ui->treeWidget->addTopLevelItem(root);
+
+    return "OK";
+
+}
+QString MainWindow::FillNameAndCorp(QString userid)
+ {
+     QString cmdtxt = "{\"cmd\":\"GetUserInfoByID\",\"userid\":\"" + userid + "\"}";
+     QString cmdret =  httpSendCmd(cmdtxt);
+     QScriptEngine engine;
+     QScriptValue sc = engine.evaluate("("+cmdret+")");
+
+     if(sc.property("status").toString()=="" || sc.property("status").toString()=="failed")
+     {
+         return "失败" + sc.property("msg").toString();
+     }
+
+     ui->uName->setText( "<html><head/><body><p><span style=\" font-size:14pt; color:#3c23ff;\">"+sc.property("name").toString()+"</span></p></body></html>");
+     ui->uCorp->setText("<html><head/><body><p><span style=\" font-size:14pt; color:#3c23ff;\">"+sc.property("corpname").toString()+"</span></p></body></html>");
+
+     qDebug("%s\n",cmdret);
+    return "OK";
+ }
 void MainWindow::DealMsg(QString *Msg)
 {
     QScriptEngine engine;
     QScriptValue sc = engine.evaluate("("+*Msg+")");
     QString type =  sc.property("type").toString();
-
-    qDebug("消息类型-->%s\n",sc.property("type").toString());
+    QString txt;
+    //qDebug("消息类型-->%s\n",sc.property("type").toString());
 
     if (type == "UserCapture")
     {
        // qDebug()<<"type-->"<<sc.property("type").toString();
         if(sc.property("userid").toString() != "null" )
         {
+            //QString cmdtxt = "{\"cmd\":\"GetUserInfoByID\",\"userid\":\"" + sc.property("userid").toString() + "\"}";
+            //qDebug("%s\n",cmdtxt);
+            flash->close();
+            ShowLoading("加载用户信息....");
 
+            txt = FillNameAndCorp(sc.property("userid").toString());
+            if (txt != "OK"){//加载用户信息错误
+               QMessageBox::information(0,"错误",txt);
+               return;
+            }
 
-            QString cmdtxt = "{\"cmd\":\"GetUserInfoByID\",\"userid\":\"" + sc.property("userid").toString() + "\"}";
-            qDebug("%s\n",cmdtxt);
+            ShowLoading("加载用户任务列表....");
+            txt = FillTaskList(sc.property("userid").toString());
+            if (txt != "OK"){//加载用户信息错误
+               QMessageBox::information(0,"错误",txt);
+               return;
+            }
+
             CloseLoading();
-            QMessageBox::information(0,"提示",httpSendCmd(cmdtxt));
+
 
             disconnect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
-
             this->show();
             SendCmd(skt_finger,"{\"cmd\":\"DeactiveME\"}");
         }
@@ -260,7 +341,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-  QString *str = SendCmd(skt_finger,"{cmd:333大方大方大方");
+
+    QString cmdtxt = "{\"cmd\":\"GetBorwTaskListBytUserID\",\"userid\":\"25\"}";
+    //qDebug("%s\n",cmdtxt);
+
+    QMessageBox::information(0,"提示",httpSendCmd(cmdtxt));
+
+  //QString *str = SendCmd(skt_finger,"{cmd:333大方大方大方");
 
      /* QString str = "{\"name\":\"xiaotang\", \"age\":\"23\", \"chi\":[{\"a\":\"aa\", \"b\":\"bb\"}, {\"a\":\"aaa\", \"b\":\"bbb\"}]}";
       QScriptEngine engine;
@@ -284,4 +371,12 @@ void MainWindow::on_pushButton_clicked()
 void MainWindow::on_MainWindow_destroyed(QObject *arg1)
 {
     //this->destroy();
+}
+
+void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
+{
+    if (item->data(0,Qt::UserRole).toString()!="root")
+    {
+        QMessageBox::information(0,"任务ID",item->data(0,Qt::UserRole).toString());
+    }
 }

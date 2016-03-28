@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include<QTreeWidgetItem>
 
 namespace Ui {
 class MainWindow;
@@ -17,6 +18,9 @@ public:
 public slots:
     void btnClk();
     void openUrl(QString url);
+private slots:
+    void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
+
 private:
     Ui::MainWindow *ui;
 };

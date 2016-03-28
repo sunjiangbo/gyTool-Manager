@@ -35,7 +35,18 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setCellWidget(0,4,label);
       connect(label,SIGNAL(linkActivated(QString)),this,SLOT(openUrl(QString)));  //
 
+      ui->treeWidget->setColumnCount(1);
+      QTreeWidgetItem * item1=new QTreeWidgetItem(QStringList()<<"TaskList");
+      item1->setData(0,Qt::UserRole,"lgylinuxer");
+      ui->treeWidget->addTopLevelItem(item1);
+      QTreeWidgetItem * item2=new QTreeWidgetItem(QStringList()<<"50H jieyongs");
+       item2->setData(0,Qt::UserRole,"lgylinuxer-chiled");
+          item1->addChild(item2);
+
+     //connect(ui->treeWidge)
+     
 }
+
 
 MainWindow::~MainWindow()
 {
@@ -52,4 +63,9 @@ void MainWindow::openUrl(QString url)
     QWebView *view = new QWebView();
         view->load(QUrl("http://172.16.74.61:8080"));
         view->show();
+}
+
+void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
+{
+    QMessageBox::information(0,"提示",item->data(0,Qt::UserRole).toString());
 }

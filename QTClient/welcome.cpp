@@ -13,7 +13,7 @@ Welcome::Welcome(QWidget *parent) :
     //this->setWindowFlags(Qt::FramelessWindowHint);
     //this->setFixedSize;
 
-    qDebug("当前路径%s",QDir::currentPath());
+    //qDebug("当前路径%s",QDir::currentPath());
     ui->setupUi(this);
     QPixmap map("E:\\gyTool-Manager\\QTClient\\img\\zw1.png");
     ui->label_2->setPixmap(map);
