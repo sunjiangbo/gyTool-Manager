@@ -170,7 +170,7 @@
                    value[i] = tv;
                }
                json.values = value;
-               MyAjax(json);
+               MyAjax(json, function(data) { $.messager.alert('提示', data.msg); });
                record = new Object();
                record.name = "load";
                record.isInit = false;
@@ -194,7 +194,7 @@
                    value[i] = tv;
                }
                json.values = value;
-               MyAjax(json);
+               MyAjax(json, function(data) { $.messager.alert('提示', data.msg);  });
                record = new Object();
                record.name = "load";
                record.isInit = false;
@@ -221,7 +221,7 @@
                    value[i] = tv;
                }
                json.values = value;
-               MyAjax(json);
+               MyAjax(json, function(data) { $.messager.alert('提示', data.msg); });
                record = new Object();
                record.name = "load";
                record.id = $("#drClass").combobox('getValue');

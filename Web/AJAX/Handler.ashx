@@ -1982,26 +1982,34 @@ public String Test(HttpContext ctx)
         }
         if (CmpOption == "0")//只含匹配项目
         {
-            dt =  MyManager.GetDataSet("SELECT * from coretoolvalue AS A join CLassPropertys AS B  on A.propertyid = B.ID and B.pType = 0 AND a.coreid = " + CoreID ); //只含匹配项目
-            Count = dt.Rows.Count;  
+           
             //选取在状态为toolstate的，模型一致的， 匹配属性的工具
-            dt1 = MyManager.GetDataSet("SELECT coreid ,count(A.id) as tNum from coretoolvalue AS A join CLassPropertys AS B  on A.propertyid = B.ID  where B.ptype = 0 AND coreid in (select id from coretool where state = " + ToolState + " AND modelid in (select modelid from coretool where id =" + CoreID + ")) Group By coreid");
-            dt2 = MyManager.GetDataSet("SELECT * from coretoolvalue AS A join CLassPropertys AS B  on A.propertyid = B.ID  where B.ptype = 0 AND coreid in (select id from coretool where state = " + ToolState + " AND modelid in (select modelid from coretool where id =" + CoreID + "))");
+            /*   dt =  MyManager.GetDataSet("SELECT * from coretoolvalue AS A join CLassPropertys AS B  on A.propertyid = B.ID and B.pType = 0 AND a.coreid = " + CoreID ); //只含匹配项目
+                 Count = dt.Rows.Count;  
+                 dt1 = MyManager.GetDataSet("SELECT coreid ,count(A.id) as tNum from coretoolvalue AS A join CLassPropertys AS B  on A.propertyid = B.ID  where B.ptype = 0 AND coreid in (select id from coretool where state = " + ToolState + " AND modelid in (select modelid from coretool where id =" + CoreID + ")) Group By coreid");
+                dt2 = MyManager.GetDataSet("SELECT * from coretoolvalue AS A join CLassPropertys AS B  on A.propertyid = B.ID  where B.ptype = 0 AND coreid in (select id from coretool where state = " + ToolState + " AND modelid in (select modelid from coretool where id =" + CoreID + "))");
+              */
+            //2016-03-29修改，比较时，不管其工具包或者独立工具的模型是否一致，只要求其除了工具箱本体及其属性之外的条目大于待比较工具箱的相关条目
+            dt = MyManager.GetDataSet("SELECT * from coretoolvalue AS A join CLassPropertys AS B  on A.propertyid = B.ID and B.pType = 0 AND a.coreid = " + CoreID + " Where A.ValueType not in (1,2)" ); //只含匹配项目
+            Count = dt.Rows.Count;
+            dt1 = MyManager.GetDataSet("SELECT coreid ,count(A.id) as tNum from coretoolvalue AS A join CLassPropertys AS B  on A.propertyid = B.ID  where B.ptype = 0 AND coreid in (select id from coretool where state = " + ToolState + " ) AND A.ValueType not in(1,2) Group By coreid");
+            dt2 = MyManager.GetDataSet("SELECT * from coretoolvalue");
+        
         }
         else//全面比较
         {
-            dt =  MyManager.GetDataSet("SELECT * from coretoolvalue where CoreID = " + CoreID);
+            dt =  MyManager.GetDataSet("SELECT * from coretoolvalue where ValueType not in(1,2) AND  CoreID = " + CoreID);
             Count = dt.Rows.Count;  
             //选取在库的，模型一致的的工具
-            dt1 = MyManager.GetDataSet("SELECT coreid ,count(id) as tNum from coretoolvalue   where coreid in (select id from coretool where state = " + ToolState + " AND modelid in (select modelid from coretoolwhere id =" + CoreID + ")) Group By coreid");
-            dt2 = MyManager.GetDataSet("SELECT *  from coretoolvalue   where coreid in (select id from coretool where state = " + ToolState + " AND modelid in (select modelid from coretool where id =" + CoreID + "))");//1021日，将coretoolvalue 改为coretool
+            dt1 = MyManager.GetDataSet("SELECT coreid ,count(id) as tNum from coretoolvalue   where coreid in (select id from coretool where state = " + ToolState + " )  Group By coreid");
+            dt2 = MyManager.GetDataSet("SELECT *  from coretoolvalue ");//1021日，将coretoolvalue 改为coretool
             
         }
 
 
         DataView dv;
         int bContinue = 1 ;
-        DataRow[] dr2,dr1,dr = dt1.Select(" tNum = " + Count );//选取属性数量一致的工具包CoreID，放入dr
+        DataRow[] dr2,dr1,dr = dt1.Select(" tNum >= " + Count );//选取属性数量一致或大于的工具包CoreID，放入dr
         int Total = 0;
         
         jWrite.WriteStartArray();
