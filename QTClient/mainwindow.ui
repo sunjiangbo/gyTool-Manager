@@ -46,7 +46,7 @@
      </font>
     </property>
     <property name="title">
-     <string>工具借还</string>
+     <string/>
     </property>
     <widget class="QTreeWidget" name="treeWidget">
      <property name="geometry">
@@ -91,7 +91,7 @@
       <rect>
        <x>300</x>
        <y>10</y>
-       <width>71</width>
+       <width>81</width>
        <height>21</height>
       </rect>
      </property>

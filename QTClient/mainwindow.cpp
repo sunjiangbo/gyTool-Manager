@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     ui->setupUi(this);
-    HandlerURL = "http://127.0.0.1/AJAX/handler.ashx";
+    HandlerURL = "http://192.168.1.101/AJAX/handler.ashx";
   /*  ui->tableWidget->setColumnCount(5);
     ui->tableWidget->setHorizontalHeaderLabels(QStringList()<<QString("Name")<<QString("Addr")<<QString("Tel")<<QString("btnCol"));
    QTableWidgetItem *item = new QTableWidgetItem(QIcon("/home/qt/1.ico"),"hello");
@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableWidget->setCellWidget(0,4,label);
       connect(label,SIGNAL(linkActivated(QString)),this,SLOT(openUrl(QString)));  //
 */
-    QPixmap pixmap("E:\\gyTool-Manager\\QTClient\\img\\logo.png");
+    QPixmap pixmap("/home/img/logo.png");
     ui->label->setPixmap(pixmap);
     ui->label->show();
     ui->label->setScaledContents(true);
@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(ReadReady_msg(QTcpSocket *skt)),this,SLOT(ReadReady(QTcpSocket *skt)));
     connect(this,SIGNAL(error_msg(QAbstractSocket::SocketError)),this,SLOT(error(QAbstractSocket::SocketError)));
 
-    skt_finger->connectToHost("192.168.1.108",7900);
+    skt_finger->connectToHost("192.168.1.101",7900);
     //skt_finger->readAll();
     SendCmd(skt_finger,"{\"cmd\":\"activeME\"}");
     connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
@@ -216,7 +216,7 @@ QString MainWindow::FillTaskList(QString userid)
     QString cmdret =  httpSendCmd(cmdtxt);
     QScriptEngine engine;
     QScriptValue sc = engine.evaluate("("+cmdret+")");
-    qDebug("-->%s",cmdtxt);
+    //qDebug("-->%s",cmdtxt);
     ui->treeWidget->clear();
     ui->treeWidget->setColumnCount(1);
     ui->treeWidget->setHeaderLabels(QStringList()<<"任务列表");
@@ -271,7 +271,7 @@ QString MainWindow::FillNameAndCorp(QString userid)
      ui->uName->setText( "<html><head/><body><p><span style=\" font-size:14pt; color:#3c23ff;\">"+sc.property("name").toString()+"</span></p></body></html>");
      ui->uCorp->setText("<html><head/><body><p><span style=\" font-size:14pt; color:#3c23ff;\">"+sc.property("corpname").toString()+"</span></p></body></html>");
 
-     qDebug("%s\n",cmdret);
+     //qDebug("%s\n",cmdret);
     return "OK";
  }
 void MainWindow::DealMsg(QString *Msg)

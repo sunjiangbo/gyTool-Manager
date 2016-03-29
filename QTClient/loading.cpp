@@ -20,7 +20,7 @@ Loading::Loading(QWidget *parent) :
             //label->setContentsMargins(0,0,0,0);
             /*QPalettepalette;palette.setBrush(QPalette::Background,QBrush(QPixmap("E:/qml/imgdialog/loading.gif")));
             this->setPalette(palette)*/;
-            movie = new QMovie("E:\\gyTool-Manager\\QTClient\\img\\loading.gif");
+            movie = new QMovie("/home/img/loading.gif");
             label->setMovie(movie);
             movie->start();
 }
