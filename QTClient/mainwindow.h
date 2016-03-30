@@ -29,6 +29,12 @@ public:
     void CloseLoading();
     QString FillNameAndCorp(QString userid);
     QString FillTaskList(QString userid);
+    QString GetWantAndIdentToolsByTaskID(QString TaskID);
+#define ToolName          0
+#define ToolID                1
+#define ALTER                 2
+#define LOOK                 3
+#define OP                      4
 private:
     Ui::MainWindow *ui;
     Welcome *flash;

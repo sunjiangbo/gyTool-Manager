@@ -63,22 +63,22 @@ public:
         __qtreewidgetitem->setText(0, QString::fromUtf8("1"));
         treeWidget->setHeaderItem(__qtreewidgetitem);
         treeWidget->setObjectName(QString::fromUtf8("treeWidget"));
-        treeWidget->setGeometry(QRect(10, 40, 181, 421));
+        treeWidget->setGeometry(QRect(10, 40, 241, 421));
         tableWidget = new QTableWidget(groupBox);
         tableWidget->setObjectName(QString::fromUtf8("tableWidget"));
-        tableWidget->setGeometry(QRect(200, 40, 801, 421));
+        tableWidget->setGeometry(QRect(260, 40, 741, 421));
         label_2 = new QLabel(groupBox);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setGeometry(QRect(200, 10, 91, 21));
+        label_2->setGeometry(QRect(260, 10, 91, 21));
         uName = new QLabel(groupBox);
         uName->setObjectName(QString::fromUtf8("uName"));
-        uName->setGeometry(QRect(300, 10, 81, 21));
+        uName->setGeometry(QRect(370, 10, 81, 21));
         label_3 = new QLabel(groupBox);
         label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(380, 10, 61, 21));
+        label_3->setGeometry(QRect(460, 10, 61, 21));
         uCorp = new QLabel(groupBox);
         uCorp->setObjectName(QString::fromUtf8("uCorp"));
-        uCorp->setGeometry(QRect(440, 10, 231, 21));
+        uCorp->setGeometry(QRect(530, 10, 231, 21));
         pushButton = new QPushButton(centralWidget);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
         pushButton->setGeometry(QRect(60, 40, 75, 23));
@@ -94,13 +94,13 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
+        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "\345\267\245\345\205\267\347\256\241\347\220\206\347\263\273\347\273\237", 0, QApplication::UnicodeUTF8));
         label->setText(QString());
         groupBox->setTitle(QString());
         label_2->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt;\">\345\275\223\345\211\215\347\224\250\346\210\267\357\274\232</span></p></body></html>", 0, QApplication::UnicodeUTF8));
-        uName->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt; color:#3c23ff;\">\346\235\216\345\205\211\350\200\200</span></p></body></html>", 0, QApplication::UnicodeUTF8));
+        uName->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt; color:#3c23ff;\">XXX</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt;\">\351\203\250\351\227\250\357\274\232</span></p></body></html>", 0, QApplication::UnicodeUTF8));
-        uCorp->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt; color:#0000ff;\">\346\212\200\346\234\257\347\247\221</span></p></body></html>", 0, QApplication::UnicodeUTF8));
+        uCorp->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt; color:#0000ff;\">XXX</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         pushButton->setText(QApplication::translate("MainWindow", "PushButton", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

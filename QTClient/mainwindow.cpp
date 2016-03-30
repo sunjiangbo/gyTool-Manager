@@ -11,6 +11,8 @@
 #include<QNetworkRequest>
 #include<QNetworkReply>
 #include<QDebug>
+#include<QComboBox>
+#include <QTableWidget>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -19,8 +21,20 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
     HandlerURL = "http://192.168.1.101/AJAX/handler.ashx";
-  /*  ui->tableWidget->setColumnCount(5);
-    ui->tableWidget->setHorizontalHeaderLabels(QStringList()<<QString("Name")<<QString("Addr")<<QString("Tel")<<QString("btnCol"));
+
+    ui->tableWidget->setColumnCount(5);
+     ui->tableWidget->setHorizontalHeaderLabels(QStringList()<<QString("工具名")<<QString("件号")<<QString("可替代(最终选择)")<<QString("查看工具箱")<<QString("操作"));
+     ui->tableWidget->setColumnWidth(ToolName,200);
+     ui->tableWidget->setColumnWidth(ToolID,100);
+     ui->tableWidget->setColumnWidth(ALTER,200);
+
+     ui->tableWidget->setColumnWidth(LOOK,100);
+     ui->tableWidget->setColumnWidth(OP,100);
+     ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+      ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+      ui->tableWidget->setAlternatingRowColors(1);
+    // ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
+    /*
    QTableWidgetItem *item = new QTableWidgetItem(QIcon("/home/qt/1.ico"),"hello");
    ui->tableWidget->insertRow(0);
    ui->tableWidget->setItem(0,0,item);
@@ -65,11 +79,11 @@ MainWindow::MainWindow(QWidget *parent) :
     loadingWin = new Loading(this);
 
 
-   this->hide();
+  // this->hide();
    //flash->exec();
-   flash->setModal(true);
-   flash->show();
-   flash->exec();
+  // flash->setModal(true);
+ //  flash->show();
+  // flash->exec();
     //ShowLoading("等待用户指纹....");
     //loadingWin
    // this->show();
@@ -251,7 +265,10 @@ QString MainWindow::FillTaskList(QString userid)
        }
 
     }
-    ui->treeWidget->addTopLevelItem(root);
+    ui->treeWidget->addTopLevelItem(root);QPushButton *btn =  new QPushButton();
+
+    btn->setText("OK");
+
 
     return "OK";
 
@@ -274,6 +291,68 @@ QString MainWindow::FillNameAndCorp(QString userid)
      //qDebug("%s\n",cmdret);
     return "OK";
  }
+
+QString MainWindow::GetWantAndIdentToolsByTaskID(QString TaskID)
+{
+    /*
+#define ToolName          0
+#define ToolID                1
+#define ALTER                 2
+#define LOOK                 3
+#define OP                      4
+   */
+    QString cmdtxt = "{\"cmd\":\"GetWantAndIdentToolsByTaskID\",\"taskid\":\"" + TaskID + "\"}";
+    QString cmdret =  httpSendCmd(cmdtxt);
+    QScriptEngine engine;
+    QScriptValue sc = engine.evaluate("("+cmdret+")");
+    QTableWidget *tb = ui->tableWidget;
+    if(sc.property("status").toString()=="" || sc.property("status").toString()=="failed")
+    {
+        return "失败" + sc.property("msg").toString();
+    }
+
+    tb->clearContents();
+  tb->setRowCount(0);
+    QScriptValueIterator it(sc.property("data"));
+    while (it.hasNext())
+    {
+        it.next();
+       if(!it.value().property("toolname").toString().isEmpty()){
+           int index = tb->rowCount();
+           tb->insertRow(index);
+          // tb->setItem(index,XH,new QTableWidgetItem(QString::number(index+1)));
+           tb->setItem(index,ToolName,new QTableWidgetItem(it.value().property("toolname").toString()));
+           tb->setItem(index,ToolID,new QTableWidgetItem(it.value().property("toolid").toString()));
+           QPushButton *lkbtn =  new QPushButton();
+           lkbtn->setText("查看");
+            tb->setCellWidget(index,LOOK,lkbtn);
+           QComboBox *pComboBox = new QComboBox();
+           QScriptValueIterator alter(it.value().property("liketools"));
+
+          while(alter.hasNext()){
+              qDebug("进来了");
+                    alter.next();
+                  //  if(!alter.value().property("toolid").toString().isEmpty()){
+                           pComboBox->addItem(alter.value().property("toolid").toString());
+                    //}else{
+                       // pComboBox->addItem("空");
+                    //}
+          }
+         tb->setCellWidget(index, ALTER, pComboBox );
+          QPushButton *btn =  new QPushButton();
+          btn->setText("借出");
+           tb->setCellWidget(index,OP,btn);
+       }
+
+    }
+
+
+
+
+
+   return  sc.property("data").toString();
+}
+
 void MainWindow::DealMsg(QString *Msg)
 {
     QScriptEngine engine;
@@ -342,10 +421,26 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
 
-    QString cmdtxt = "{\"cmd\":\"GetBorwTaskListBytUserID\",\"userid\":\"25\"}";
-    //qDebug("%s\n",cmdtxt);
+    QString userid = "25",txt;
+    ShowLoading("加载用户信息....");
 
-    QMessageBox::information(0,"提示",httpSendCmd(cmdtxt));
+    txt = FillNameAndCorp(userid);
+    if (txt != "OK"){//加载用户信息错误
+       QMessageBox::information(0,"错误",txt);
+       CloseLoading();
+       return;
+    }
+
+    ShowLoading("加载用户任务列表....");
+    txt = FillTaskList(userid);
+    if (txt != "OK"){//加载用户信息错误
+       QMessageBox::information(0,"错误",txt);
+        CloseLoading();
+       return;
+    }
+ CloseLoading();
+
+
 
   //QString *str = SendCmd(skt_finger,"{cmd:333大方大方大方");
 
@@ -377,6 +472,6 @@ void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
 {
     if (item->data(0,Qt::UserRole).toString()!="root")
     {
-        QMessageBox::information(0,"任务ID",item->data(0,Qt::UserRole).toString());
+       GetWantAndIdentToolsByTaskID(item->data(0,Qt::UserRole).toString());
     }
 }
