@@ -19,6 +19,7 @@
 #include <QtGui/QTabWidget>
 #include <QtGui/QTableWidget>
 #include <QtGui/QToolBar>
+#include <QtGui/QTreeWidget>
 #include <QtGui/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -31,6 +32,7 @@ public:
     QWidget *tab;
     QTableWidget *tableWidget;
     QWidget *tab_2;
+    QTreeWidget *treeWidget;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -52,6 +54,12 @@ public:
         tabWidget->addTab(tab, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
+        treeWidget = new QTreeWidget(tab_2);
+        QTreeWidgetItem *__qtreewidgetitem = new QTreeWidgetItem();
+        __qtreewidgetitem->setText(0, QString::fromUtf8("1"));
+        treeWidget->setHeaderItem(__qtreewidgetitem);
+        treeWidget->setObjectName(QString::fromUtf8("treeWidget"));
+        treeWidget->setGeometry(QRect(0, 10, 571, 361));
         tabWidget->addTab(tab_2, QString());
         MainWindow->setCentralWidget(centralWidget);
         mainToolBar = new QToolBar(MainWindow);
@@ -63,7 +71,7 @@ public:
 
         retranslateUi(MainWindow);
 
-        tabWidget->setCurrentIndex(0);
+        tabWidget->setCurrentIndex(1);
 
 
         QMetaObject::connectSlotsByName(MainWindow);

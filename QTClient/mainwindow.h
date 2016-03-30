@@ -33,8 +33,9 @@ public:
 #define ToolName          0
 #define ToolID                1
 #define ALTER                 2
-#define LOOK                 3
-#define OP                      4
+ #define REALSTATE        3
+#define LOOK                 4
+#define OP                      5
 private:
     Ui::MainWindow *ui;
     Welcome *flash;

@@ -22,8 +22,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     HandlerURL = "http://192.168.1.101/AJAX/handler.ashx";
 
-    ui->tableWidget->setColumnCount(5);
-     ui->tableWidget->setHorizontalHeaderLabels(QStringList()<<QString("工具名")<<QString("件号")<<QString("可替代(最终选择)")<<QString("查看工具箱")<<QString("操作"));
+    ui->tableWidget->setColumnCount(6);
+     ui->tableWidget->setHorizontalHeaderLabels(QStringList()<<QString("工具名")<<QString("件号")<<QString("可替代(最终选择)")<<QString("实际状态")<<QString("查看工具箱")<<QString("操作"));
      ui->tableWidget->setColumnWidth(ToolName,200);
      ui->tableWidget->setColumnWidth(ToolID,100);
      ui->tableWidget->setColumnWidth(ALTER,200);
@@ -71,10 +71,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(ReadReady_msg(QTcpSocket *skt)),this,SLOT(ReadReady(QTcpSocket *skt)));
     connect(this,SIGNAL(error_msg(QAbstractSocket::SocketError)),this,SLOT(error(QAbstractSocket::SocketError)));
 
-    skt_finger->connectToHost("192.168.1.101",7900);
+    //skt_finger->connectToHost("192.168.1.101",7900);
     //skt_finger->readAll();
-    SendCmd(skt_finger,"{\"cmd\":\"activeME\"}");
-    connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
+    //SendCmd(skt_finger,"{\"cmd\":\"activeME\"}");
+   // connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
     flash = new Welcome(this);
     loadingWin = new Loading(this);
 
@@ -237,17 +237,6 @@ QString MainWindow::FillTaskList(QString userid)
     if (sc.property("status").toString() !="success"){
 
     }
-    /*
-     *  if(sc.property("chi").isArray()) //解析数组
-      {
-      QScriptValueIterator it(sc.property("chi"));
-              while (it.hasNext())
-              {
-                  it.next();
-                  if(!it.value().property("a").toString().isEmpty())
-                      qDebug() << it.value().property("a").toString();
-              }
-      }*/
 
     QTreeWidgetItem * root=new QTreeWidgetItem(QStringList()<<"TaskList");
     root->setData(0,Qt::UserRole,"root");
@@ -304,41 +293,39 @@ QString MainWindow::GetWantAndIdentToolsByTaskID(QString TaskID)
     QString cmdtxt = "{\"cmd\":\"GetWantAndIdentToolsByTaskID\",\"taskid\":\"" + TaskID + "\"}";
     QString cmdret =  httpSendCmd(cmdtxt);
     QScriptEngine engine;
-    QScriptValue sc = engine.evaluate("("+cmdret+")");
+    QScriptValue sc = engine.evaluate("("+cmdret+")"),sc1;
     QTableWidget *tb = ui->tableWidget;
     if(sc.property("status").toString()=="" || sc.property("status").toString()=="failed")
     {
         return "失败" + sc.property("msg").toString();
     }
 
-    tb->clearContents();
+  tb->clearContents();
   tb->setRowCount(0);
     QScriptValueIterator it(sc.property("data"));
+
     while (it.hasNext())
     {
         it.next();
        if(!it.value().property("toolname").toString().isEmpty()){
            int index = tb->rowCount();
            tb->insertRow(index);
-          // tb->setItem(index,XH,new QTableWidgetItem(QString::number(index+1)));
            tb->setItem(index,ToolName,new QTableWidgetItem(it.value().property("toolname").toString()));
            tb->setItem(index,ToolID,new QTableWidgetItem(it.value().property("toolid").toString()));
            QPushButton *lkbtn =  new QPushButton();
-           lkbtn->setText("查看");
+           lkbtn->setText("工具查看");
             tb->setCellWidget(index,LOOK,lkbtn);
+            sc1 = engine.evaluate("("+it.value().property("liketools").toString()+")");
            QComboBox *pComboBox = new QComboBox();
-           QScriptValueIterator alter(it.value().property("liketools"));
-
-          while(alter.hasNext()){
-              qDebug("进来了");
+           QScriptValueIterator alter(sc1);
+           while(alter.hasNext()){
                     alter.next();
-                  //  if(!alter.value().property("toolid").toString().isEmpty()){
+                   if(!alter.value().property("toolid").toString().isEmpty()){
                            pComboBox->addItem(alter.value().property("toolid").toString());
-                    //}else{
-                       // pComboBox->addItem("空");
-                    //}
+                   }
           }
          tb->setCellWidget(index, ALTER, pComboBox );
+
           QPushButton *btn =  new QPushButton();
           btn->setText("借出");
            tb->setCellWidget(index,OP,btn);
@@ -350,7 +337,7 @@ QString MainWindow::GetWantAndIdentToolsByTaskID(QString TaskID)
 
 
 
-   return  sc.property("data").toString();
+   return  "OK";
 }
 
 void MainWindow::DealMsg(QString *Msg)
@@ -421,7 +408,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButton_clicked()
 {
 
-    QString userid = "25",txt;
+    QString userid = "24",txt;
     ShowLoading("加载用户信息....");
 
     txt = FillNameAndCorp(userid);
