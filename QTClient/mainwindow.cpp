@@ -13,6 +13,8 @@
 #include<QDebug>
 #include<QComboBox>
 #include <QTableWidget>
+#include <QMap>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -290,11 +292,15 @@ QString MainWindow::GetWantAndIdentToolsByTaskID(QString TaskID)
 #define LOOK                 3
 #define OP                      4
    */
+
+QMap<QString, QString> map;
+
     QString cmdtxt = "{\"cmd\":\"GetWantAndIdentToolsByTaskID\",\"taskid\":\"" + TaskID + "\"}";
     QString cmdret =  httpSendCmd(cmdtxt);
     QScriptEngine engine;
     QScriptValue sc = engine.evaluate("("+cmdret+")"),sc1;
     QTableWidget *tb = ui->tableWidget;
+    int min_pvCount = 0,min_pvCount_index=0;
     if(sc.property("status").toString()=="" || sc.property("status").toString()=="failed")
     {
         return "失败" + sc.property("msg").toString();
@@ -317,14 +323,25 @@ QString MainWindow::GetWantAndIdentToolsByTaskID(QString TaskID)
             tb->setCellWidget(index,LOOK,lkbtn);
             sc1 = engine.evaluate("("+it.value().property("liketools").toString()+")");
            QComboBox *pComboBox = new QComboBox();
+           pComboBox->addItem("");
            QScriptValueIterator alter(sc1);
+           min_pvCount = 999999999;
+           min_pvCount_index = 0;
            while(alter.hasNext()){
+
                     alter.next();
                    if(!alter.value().property("toolid").toString().isEmpty()){
                            pComboBox->addItem(alter.value().property("toolid").toString());
+                           if(!map.contains(alter.value().property("toolid").toString()) && alter.value().property("pvcount").toInt32() <=min_pvCount ){
+                                    min_pvCount= alter.value().property("pvcount").toInt32() ;
+                                    min_pvCount_index = pComboBox->count()-1;
+                                    map[alter.value().property("toolid").toString()]="true";
+                           }
                    }
           }
-         tb->setCellWidget(index, ALTER, pComboBox );
+           qDebug()<<"index-->"<<min_pvCount_index;
+           pComboBox->setCurrentIndex(min_pvCount_index);
+          tb->setCellWidget(index, ALTER, pComboBox );
 
           QPushButton *btn =  new QPushButton();
           btn->setText("借出");
