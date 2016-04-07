@@ -14,7 +14,9 @@
 #include<QComboBox>
 #include <QTableWidget>
 #include <QMap>
-
+#include <gybutton.h>
+#include<QWebView>
+#include <mycombox.h>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -35,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
      ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
       ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
       ui->tableWidget->setAlternatingRowColors(1);
+      tbMap = NULL;
     // ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
     /*
    QTableWidgetItem *item = new QTableWidgetItem(QIcon("/home/qt/1.ico"),"hello");
@@ -282,7 +285,26 @@ QString MainWindow::FillNameAndCorp(QString userid)
      //qDebug("%s\n",cmdret);
     return "OK";
  }
+void MainWindow::look_tool_slot(int i)
+{
+   myComBox *box =  (myComBox*)ui->tableWidget->cellWidget(i,ALTER);
 
+   if(box->get_coreid()=="")
+   {
+       QMessageBox::information(0,"提示","请在下拉框中选择你要查看的工具!" );
+       return;
+   }
+
+
+ //QMessageBox::information(0,"提示","http://192.168.1.101/ToolBag.aspx?Type=2&BagID=" + box->get_coreid());
+  QWebView *view =  new QWebView();
+
+        view->load(QUrl("http://192.168.1.101/ToolBag.aspx?Type=2&BagID=" + box->get_coreid()));
+
+        view->show();
+
+
+}
 QString MainWindow::GetWantAndIdentToolsByTaskID(QString TaskID)
 {
     /*
@@ -293,14 +315,14 @@ QString MainWindow::GetWantAndIdentToolsByTaskID(QString TaskID)
 #define OP                      4
    */
 
-QMap<QString, QString> map;
-
+    QMap<QString, QString> map;
     QString cmdtxt = "{\"cmd\":\"GetWantAndIdentToolsByTaskID\",\"taskid\":\"" + TaskID + "\"}";
     QString cmdret =  httpSendCmd(cmdtxt);
     QScriptEngine engine;
     QScriptValue sc = engine.evaluate("("+cmdret+")"),sc1;
     QTableWidget *tb = ui->tableWidget;
     int min_pvCount = 0,min_pvCount_index=0;
+
     if(sc.property("status").toString()=="" || sc.property("status").toString()=="failed")
     {
         return "失败" + sc.property("msg").toString();
@@ -318,20 +340,27 @@ QMap<QString, QString> map;
            tb->insertRow(index);
            tb->setItem(index,ToolName,new QTableWidgetItem(it.value().property("toolname").toString()));
            tb->setItem(index,ToolID,new QTableWidgetItem(it.value().property("toolid").toString()));
-           QPushButton *lkbtn =  new QPushButton();
+           gyButton *lkbtn =  new gyButton(index);
            lkbtn->setText("工具查看");
+
+           connect(lkbtn,SIGNAL(clicked()),lkbtn,SLOT(Borowse_Clicked_slot()));
+           connect(lkbtn,SIGNAL(BorowseClicked(int)),this,SLOT(look_tool_slot(int )));
+
             tb->setCellWidget(index,LOOK,lkbtn);
             sc1 = engine.evaluate("("+it.value().property("liketools").toString()+")");
-           QComboBox *pComboBox = new QComboBox();
+           myComBox *pComboBox = new myComBox();
            pComboBox->addItem("");
            QScriptValueIterator alter(sc1);
            min_pvCount = 999999999;
            min_pvCount_index = 0;
+
            while(alter.hasNext()){
 
                     alter.next();
                    if(!alter.value().property("toolid").toString().isEmpty()){
                            pComboBox->addItem(alter.value().property("toolid").toString());
+                            pComboBox->insert_coreid(pComboBox->count()-1,alter.value().property("coreid").toString());
+                            qDebug()<<pComboBox->currentIndex()<<alter.value().property("coreid").toString();
                            if(!map.contains(alter.value().property("toolid").toString()) && alter.value().property("pvcount").toInt32() <=min_pvCount ){
                                     min_pvCount= alter.value().property("pvcount").toInt32() ;
                                     min_pvCount_index = pComboBox->count()-1;
@@ -343,9 +372,12 @@ QMap<QString, QString> map;
            pComboBox->setCurrentIndex(min_pvCount_index);
           tb->setCellWidget(index, ALTER, pComboBox );
 
-          QPushButton *btn =  new QPushButton();
+          gyButton *btn =  new gyButton(index);
           btn->setText("借出");
            tb->setCellWidget(index,OP,btn);
+           connect(btn,SIGNAL(clicked()),btn,SLOT(Borrow_Clicked_slot()));
+           connect(btn,SIGNAL(BorrowClicked(int)),this,SLOT(borrow_tool_click_slot(int )));
+
        }
 
     }
@@ -356,7 +388,10 @@ QMap<QString, QString> map;
 
    return  "OK";
 }
-
+void MainWindow::borrow_tool_click_slot(int i)
+{
+      QMessageBox::information(0,"借用提示",QString::number(i));
+}
 void MainWindow::DealMsg(QString *Msg)
 {
     QScriptEngine engine;

@@ -6,7 +6,10 @@
 #include <QMainWindow>
 #include <QtNetwork/QTcpSocket>
 #include<QtNetwork/QHostAddress>
-#include<QTreeWidgetItem>
+#include<QTreeWidgetItem>\
+#include<QMap>
+#include<QPushButton>
+
 namespace Ui {
 class MainWindow;
 }
@@ -41,6 +44,7 @@ private:
     Welcome *flash;
     QString HandlerURL;
     Loading * loadingWin;
+    QMap<QPushButton*,int> *tbMap;
 
 signals:
     void Srv_Connect_msg(QTcpSocket *skt);
@@ -59,10 +63,14 @@ signals:
     void ReadReady(QTcpSocket *skt);
     void Srv_disConnected(QTcpSocket *skt);
     void	error (QAbstractSocket::SocketError socketError );
+//工具借用与查看按钮事件槽
+    void look_tool_slot(int i);
+    void borrow_tool_click_slot(int i);
 private slots:
     void on_pushButton_clicked();
     void on_MainWindow_destroyed(QObject *arg1);
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
+
 };
 
 #endif // MAINWINDOW_H

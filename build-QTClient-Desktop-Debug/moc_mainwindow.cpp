@@ -22,7 +22,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      15,   14, // methods
+      17,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -44,9 +44,11 @@ static const uint qt_meta_data_MainWindow[] = {
      292,   12,   11,   11, 0x0a,
      315,   12,   11,   11, 0x0a,
      345,  106,   11,   11, 0x0a,
-     381,   11,   11,   11, 0x08,
-     410,  405,   11,   11, 0x08,
-     456,  444,   11,   11, 0x08,
+     383,  381,   11,   11, 0x0a,
+     403,  381,   11,   11, 0x0a,
+     431,   11,   11,   11, 0x08,
+     460,  455,   11,   11, 0x08,
+     506,  494,   11,   11, 0x08,
 
        0        // eod
 };
@@ -63,6 +65,7 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "ReadReady(QTcpSocket*)\0"
     "Srv_disConnected(QTcpSocket*)\0"
     "error(QAbstractSocket::SocketError)\0"
+    "i\0look_tool_slot(int)\0borrow_tool_click_slot(int)\0"
     "on_pushButton_clicked()\0arg1\0"
     "on_MainWindow_destroyed(QObject*)\0"
     "item,column\0on_treeWidget_itemClicked(QTreeWidgetItem*,int)\0"
@@ -86,9 +89,11 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 9: _t->ReadReady((*reinterpret_cast< QTcpSocket*(*)>(_a[1]))); break;
         case 10: _t->Srv_disConnected((*reinterpret_cast< QTcpSocket*(*)>(_a[1]))); break;
         case 11: _t->error((*reinterpret_cast< QAbstractSocket::SocketError(*)>(_a[1]))); break;
-        case 12: _t->on_pushButton_clicked(); break;
-        case 13: _t->on_MainWindow_destroyed((*reinterpret_cast< QObject*(*)>(_a[1]))); break;
-        case 14: _t->on_treeWidget_itemClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 12: _t->look_tool_slot((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 13: _t->borrow_tool_click_slot((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 14: _t->on_pushButton_clicked(); break;
+        case 15: _t->on_MainWindow_destroyed((*reinterpret_cast< QObject*(*)>(_a[1]))); break;
+        case 16: _t->on_treeWidget_itemClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         default: ;
         }
     }
@@ -126,9 +131,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 15)
+        if (_id < 17)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 15;
+        _id -= 17;
     }
     return _id;
 }
