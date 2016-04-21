@@ -1,0 +1,50 @@
+d:\Documents\Visual Studio 2008\Projects\WindowsFormsApplication3\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe
+d:\Documents\Visual Studio 2008\Projects\WindowsFormsApplication3\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.pdb
+d:\Documents\Visual Studio 2008\Projects\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\ResolveAssemblyReference.cache
+d:\Documents\Visual Studio 2008\Projects\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Form1.resources
+d:\Documents\Visual Studio 2008\Projects\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Properties.Resources.resources
+d:\Documents\Visual Studio 2008\Projects\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.GenerateResource.Cache
+d:\Documents\Visual Studio 2008\Projects\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
+d:\Documents\Visual Studio 2008\Projects\WindowsFormsApplication3\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb
+D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
+D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb
+D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe
+D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.pdb
+D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\ResolveAssemblyReference.cache
+D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Form1.resources
+D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Properties.Resources.resources
+D:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.GenerateResource.Cache
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.pdb
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\ResolveAssemblyReference.cache
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Form1.resources
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Properties.Resources.resources
+F:\gyTool-Manager\C#基本TCP框架\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.GenerateResource.Cache
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.pdb
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Form1.resources
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Properties.Resources.resources
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.GenerateResource.Cache
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe.config
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\Interop.ZKFPEngXControl.dll
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\AxInterop.ZKFPEngXControl.dll
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.ResolveComReference.cache
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Debug\Interop.ZKFPEngXControl.dll
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Debug\AxInterop.ZKFPEngXControl.dll
+F:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csprojResolveAssemblyReference.cache
+D:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe.config
+D:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\Interop.ZKFPEngXControl.dll
+D:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\AxInterop.ZKFPEngXControl.dll
+D:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.ResolveComReference.cache
+D:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
+D:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb
+D:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe.config
+D:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\Interop.ZKFPEngXControl.dll
+D:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\AxInterop.ZKFPEngXControl.dll
+D:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.ResolveComReference.cache
+D:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
+D:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb

@@ -188,5 +188,10 @@ namespace WindowsFormsApplication3
         {
             System.Environment.Exit(0);
         }
+
+        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

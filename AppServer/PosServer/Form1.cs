@@ -370,7 +370,7 @@ namespace WindowsFormsApplication1
             try
             {
                
-               rd = Reader.Create("192.168.1.101", ModuleTech.Region.NA, 4);
+               rd = Reader.Create("192.168.1.250", ModuleTech.Region.NA, 4);
 
             }
             catch (Exception ex)
@@ -390,7 +390,7 @@ namespace WindowsFormsApplication1
             
           // rd.read
 
-            int[] ants = new int[] { 1,4 };
+            int[] ants = new int[] { 1,2 };
             Gen2TagFilter filter = new Gen2TagFilter(ByteFormat.FromHex("FFFFFFFF"),MemBank.EPC, 32, false);
             rd.ParamSet("Singulation", filter);
             SimpleReadPlan searchPlan = new SimpleReadPlan(ants);
