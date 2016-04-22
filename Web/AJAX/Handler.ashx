@@ -1,4 +1,4 @@
-﻿<%@ WebHandler Language="C#" Class="Handler" %>
+﻿<%@ WebHandler Language="C#" Class="Handler"Debug="true" %>
 
 using System;
 using System.Collections;
@@ -2063,6 +2063,8 @@ public String Test(HttpContext ctx)
                         jWrite.WriteValue(arr[1].ToString());
                         jWrite.WritePropertyName("coreid");
                         jWrite.WriteValue(arr[0].ToString());
+                        jWrite.WritePropertyName("pvcount");//属性和取值集合个数
+                        jWrite.WriteValue(dr[i]["tNum"].ToString());
                         jWrite.WriteEndObject(); 
                     }
                 }
@@ -2758,6 +2760,48 @@ public String Test(HttpContext ctx)
 
        return "{\"status\":\"success\",\"tasklist\":"+sw.ToString()+"}";
     }
+
+    public String GetBorrowInfoByTaskID(int TaskID)
+    {
+        StringWriter sw = new StringWriter();
+        JsonWriter jWrite = new JsonTextWriter(sw);
+        int i;
+        DataTable dt = MyManager.GetDataSet("Select * From [ToolApp] where TaskID = " + TaskID);
+        String RetJson;
+
+        jWrite.WriteStartArray();
+        for (i = 0; i < dt.Rows.Count; i++)
+        {
+            jWrite.WriteStartObject();
+            jWrite.WritePropertyName("toolname");
+            jWrite.WriteValue(dt.Rows[i]["WantToolName"].ToString());
+            jWrite.WritePropertyName("toolid");
+            jWrite.WriteValue(dt.Rows[i]["WantToolID"].ToString());
+            jWrite.WritePropertyName("appstate");
+            jWrite.WriteValue(dt.Rows[i]["State"].ToString());
+            if (dt.Rows[i]["State"].ToString() == "0")
+            {
+                jWrite.WritePropertyName("liketools");
+                RetJson = GetIdenticalTool(JObject.Parse("{\"coreid\":\"" + dt.Rows[i]["CoreID"].ToString() + "\",\"toolstate\":\"0\",\"cmpoption\":\"0\"}"));
+                //gCtx.Response.Write(RetJson);
+                JObject JO = JObject.Parse(RetJson);
+                jWrite.WriteValue(JO["data"].ToString());
+            }
+            else if (dt.Rows[i]["State"].ToString() == "1")
+            {
+                jWrite.WritePropertyName("borrowedtoolname");
+                jWrite.WriteValue(dt.Rows[i]["borrowedtoolname"].ToString());
+                jWrite.WritePropertyName("borrowedtoolid");
+                jWrite.WriteValue(dt.Rows[i]["borrowedtoolid"].ToString());
+            }
+            jWrite.WriteEndObject();
+        }
+        jWrite.WriteEndArray();
+
+        return "{\"status\":\"success\",\"data\":"+sw.ToString()+"}";
+
+    }
+    
    public void ProcessRequest (HttpContext context) 
    {
 
@@ -2993,6 +3037,11 @@ public String Test(HttpContext ctx)
            {
                retJSON = GetBorwTaskListBytUserID(Convert.ToInt32(JO["userid"].ToString()));
            }
+           if (Cmd == "GetBorrowInfoByTaskID")
+           {
+               retJSON = GetBorrowInfoByTaskID(Convert.ToInt32(JO["taskid"].ToString()));
+           }
+           
            context.Response.Write(retJSON);
            
         }
