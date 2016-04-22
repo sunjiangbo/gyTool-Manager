@@ -9,7 +9,7 @@ class gyButton : public QPushButton
 public:
     explicit gyButton(int i);
     int index;
-
+    int AppState;
 signals:
     void BorowseClicked(int i);
     void BorrowClicked (int i);

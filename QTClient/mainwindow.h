@@ -9,6 +9,7 @@
 #include<QTreeWidgetItem>\
 #include<QMap>
 #include<QPushButton>
+#include <borrowandreback.h>
 
 namespace Ui {
 class MainWindow;
@@ -32,19 +33,22 @@ public:
     void CloseLoading();
     QString FillNameAndCorp(QString userid);
     QString FillTaskList(QString userid);
-    QString GetWantAndIdentToolsByTaskID(QString TaskID);
+    QString GetBorrowInfoByTaskID(QString TaskID);
 #define ToolName          0
 #define ToolID                1
 #define ALTER                 2
  #define REALSTATE        3
 #define LOOK                 4
 #define OP                      5
+
+ #define WEB_URL          "http://172.16.74.61:8080"
 private:
     Ui::MainWindow *ui;
     Welcome *flash;
     QString HandlerURL;
     Loading * loadingWin;
     QMap<QPushButton*,int> *tbMap;
+    BorrowAndReBack * brWin;
 
 signals:
     void Srv_Connect_msg(QTcpSocket *skt);

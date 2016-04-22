@@ -17,6 +17,7 @@
 #include <gybutton.h>
 #include<QWebView>
 #include <mycombox.h>
+#include <borrowandreback.h>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -24,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     ui->setupUi(this);
-    HandlerURL = "http://192.168.1.101/AJAX/handler.ashx";
+    HandlerURL = QString(WEB_URL) + "/AJAX/handler.ashx";
 
     ui->tableWidget->setColumnCount(6);
      ui->tableWidget->setHorizontalHeaderLabels(QStringList()<<QString("工具名")<<QString("件号")<<QString("可替代(最终选择)")<<QString("实际状态")<<QString("查看工具箱")<<QString("操作"));
@@ -38,6 +39,8 @@ MainWindow::MainWindow(QWidget *parent) :
       ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
       ui->tableWidget->setAlternatingRowColors(1);
       tbMap = NULL;
+      brWin = new BorrowAndReBack();
+
     // ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
     /*
    QTableWidgetItem *item = new QTableWidgetItem(QIcon("/home/qt/1.ico"),"hello");
@@ -299,13 +302,13 @@ void MainWindow::look_tool_slot(int i)
  //QMessageBox::information(0,"提示","http://192.168.1.101/ToolBag.aspx?Type=2&BagID=" + box->get_coreid());
   QWebView *view =  new QWebView();
 
-        view->load(QUrl("http://192.168.1.101/ToolBag.aspx?Type=2&BagID=" + box->get_coreid()));
+        view->load(QUrl( QString(WEB_URL) + "/ToolBag.aspx?Type=2&BagID=" + box->get_coreid()));
 
         view->show();
 
 
 }
-QString MainWindow::GetWantAndIdentToolsByTaskID(QString TaskID)
+QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
 {
     /*
 #define ToolName          0
@@ -316,7 +319,7 @@ QString MainWindow::GetWantAndIdentToolsByTaskID(QString TaskID)
    */
 
     QMap<QString, QString> map;
-    QString cmdtxt = "{\"cmd\":\"GetWantAndIdentToolsByTaskID\",\"taskid\":\"" + TaskID + "\"}";
+    QString cmdtxt = "{\"cmd\":\"GetBorrowInfoByTaskID\",\"taskid\":\"" + TaskID + "\"}",AppState="0";
     QString cmdret =  httpSendCmd(cmdtxt);
     QScriptEngine engine;
     QScriptValue sc = engine.evaluate("("+cmdret+")"),sc1;
@@ -347,50 +350,82 @@ QString MainWindow::GetWantAndIdentToolsByTaskID(QString TaskID)
            connect(lkbtn,SIGNAL(BorowseClicked(int)),this,SLOT(look_tool_slot(int )));
 
             tb->setCellWidget(index,LOOK,lkbtn);
-            sc1 = engine.evaluate("("+it.value().property("liketools").toString()+")");
-           myComBox *pComboBox = new myComBox();
-           pComboBox->addItem("");
-           QScriptValueIterator alter(sc1);
-           min_pvCount = 999999999;
-           min_pvCount_index = 0;
 
-           while(alter.hasNext()){
+            AppState = it.value().property("appstate").toString();
+            gyButton *btn =  new gyButton(index);
 
-                    alter.next();
-                   if(!alter.value().property("toolid").toString().isEmpty()){
-                           pComboBox->addItem(alter.value().property("toolid").toString());
-                            pComboBox->insert_coreid(pComboBox->count()-1,alter.value().property("coreid").toString());
-                            qDebug()<<pComboBox->currentIndex()<<alter.value().property("coreid").toString();
-                           if(!map.contains(alter.value().property("toolid").toString()) && alter.value().property("pvcount").toInt32() <=min_pvCount ){
-                                    min_pvCount= alter.value().property("pvcount").toInt32() ;
-                                    min_pvCount_index = pComboBox->count()-1;
-                                    map[alter.value().property("toolid").toString()]="true";
-                           }
-                   }
-          }
-           qDebug()<<"index-->"<<min_pvCount_index;
-           pComboBox->setCurrentIndex(min_pvCount_index);
-          tb->setCellWidget(index, ALTER, pComboBox );
+            tb->setCellWidget(index,OP,btn);
 
-          gyButton *btn =  new gyButton(index);
-          btn->setText("借出");
-           tb->setCellWidget(index,OP,btn);
-           connect(btn,SIGNAL(clicked()),btn,SLOT(Borrow_Clicked_slot()));
-           connect(btn,SIGNAL(BorrowClicked(int)),this,SLOT(borrow_tool_click_slot(int )));
+            connect(btn,SIGNAL(clicked()),btn,SLOT(Borrow_Clicked_slot()));
+            connect(btn,SIGNAL(BorrowClicked(int)),this,SLOT(borrow_tool_click_slot(int )));
+            myComBox *pComboBox = new myComBox();
+            pComboBox->addItem("");
+            if(AppState == "0")//已提交
+            {
+                            sc1 = engine.evaluate("("+it.value().property("liketools").toString()+")");
+
+                           QScriptValueIterator alter(sc1);
+                           min_pvCount = 999999999;
+                           min_pvCount_index = 0;
+
+                           while(alter.hasNext()){
+
+                                    alter.next();
+                                   if(!alter.value().property("toolid").toString().isEmpty()){
+                                            pComboBox->addItem(alter.value().property("toolid").toString());
+                                            pComboBox->insert_coreid(pComboBox->count()-1,alter.value().property("coreid").toString());
+                                            qDebug()<<pComboBox->currentIndex()<<alter.value().property("coreid").toString();
+                                           if(!map.contains(alter.value().property("toolid").toString()) && alter.value().property("pvcount").toInt32() <=min_pvCount ){
+                                                    min_pvCount= alter.value().property("pvcount").toInt32() ;
+                                                    min_pvCount_index = pComboBox->count()-1;
+                                                    map[alter.value().property("toolid").toString()]="true";
+                                           }
+                                   }
+                          }
+
+                       qDebug()<<"index-->"<<min_pvCount_index;
+                       pComboBox->setCurrentIndex(min_pvCount_index);
+                        btn->setText("借出");
+
+             }else if (AppState=="1")//已借出待归还
+            {
+                        btn->setText("归还");
+                        pComboBox->addItem(it.value().property("borrowedtoolid").toString());
+                         pComboBox->setCurrentIndex(1);
+                        tb->setItem(index,ToolName,new QTableWidgetItem(it.value().property("borrowedtoolname").toString()));
+
+                        QTableWidgetItem *im = new QTableWidgetItem(it.value().property("borrowedtoolid").toString());
+                        im->setBackgroundColor(QColor(0,255,0));
+                         tb->setItem(index,ToolID,im);
+
+            }else{//已归还
+                        btn->hide();
+                        pComboBox->addItem(it.value().property("borrowedtoolid").toString());
+                        QTableWidgetItem *im = new QTableWidgetItem(it.value().property("borrowedtoolid").toString());
+                        im->setBackgroundColor(QColor(0,255,0));
+                         tb->setItem(index,ToolID,im);
+            }
+
+
+            tb->setCellWidget(index, ALTER, pComboBox );
+
 
        }
 
     }
-
-
-
-
-
    return  "OK";
 }
 void MainWindow::borrow_tool_click_slot(int i)
 {
-      QMessageBox::information(0,"借用提示",QString::number(i));
+    myComBox *box =  (myComBox*)ui->tableWidget->cellWidget(i,ALTER);
+
+    if(box->get_coreid()=="")
+    {
+        QMessageBox::information(0,"提示","请在下拉框中选择你要借用的工具!" );
+        return;
+    }
+brWin->setModal(true);
+brWin->show();
 }
 void MainWindow::DealMsg(QString *Msg)
 {
@@ -511,6 +546,6 @@ void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
 {
     if (item->data(0,Qt::UserRole).toString()!="root")
     {
-       GetWantAndIdentToolsByTaskID(item->data(0,Qt::UserRole).toString());
+       GetBorrowInfoByTaskID(item->data(0,Qt::UserRole).toString());
     }
 }

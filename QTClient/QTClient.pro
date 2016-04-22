@@ -21,15 +21,18 @@ SOURCES += main.cpp\
     codelib.cpp \
     loading.cpp \
     gybutton.cpp \
-    mycombox.cpp
+    mycombox.cpp \
+    borrowandreback.cpp
 
 HEADERS  += mainwindow.h \
     welcome.h \
     codelib.h \
     loading.h \
     gybutton.h \
-    mycombox.h
+    mycombox.h \
+    borrowandreback.h
 
 FORMS    += mainwindow.ui \
     welcome.ui \
-    loading.ui
+    loading.ui \
+    borrowandreback.ui
