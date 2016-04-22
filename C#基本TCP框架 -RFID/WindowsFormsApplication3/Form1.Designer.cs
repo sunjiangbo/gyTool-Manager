@@ -30,10 +30,10 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.listView1 = new System.Windows.Forms.ListView();
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader1 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader2 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
+            this.columnHeader4 = new System.Windows.Forms.ColumnHeader();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -45,9 +45,8 @@
             this.啊都是发的萨芬ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.都是发的萨芬ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.奋斗都是范德萨发的时光的时光ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.FingerHW = new AxZKFPEngXControl.AxZKFPEngX();
+            this.button1 = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.FingerHW)).BeginInit();
             this.SuspendLayout();
             // 
             // listView1
@@ -110,31 +109,31 @@
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(43, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(44, 17);
             this.toolStripStatusLabel1.Text = "端口：";
             // 
             // sPort
             // 
             this.sPort.Name = "sPort";
-            this.sPort.Size = new System.Drawing.Size(31, 17);
+            this.sPort.Size = new System.Drawing.Size(36, 17);
             this.sPort.Text = "7900";
             // 
             // toolStripStatusLabel4
             // 
             this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
-            this.toolStripStatusLabel4.Size = new System.Drawing.Size(43, 17);
+            this.toolStripStatusLabel4.Size = new System.Drawing.Size(44, 17);
             this.toolStripStatusLabel4.Text = "状态：";
             // 
             // sListenState
             // 
             this.sListenState.Name = "sListenState";
-            this.sListenState.Size = new System.Drawing.Size(43, 17);
+            this.sListenState.Size = new System.Drawing.Size(44, 17);
             this.sListenState.Text = "监听中";
             // 
             // toolStripStatusLabel6
             // 
             this.toolStripStatusLabel6.Name = "toolStripStatusLabel6";
-            this.toolStripStatusLabel6.Size = new System.Drawing.Size(43, 17);
+            this.toolStripStatusLabel6.Size = new System.Drawing.Size(44, 17);
             this.toolStripStatusLabel6.Text = "客户端";
             // 
             // toolStripDropDownButton1
@@ -153,48 +152,47 @@
             // 啊都是发的萨芬ToolStripMenuItem
             // 
             this.啊都是发的萨芬ToolStripMenuItem.Name = "啊都是发的萨芬ToolStripMenuItem";
-            this.啊都是发的萨芬ToolStripMenuItem.Size = new System.Drawing.Size(242, 22);
+            this.啊都是发的萨芬ToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
             this.啊都是发的萨芬ToolStripMenuItem.Text = "啊都是发的萨芬";
             // 
             // 都是发的萨芬ToolStripMenuItem
             // 
             this.都是发的萨芬ToolStripMenuItem.Name = "都是发的萨芬ToolStripMenuItem";
-            this.都是发的萨芬ToolStripMenuItem.Size = new System.Drawing.Size(242, 22);
+            this.都是发的萨芬ToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
             this.都是发的萨芬ToolStripMenuItem.Text = "都是发的萨芬";
             // 
             // 奋斗都是范德萨发的时光的时光ToolStripMenuItem
             // 
             this.奋斗都是范德萨发的时光的时光ToolStripMenuItem.Name = "奋斗都是范德萨发的时光的时光ToolStripMenuItem";
-            this.奋斗都是范德萨发的时光的时光ToolStripMenuItem.Size = new System.Drawing.Size(242, 22);
+            this.奋斗都是范德萨发的时光的时光ToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
             this.奋斗都是范德萨发的时光的时光ToolStripMenuItem.Text = "奋斗都是范德萨发的时光的时光";
             // 
-            // FingerHW
+            // button1
             // 
-            this.FingerHW.Enabled = true;
-            this.FingerHW.Location = new System.Drawing.Point(592, 331);
-            this.FingerHW.Name = "FingerHW";
-            this.FingerHW.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("FingerHW.OcxState")));
-            this.FingerHW.Size = new System.Drawing.Size(44, 24);
-            this.FingerHW.TabIndex = 2;
-            this.FingerHW.OnCapture += new AxZKFPEngXControl.IZKFPEngXEvents_OnCaptureEventHandler(this.FingerHW_OnCapture);
+            this.button1.Location = new System.Drawing.Point(469, 315);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(708, 427);
-            this.Controls.Add(this.FingerHW);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.listView1);
             this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "Form1";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.FingerHW)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -218,7 +216,7 @@
         private System.Windows.Forms.ColumnHeader columnHeader2;
         private System.Windows.Forms.ColumnHeader columnHeader3;
         private System.Windows.Forms.ColumnHeader columnHeader4;
-        private AxZKFPEngXControl.AxZKFPEngX FingerHW;
+        private System.Windows.Forms.Button button1;
     }
 }
 

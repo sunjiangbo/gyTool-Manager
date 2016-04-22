@@ -63,6 +63,7 @@ namespace WindowsFormsApplication3
         int fpcHandle;
         int CurUserID;
         Reader rd;
+        Mutex FilterMux = new Mutex();
 
         void initMach()
         {
@@ -73,11 +74,11 @@ namespace WindowsFormsApplication3
                 MessageBox.Show("无法在数据库中获取读写器IP地址！程序即将退出!");
                 System.Environment.Exit(0);
             }
-                mc = new Mach();
+                
                 mc.MachID = Convert.ToInt32(dt.Rows[0]["ID"].ToString());
                 mc.MachName = dt.Rows[0]["MachineName"].ToString();
                 mc.MachIP = dt.Rows[0]["IP"].ToString();
-                // mc.ConnectedAnts = Array.ConvertAll<string, int>(dt.Rows[i]["ConnectedAnt"].ToString().Split('|'), delegate(string s) { return int.Parse(s); });
+                 mc.ConnectedAnts = Array.ConvertAll<string, int>(dt.Rows[0]["ConnectedAnt"].ToString().Split('|'), delegate(string s) { return int.Parse(s); });
                 mc.rd = null;
           
         }
@@ -92,19 +93,19 @@ namespace WindowsFormsApplication3
                 {
                     mc.rd = Reader.Create(mc.MachIP, ModuleTech.Region.NA, 4);
 
-                    int[] connectedants = (int[])rd.ParamGet("ConnectedAntennas");
+                    int[] connectedants = (int[])mc.rd.ParamGet("ConnectedAntennas");
                     mc.ConnectedAnts = (int[])connectedants.Clone();
-         
-                    SimpleReadPlan searchPlan = new SimpleReadPlan(mc.ConnectedAnts);
-                    mc.rd.ParamSet("ReadPlan", searchPlan);
+                    AddMsg("信息", "读写器连接成功IP->" + mc.MachIP,INFO);
+                    return "OK"; 
             //        mc.Mthread = new Thread(new ParameterizedThreadStart(TagMonitorThread));
                    // MyManager.AddInfoToDB("信息", MachLst[i].MachName + "连接成功！");
                 }
                 catch (Exception ex)
                 {
-                    Ret = mc.MachName + "-->" + ex.ToString();
+                    Ret = ex.ToString();
                   //  MyManager.AddInfoToDB("错误", Ret);
-                    ;
+                    AddMsg("警告", "读写器连接失败IP->" +ex.ToString(), INFO);
+                   // System.Environment.Exit(-1);
                 }
             
             return Ret;
@@ -114,19 +115,26 @@ namespace WindowsFormsApplication3
         {
             Gen2TagFilter filter = new Gen2TagFilter(ByteFormat.FromHex(MyManager.GenerateEPC(ToolNum)), MemBank.EPC, 32, false);
             mc.rd.ParamSet("Singulation", filter);
+            SimpleReadPlan searchPlan = new SimpleReadPlan(mc.ConnectedAnts);
+            mc.rd.ParamSet("ReadPlan", searchPlan);
             try
             {
                 TagReadData[] Tags = mc.rd.Read(500);
                 if (Tags.Length > 0)
                 {
-                    return "";
+                    return "OK";
+                }
+                else
+                {
+                    return "No Found";
                 }
             }
             catch (Exception ex)
-            { 
-                
+            {
+                return ex.ToString();
             }
-      
+
+            return "";//永远不可能到这
         }
 
         private delegate void DispMSGDelegate(String Type,String Content,int Eventlevel);
@@ -180,6 +188,24 @@ namespace WindowsFormsApplication3
                 {
                     user.Active = 1;
                 }
+
+                if (Cmd == "isTheToolNumHere")
+                {
+                    String sRet,ToolNum;
+                    ToolNum = JO["toolnum"].ToString();
+                    FilterMux.WaitOne();
+                    sRet = SetReaderFilterByToolNumAndRead(ToolNum);
+                    FilterMux.ReleaseMutex();
+                    if (sRet == "OK")
+                    {
+                        return "{\"status\":\"success\",\"msg\":\"工具信号被收到。\"}";
+                    }
+                    else
+                    {
+                        return "{\"status\":\"failed\",\"msg\":\""+sRet+"\"}";
+                    }
+                } 
+
 
                 AddMsg("信息", "处理完毕-->" +CmdDat, INFO);
                 return "{\"status\":\"success\",\"msg\":\"命令执行成功\"}";
@@ -275,114 +301,11 @@ namespace WindowsFormsApplication3
             }
         }
 
-        public void FingerInit()
-        {
-            int InitRet;
-
-
-            FingerHW.SensorIndex = 0;
-            AddMsg("信息", "开始初始化指纹仪", INFO);
-
-            InitRet = FingerHW.InitEngine();
-            if (InitRet != 0)
-            {
-                if (InitRet == 1)
-                {
-                    MessageBox.Show("指纹识别驱动程序加载失败。");
-                }
-                if (InitRet == 2)
-                {
-                    MessageBox.Show("没有连接指纹识别仪");
-                }
-                System.Environment.Exit(0);
-                return;
-            }
-
-            FingerHW.Threshold = 8;
-            AddMsg("信息", "最小成功比对分数设定为8", INFO);
-            AddMsg("信息", "指纹仪初始化成功", REMIND);
-
-
-        }
-
-        void LoadAllFingerToMemAndStartCapture()
-        {
-            byte[] tmp;
-            string tmpstr = "";
-            int autoid = 0;
-            fpcHandle = FingerHW.CreateFPCacheDB();
-
-            DataTable dt = MyManager.GetDataSet("SELECT ID,[FingerTmpStr] From UserList ");
-
-            AddMsg("信息", "开始加载指纹模板", INFO);
-            foreach (DataRow dw in dt.Rows)
-            {
-                FingerHW.AddRegTemplateToFPCacheDB(fpcHandle, Convert.ToInt32(dw["ID"].ToString()),Convert.FromBase64String(dw["FingerTmpStr"].ToString()) );
-            }
-            AddMsg("信息", "指纹模板加载完成", REMIND);
-
-            if (FingerHW.IsRegister)
-            {
-                FingerHW.CancelEnroll();
-            }
-            FingerHW.BeginCapture();
-        }
-
-        private void ListenClientConnect()
-        {
-            while (true)
-            {
-                TcpClient newClient = null;
-                try
-                {
-                    //等待用户进入
-                    newClient = mListener.AcceptTcpClient();
-                }
-                catch
-                {
-                    //当单击“停止监听”或者退出此窗体时AcceptTcpClient()会产生异常
-                    //因此可以利用此异常退出循环
-                    break;
-                }
-                AddMsg("信息", "新连接" + ((IPEndPoint)newClient.Client.RemoteEndPoint).Address.ToString(), 1);
-
-                //每接受一个客户端连接,就创建一个对应的线程循环接收该客户端发来的信息
-                ParameterizedThreadStart pts = new ParameterizedThreadStart(ReceiveData);
-                Thread threadReceive = new Thread(pts);
-                rUser user = new rUser(newClient);
-                user.Active = 0;
-                UserList.Add(user);
-                threadReceive.Start(user);
-                
-            }
-        }
         private void Form1_Load(object sender, EventArgs e)
         {
-            Port = 7900;
-            mListener = new TcpListener(Port);
-            try
-            {
-                mListener.Start();
-            }
-            catch (Exception ex)
-            {
-                mListener.Stop();
-                MessageBox.Show("在端口监听失败,程序退出!");
-                Application.Exit();
-            }
-            AddMsg("信息", "监听成功!",1);
-
-            UserList =  new List<rUser>();
-
-            sPort.Text = Port+"";
-            sListenState.Text = "监听中";
-
-            ThreadStart ts = new ThreadStart(ListenClientConnect);
-            Thread myThread = new Thread(ts);
-            myThread.Start();
-
-            FingerInit();
-            LoadAllFingerToMemAndStartCapture();
+            mc = new Mach();
+            initMach();
+            PrepareReader();
             listView1.FullRowSelect = true;
         }
 
@@ -402,22 +325,12 @@ namespace WindowsFormsApplication3
         }
 
         private void FingerHW_OnCapture(object sender, AxZKFPEngXControl.IZKFPEngXEvents_OnCaptureEvent e)
+        { 
+        }
+
+        private void button1_Click(object sender, EventArgs e)
         {
-            int score = 9;
-            int processedFPNumber = 0;
-            int UserID = FingerHW.IdentificationInFPCacheDB(fpcHandle, e.aTemplate, ref score, ref processedFPNumber);
-            //if (id > 0)
-            if (UserID > 0)
-            {
-                CurUserID = UserID;
-                AddMsg("信息", "捕获指纹UserID=" + UserID, REMIND);
-                SendToClient("{\"type\":\"UserCapture\",\"userid\":\""+UserID+"\"}");
-            }
-            else
-            {
-                AddMsg("信息", "指纹比对失败!" + UserID,ALERT);
-                SendToClient("{\"type\":\"UserCapture\",\"userid\":\"\null\"}");
-            }
+            AddMsg("信息", SetReaderFilterByToolNumAndRead("zz"), 0);
         }
     }
 }
