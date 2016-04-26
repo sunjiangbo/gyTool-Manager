@@ -44,6 +44,7 @@ public:
 #define OP                      5
 
  #define WEB_URL          "http://172.16.74.61:8080"
+#define SCANTEXT1  "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">工具扫描中……</span></p></body></html>"
 private:
     Ui::MainWindow *ui;
     Welcome *flash;

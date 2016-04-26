@@ -25,7 +25,7 @@ class Ui_BorrowAndReBack
 public:
     QLabel *lb1_2;
     QLabel *lb1_3;
-    QLabel *lb1_4;
+    QLabel *scanlb;
     QLabel *oplb;
     QLabel *oplb_2;
     QLabel *lb1;
@@ -49,10 +49,10 @@ public:
         lb1_3->setObjectName(QString::fromUtf8("lb1_3"));
         lb1_3->setGeometry(QRect(77, 140, 131, 41));
         lb1_3->setFont(font);
-        lb1_4 = new QLabel(BorrowAndReBack);
-        lb1_4->setObjectName(QString::fromUtf8("lb1_4"));
-        lb1_4->setGeometry(QRect(210, 140, 211, 41));
-        lb1_4->setFont(font);
+        scanlb = new QLabel(BorrowAndReBack);
+        scanlb->setObjectName(QString::fromUtf8("scanlb"));
+        scanlb->setGeometry(QRect(210, 140, 211, 41));
+        scanlb->setFont(font);
         oplb = new QLabel(BorrowAndReBack);
         oplb->setObjectName(QString::fromUtf8("oplb"));
         oplb->setGeometry(QRect(220, 13, 151, 51));
@@ -87,7 +87,7 @@ public:
         BorrowAndReBack->setWindowTitle(QApplication::translate("BorrowAndReBack", "Dialog", 0, QApplication::UnicodeUTF8));
         lb1_2->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#5500ff;\">\344\273\266\345\217\267:</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         lb1_3->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#5500ff;\">\346\243\200\346\265\213\347\212\266\346\200\201:</span></p></body></html>", 0, QApplication::UnicodeUTF8));
-        lb1_4->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">\345\267\245\345\205\267\346\211\253\346\217\217\344\270\255\342\200\246\342\200\246</span></p></body></html>", 0, QApplication::UnicodeUTF8));
+        scanlb->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">\345\267\245\345\205\267\346\211\253\346\217\217\344\270\255\342\200\246\342\200\246</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         oplb->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#ff0000;\">\345\200\237\347\224\250</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         oplb_2->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#ff0000;\">AA</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         lb1->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#5500ff;\">\346\223\215\344\275\234:</span></p></body></html>", 0, QApplication::UnicodeUTF8));

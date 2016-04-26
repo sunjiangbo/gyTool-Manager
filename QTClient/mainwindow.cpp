@@ -437,7 +437,6 @@ void MainWindow::borrow_tool_click_slot(gyButton * btn)
     }else{
         //不会到这这里，因为appstate==2时,按钮被隐藏
     }
-brWin->tmr->start(500);
 brWin->setModal(true);
 brWin->show();
 }

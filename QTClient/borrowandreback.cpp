@@ -1,6 +1,7 @@
 #include "borrowandreback.h"
 #include "ui_borrowandreback.h"
 
+
 BorrowAndReBack::BorrowAndReBack(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::BorrowAndReBack)
@@ -10,7 +11,8 @@ BorrowAndReBack::BorrowAndReBack(QWidget *parent) :
     continue_scan = true;
     connect(tmr,SIGNAL(timeout()),this,SLOT(ScanTools()));
     //tmr->start(500);
-    ui->opbtn->setText("停止扫描");
+    //ui->opbtn->setText("停止扫描");
+    //ui->scanlb->setText(SCANTEXT1);
 }
 
 BorrowAndReBack::~BorrowAndReBack()
@@ -21,15 +23,25 @@ void BorrowAndReBack::ScanTools()
 {
     QString cmdTxt =  "{\"cmd\":\"isThisToolHere\",\"toolid\":\""+sToolID+"\"}";
     QString *sRet = SendCmd(skt_rfid,(cmdTxt.toLatin1()).data());
-    if( *sRet == "ok" && continue_scan)
+    if( *sRet == "OK" && continue_scan)
     {
         continue_scan = false;
+        tmr->stop();
+        ui->scanlb->setText(SCANOK);
         if(Borrow){
                 ui->opbtn->setText("确认借出");
             }else{
                 ui->opbtn->setText("确认归还");
             }
+    }else{
+        if(ui->scanlb->text()==SCANTEXT1)
+        {
+             ui->scanlb->setText(SCANTEXT2);
+        }else{
+             ui->scanlb->setText(SCANTEXT1);
+        }
     }
+
 }
 
 QString *BorrowAndReBack::SendCmd(QTcpSocket *skt, char * Cmd)
@@ -68,8 +80,7 @@ QString *BorrowAndReBack::SendCmd(QTcpSocket *skt, char * Cmd)
 
 void BorrowAndReBack::on_BorrowAndReBack_destroyed()
 {
-    tmr->stop();
-    delete tmr;
+
 }
 
 void BorrowAndReBack::on_opbtn_clicked()
@@ -80,11 +91,13 @@ void BorrowAndReBack::on_opbtn_clicked()
         continue_scan = false;
         tmr->stop();
         ui->opbtn->setText("开始扫描");
+        ui->scanlb->setText(STOPSCAN);
     }else if(btnText == "开始扫描")
     {
-        continue_scan = true;
+         continue_scan = true;
          tmr->start(500);
-        ui->opbtn->setText("停止扫描");
+         ui->opbtn->setText("停止扫描");
+         ui->scanlb->setText(SCANTEXT1);
     }else if(btnText == "确认借出")
     {
 
@@ -92,4 +105,25 @@ void BorrowAndReBack::on_opbtn_clicked()
     {
 
     }
+}
+
+void BorrowAndReBack::on_BorrowAndReBack_finished(int result)
+{
+
+}
+
+void BorrowAndReBack::closeEvent(QCloseEvent *event)
+{
+    continue_scan = false;
+    tmr->stop();
+}
+void BorrowAndReBack::showEvent(QShowEvent *event)
+{
+    ui->opbtn->setText("停止扫描");
+    ui->scanlb->setText(SCANTEXT1);
+    tmr->start(500);
+}
+void BorrowAndReBack::on_pushButton_2_clicked()
+{
+    this->close();
 }
