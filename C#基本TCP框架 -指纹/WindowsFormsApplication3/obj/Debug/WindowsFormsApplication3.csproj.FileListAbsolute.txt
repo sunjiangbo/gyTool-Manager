@@ -42,3 +42,9 @@ D:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\A
 D:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.ResolveComReference.cache
 D:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
 D:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe.config
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\Interop.ZKFPEngXControl.dll
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\AxInterop.ZKFPEngXControl.dll
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.csproj.ResolveComReference.cache
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb

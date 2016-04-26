@@ -83,6 +83,34 @@ namespace WindowsFormsApplication3
           
         }
 
+        private void ListenClientConnect()
+        {
+            while (true)
+            {
+                TcpClient newClient = null;
+                try
+                {
+                    //等待用户进入
+                    newClient = mListener.AcceptTcpClient();
+                }
+                catch
+                {
+                    //当单击“停止监听”或者退出此窗体时AcceptTcpClient()会产生异常
+                    //因此可以利用此异常退出循环
+                    break;
+                }
+                AddMsg("信息", "新连接" + ((IPEndPoint)newClient.Client.RemoteEndPoint).Address.ToString(), 1);
+
+                //每接受一个客户端连接,就创建一个对应的线程循环接收该客户端发来的信息
+                ParameterizedThreadStart pts = new ParameterizedThreadStart(ReceiveData);
+                Thread threadReceive = new Thread(pts);
+                rUser user = new rUser(newClient);
+                user.Active = 0;
+                UserList.Add(user);
+                threadReceive.Start(user);
+
+            }
+        }
 
         String PrepareReader()
         {
@@ -303,6 +331,29 @@ namespace WindowsFormsApplication3
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            Port = 7901;
+            mListener = new TcpListener(Port);
+            try
+            {
+                mListener.Start();
+            }
+            catch (Exception ex)
+            {
+                mListener.Stop();
+                MessageBox.Show("在端口监听失败,程序退出!");
+                Application.Exit();
+            }
+            AddMsg("信息", "监听成功!", 1);
+
+            UserList = new List<rUser>();
+
+            sPort.Text = Port + "";
+            sListenState.Text = "监听中";
+
+            ThreadStart ts = new ThreadStart(ListenClientConnect);
+            Thread myThread = new Thread(ts);
+            myThread.Start();
+
             mc = new Mach();
             initMach();
             PrepareReader();
@@ -330,7 +381,7 @@ namespace WindowsFormsApplication3
 
         private void button1_Click(object sender, EventArgs e)
         {
-            AddMsg("信息", SetReaderFilterByToolNumAndRead("zz"), 0);
+            AddMsg("信息", SetReaderFilterByToolNumAndRead("AD"), 0);
         }
     }
 }
