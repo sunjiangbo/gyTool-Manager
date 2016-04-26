@@ -12,5 +12,5 @@ void gyButton::Borowse_Clicked_slot()
 
 void gyButton::Borrow_Clicked_slot()
 {
-        emit BorrowClicked(index);
+        emit BorrowClicked(this);
 }

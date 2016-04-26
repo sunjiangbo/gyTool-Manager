@@ -41,38 +41,21 @@ MainWindow::MainWindow(QWidget *parent) :
       tbMap = NULL;
       brWin = new BorrowAndReBack();
 
-    // ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
-    /*
-   QTableWidgetItem *item = new QTableWidgetItem(QIcon("/home/qt/1.ico"),"hello");
-   ui->tableWidget->insertRow(0);
-   ui->tableWidget->setItem(0,0,item);
-    ui->tableWidget->setItem(0,1,new QTableWidgetItem("hello"));
-    QComboBox *pComboBox = new QComboBox();
-     pComboBox->addItem("a");
-     pComboBox->addItem("b");
-    ui->tableWidget->setCellWidget(0, 2, pComboBox );
-
-    QPushButton *btn =  new QPushButton();
-
-    btn->setText("OK");
-
-    ui->tableWidget->setCellWidget(0,3,btn);
-    connect(btn,SIGNAL(clicked()),this,SLOT(btnClk()));
-
-    QLabel* label = new QLabel("<a href =www.cafuc.edu.cn>cafuc</a>",this);
-    ui->tableWidget->setCellWidget(0,4,label);
-      connect(label,SIGNAL(linkActivated(QString)),this,SLOT(openUrl(QString)));  //
-*/
     QPixmap pixmap("/home/img/logo.png");
     ui->label->setPixmap(pixmap);
     ui->label->show();
     ui->label->setScaledContents(true);
 
     skt_finger = new QTcpSocket(this);
+    skt_rfid = new QTcpSocket(this);
+
     connect(skt_finger,SIGNAL(connected()),this,SLOT(finger_Srv_Connect()));
     connect(skt_finger,SIGNAL(disconnected()),this,SLOT(finger_Srv_disConnected()));
-
     connect(skt_finger,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(finger_error(QAbstractSocket::SocketError)));
+
+    connect(skt_rfid,SIGNAL(connected()),this,SLOT(rfid_Srv_Connect()));
+    connect(skt_rfid,SIGNAL(disconnected()),this,SLOT(rfid_Srv_disConnected()));
+    connect(skt_rfid,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(rfid_error(QAbstractSocket::SocketError)));
 
     connect(this,SIGNAL(Srv_Connect_msg(QTcpSocket *)),this,SLOT(Srv_Connect(QTcpSocket *)));
     connect(this,SIGNAL(Srv_disConnected_msg(QTcpSocket *)),this,SLOT(Srv_disConnected(QTcpSocket *)));
@@ -83,6 +66,10 @@ MainWindow::MainWindow(QWidget *parent) :
     //skt_finger->readAll();
     //SendCmd(skt_finger,"{\"cmd\":\"activeME\"}");
    // connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
+    skt_rfid->connectToHost("192.168.1.151",7901);
+    skt_rfid->readAll();
+    SendCmd(skt_rfid,"{\"cmd\":\"activeME\"}");
+    //connect(skt_rfid,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));//RFID不需要其主动发信号过来
     flash = new Welcome(this);
     loadingWin = new Loading(this);
 
@@ -208,24 +195,39 @@ void MainWindow::finger_Srv_Connect()
 {
     emit Srv_Connect(skt_finger);
 }
-
+void MainWindow::rfid_Srv_Connect()
+{
+    emit Srv_Connect(skt_rfid);
+}
 void MainWindow::finger_Srv_disConnected()
 {
       emit Srv_disConnected(skt_finger);
+}
+void MainWindow::rfid_Srv_disConnected()
+{
+      emit Srv_disConnected(skt_rfid);
 }
 
 void MainWindow::finger_ReadReady()
 {
      emit ReadReady(skt_finger);
 }
-
  void	MainWindow::finger_error (QAbstractSocket::SocketError socketError )
+ {
+        emit error_msg(socketError);
+ }
+ void	MainWindow::rfid_error (QAbstractSocket::SocketError socketError )
  {
         emit error_msg(socketError);
  }
  void MainWindow::Srv_Connect(QTcpSocket * skt)
  {
-     qDebug("fingerok");
+     if (skt==skt_rfid){
+             qDebug("rfid-->connected!");
+     }else if (skt==skt_finger)
+     {
+            qDebug("finger-->connected!");
+     }
  }
 
  void MainWindow::Srv_disConnected(QTcpSocket * skt)
@@ -357,7 +359,7 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
             tb->setCellWidget(index,OP,btn);
 
             connect(btn,SIGNAL(clicked()),btn,SLOT(Borrow_Clicked_slot()));
-            connect(btn,SIGNAL(BorrowClicked(int)),this,SLOT(borrow_tool_click_slot(int )));
+            connect(btn,SIGNAL(BorrowClicked(gyButton*)),this,SLOT(borrow_tool_click_slot(gyButton* )));
             myComBox *pComboBox = new myComBox();
             pComboBox->addItem("");
             if(AppState == "0")//已提交
@@ -396,7 +398,7 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
 
                         QTableWidgetItem *im = new QTableWidgetItem(it.value().property("borrowedtoolid").toString());
                         im->setBackgroundColor(QColor(0,255,0));
-                         tb->setItem(index,ToolID,im);
+                        tb->setItem(index,ToolID,im);
 
             }else{//已归还
                         btn->hide();
@@ -408,22 +410,34 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
 
 
             tb->setCellWidget(index, ALTER, pComboBox );
-
-
-       }
+      }
 
     }
    return  "OK";
 }
-void MainWindow::borrow_tool_click_slot(int i)
+void MainWindow::borrow_tool_click_slot(gyButton * btn)
 {
-    myComBox *box =  (myComBox*)ui->tableWidget->cellWidget(i,ALTER);
+    myComBox *box =  (myComBox*)ui->tableWidget->cellWidget(btn->index,ALTER);
 
-    if(box->get_coreid()=="")
+    if(box->currentText()=="")
     {
         QMessageBox::information(0,"提示","请在下拉框中选择你要借用的工具!" );
         return;
     }
+
+    brWin->sToolID = box->currentText();
+    brWin->sToolName  = ui->tableWidget->item(btn->index,ToolName)->text();
+    brWin->skt_rfid = skt_rfid;
+    if (btn->AppState==0)
+    {
+            brWin->Borrow = true;//借
+    }else if(btn->AppState==1)
+    {
+            brWin->Borrow = false;//还
+    }else{
+        //不会到这这里，因为appstate==2时,按钮被隐藏
+    }
+brWin->tmr->start(500);
 brWin->setModal(true);
 brWin->show();
 }
@@ -513,28 +527,6 @@ void MainWindow::on_pushButton_clicked()
        return;
     }
  CloseLoading();
-
-
-
-  //QString *str = SendCmd(skt_finger,"{cmd:333大方大方大方");
-
-     /* QString str = "{\"name\":\"xiaotang\", \"age\":\"23\", \"chi\":[{\"a\":\"aa\", \"b\":\"bb\"}, {\"a\":\"aaa\", \"b\":\"bbb\"}]}";
-      QScriptEngine engine;
-      QScriptValue sc = engine.evaluate("("+str+")");
-      qDebug() << sc.property("name").toString(); //解析字段
-      if(sc.property("chi").isArray()) //解析数组
-      {
-      QScriptValueIterator it(sc.property("chi"));
-              while (it.hasNext())
-              {
-                  it.next();
-                  if(!it.value().property("a").toString().isEmpty())
-                      qDebug() << it.value().property("a").toString();
-              }
-      }*/
-  // QMessageBox::information(0,"ret",httpsPostHelp("http://211.83.128.180/index.php/addrobject/addAddrObjectOk","exs:{\"name\":\"test\",\"desc\":\"\",\"item\":[{\"type\":\"0\",\"host\":\"211.83.128.144\"}]}"));
-
-    //printf("RECV->%s\n",str->data());
 }
 
 void MainWindow::on_MainWindow_destroyed(QObject *arg1)

@@ -121,7 +121,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>确认借出</string>
+    <string>停止扫描</string>
    </property>
   </widget>
   <widget class="QLabel" name="oplb_3">

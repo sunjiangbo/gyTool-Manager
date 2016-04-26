@@ -12,7 +12,7 @@ public:
     int AppState;
 signals:
     void BorowseClicked(int i);
-    void BorrowClicked (int i);
+    void BorrowClicked (gyButton* btn);
 
 public slots:
     void Borowse_Clicked_slot();

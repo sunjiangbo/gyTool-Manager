@@ -10,6 +10,7 @@
 #include<QMap>
 #include<QPushButton>
 #include <borrowandreback.h>
+#include <gybutton.h>
 
 namespace Ui {
 class MainWindow;
@@ -23,6 +24,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     QTcpSocket * skt_finger;
+    QTcpSocket * skt_rfid;
     QString *SendCmd(QTcpSocket* skt,char *Cmd);
     void DealJsonDat(QString jsonDat);
     QString httpsPostHelp(const QString &url, const QString &data);
@@ -63,13 +65,18 @@ signals:
     void finger_Srv_disConnected();
     void finger_error (QAbstractSocket::SocketError socketError );
 
+    void rfid_Srv_Connect();
+    void rfid_Srv_disConnected();
+    void rfid_error (QAbstractSocket::SocketError socketError );
+
+
     void Srv_Connect(QTcpSocket *skt);
     void ReadReady(QTcpSocket *skt);
     void Srv_disConnected(QTcpSocket *skt);
     void	error (QAbstractSocket::SocketError socketError );
 //工具借用与查看按钮事件槽
     void look_tool_slot(int i);
-    void borrow_tool_click_slot(int i);
+    void borrow_tool_click_slot(gyButton* btn);
 private slots:
     void on_pushButton_clicked();
     void on_MainWindow_destroyed(QObject *arg1);

@@ -91,7 +91,7 @@ public:
         oplb->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#ff0000;\">\345\200\237\347\224\250</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         oplb_2->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#ff0000;\">AA</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         lb1->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#5500ff;\">\346\223\215\344\275\234:</span></p></body></html>", 0, QApplication::UnicodeUTF8));
-        opbtn->setText(QApplication::translate("BorrowAndReBack", "\347\241\256\350\256\244\345\200\237\345\207\272", 0, QApplication::UnicodeUTF8));
+        opbtn->setText(QApplication::translate("BorrowAndReBack", "\345\201\234\346\255\242\346\211\253\346\217\217", 0, QApplication::UnicodeUTF8));
         oplb_3->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#ff0000;\">50H\345\267\245\345\205\267\345\214\205</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         lb1_5->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#5500ff;\">\345\267\245\345\205\267\345\220\215:</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         pushButton_2->setText(QApplication::translate("BorrowAndReBack", "\351\200\200\345\207\272", 0, QApplication::UnicodeUTF8));

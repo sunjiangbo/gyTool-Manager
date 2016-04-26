@@ -31,19 +31,19 @@ static const uint qt_meta_data_gyButton[] = {
 
  // signals: signature, parameters, type, tag, flags
       12,   10,    9,    9, 0x05,
-      32,   10,    9,    9, 0x05,
+      36,   32,    9,    9, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-      51,    9,    9,    9, 0x0a,
-      74,    9,    9,    9, 0x0a,
+      61,    9,    9,    9, 0x0a,
+      84,    9,    9,    9, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_gyButton[] = {
-    "gyButton\0\0i\0BorowseClicked(int)\0"
-    "BorrowClicked(int)\0Borowse_Clicked_slot()\0"
-    "Borrow_Clicked_slot()\0"
+    "gyButton\0\0i\0BorowseClicked(int)\0btn\0"
+    "BorrowClicked(gyButton*)\0"
+    "Borowse_Clicked_slot()\0Borrow_Clicked_slot()\0"
 };
 
 void gyButton::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -53,7 +53,7 @@ void gyButton::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, vo
         gyButton *_t = static_cast<gyButton *>(_o);
         switch (_id) {
         case 0: _t->BorowseClicked((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 1: _t->BorrowClicked((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 1: _t->BorrowClicked((*reinterpret_cast< gyButton*(*)>(_a[1]))); break;
         case 2: _t->Borowse_Clicked_slot(); break;
         case 3: _t->Borrow_Clicked_slot(); break;
         default: ;
@@ -108,7 +108,7 @@ void gyButton::BorowseClicked(int _t1)
 }
 
 // SIGNAL 1
-void gyButton::BorrowClicked(int _t1)
+void gyButton::BorrowClicked(gyButton * _t1)
 {
     void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
     QMetaObject::activate(this, &staticMetaObject, 1, _a);

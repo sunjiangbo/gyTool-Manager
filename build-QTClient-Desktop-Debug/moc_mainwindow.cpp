@@ -22,7 +22,7 @@ static const uint qt_meta_data_MainWindow[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      17,   14, // methods
+      20,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -40,15 +40,18 @@ static const uint qt_meta_data_MainWindow[] = {
      179,   11,   11,   11, 0x0a,
      198,   11,   11,   11, 0x0a,
      224,  106,   11,   11, 0x0a,
-     267,   12,   11,   11, 0x0a,
-     292,   12,   11,   11, 0x0a,
-     315,   12,   11,   11, 0x0a,
-     345,  106,   11,   11, 0x0a,
-     383,  381,   11,   11, 0x0a,
-     403,  381,   11,   11, 0x0a,
-     431,   11,   11,   11, 0x08,
-     460,  455,   11,   11, 0x08,
-     506,  494,   11,   11, 0x08,
+     267,   11,   11,   11, 0x0a,
+     286,   11,   11,   11, 0x0a,
+     310,  106,   11,   11, 0x0a,
+     351,   12,   11,   11, 0x0a,
+     376,   12,   11,   11, 0x0a,
+     399,   12,   11,   11, 0x0a,
+     429,  106,   11,   11, 0x0a,
+     467,  465,   11,   11, 0x0a,
+     491,  487,   11,   11, 0x0a,
+     525,   11,   11,   11, 0x08,
+     554,  549,   11,   11, 0x08,
+     600,  588,   11,   11, 0x08,
 
        0        // eod
 };
@@ -61,11 +64,14 @@ static const char qt_meta_stringdata_MainWindow[] = {
     "finger_Srv_Connect()\0finger_ReadReady()\0"
     "finger_Srv_disConnected()\0"
     "finger_error(QAbstractSocket::SocketError)\0"
+    "rfid_Srv_Connect()\0rfid_Srv_disConnected()\0"
+    "rfid_error(QAbstractSocket::SocketError)\0"
     "Srv_Connect(QTcpSocket*)\0"
     "ReadReady(QTcpSocket*)\0"
     "Srv_disConnected(QTcpSocket*)\0"
     "error(QAbstractSocket::SocketError)\0"
-    "i\0look_tool_slot(int)\0borrow_tool_click_slot(int)\0"
+    "i\0look_tool_slot(int)\0btn\0"
+    "borrow_tool_click_slot(gyButton*)\0"
     "on_pushButton_clicked()\0arg1\0"
     "on_MainWindow_destroyed(QObject*)\0"
     "item,column\0on_treeWidget_itemClicked(QTreeWidgetItem*,int)\0"
@@ -85,15 +91,18 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 5: _t->finger_ReadReady(); break;
         case 6: _t->finger_Srv_disConnected(); break;
         case 7: _t->finger_error((*reinterpret_cast< QAbstractSocket::SocketError(*)>(_a[1]))); break;
-        case 8: _t->Srv_Connect((*reinterpret_cast< QTcpSocket*(*)>(_a[1]))); break;
-        case 9: _t->ReadReady((*reinterpret_cast< QTcpSocket*(*)>(_a[1]))); break;
-        case 10: _t->Srv_disConnected((*reinterpret_cast< QTcpSocket*(*)>(_a[1]))); break;
-        case 11: _t->error((*reinterpret_cast< QAbstractSocket::SocketError(*)>(_a[1]))); break;
-        case 12: _t->look_tool_slot((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 13: _t->borrow_tool_click_slot((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 14: _t->on_pushButton_clicked(); break;
-        case 15: _t->on_MainWindow_destroyed((*reinterpret_cast< QObject*(*)>(_a[1]))); break;
-        case 16: _t->on_treeWidget_itemClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 8: _t->rfid_Srv_Connect(); break;
+        case 9: _t->rfid_Srv_disConnected(); break;
+        case 10: _t->rfid_error((*reinterpret_cast< QAbstractSocket::SocketError(*)>(_a[1]))); break;
+        case 11: _t->Srv_Connect((*reinterpret_cast< QTcpSocket*(*)>(_a[1]))); break;
+        case 12: _t->ReadReady((*reinterpret_cast< QTcpSocket*(*)>(_a[1]))); break;
+        case 13: _t->Srv_disConnected((*reinterpret_cast< QTcpSocket*(*)>(_a[1]))); break;
+        case 14: _t->error((*reinterpret_cast< QAbstractSocket::SocketError(*)>(_a[1]))); break;
+        case 15: _t->look_tool_slot((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 16: _t->borrow_tool_click_slot((*reinterpret_cast< gyButton*(*)>(_a[1]))); break;
+        case 17: _t->on_pushButton_clicked(); break;
+        case 18: _t->on_MainWindow_destroyed((*reinterpret_cast< QObject*(*)>(_a[1]))); break;
+        case 19: _t->on_treeWidget_itemClicked((*reinterpret_cast< QTreeWidgetItem*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         default: ;
         }
     }
@@ -131,9 +140,9 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 17)
+        if (_id < 20)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 17;
+        _id -= 20;
     }
     return _id;
 }
