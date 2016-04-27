@@ -25,6 +25,7 @@ public:
     ~MainWindow();
     QTcpSocket * skt_finger;
     QTcpSocket * skt_rfid;
+    QTcpSocket * skt_gpy;
     QString *SendCmd(QTcpSocket* skt,char *Cmd);
     void DealJsonDat(QString jsonDat);
     QString httpsPostHelp(const QString &url, const QString &data);
@@ -70,6 +71,9 @@ signals:
     void rfid_Srv_disConnected();
     void rfid_error (QAbstractSocket::SocketError socketError );
 
+    void gpy_Srv_Connect();
+    void gpy_Srv_disConnected();
+    void gpy_error (QAbstractSocket::SocketError socketError );
 
     void Srv_Connect(QTcpSocket *skt);
     void ReadReady(QTcpSocket *skt);

@@ -48,6 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     skt_finger = new QTcpSocket(this);
     skt_rfid = new QTcpSocket(this);
+    skt_gpy = new QTcpSocket(this);
 
     connect(skt_finger,SIGNAL(connected()),this,SLOT(finger_Srv_Connect()));
     connect(skt_finger,SIGNAL(disconnected()),this,SLOT(finger_Srv_disConnected()));
@@ -56,6 +57,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(skt_rfid,SIGNAL(connected()),this,SLOT(rfid_Srv_Connect()));
     connect(skt_rfid,SIGNAL(disconnected()),this,SLOT(rfid_Srv_disConnected()));
     connect(skt_rfid,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(rfid_error(QAbstractSocket::SocketError)));
+
+    connect(skt_gpy,SIGNAL(connected()),this,SLOT(gpy_Srv_Connect()));
+    connect(skt_gpy,SIGNAL(disconnected()),this,SLOT(gpy_Srv_disConnected()));
+    connect(skt_gpy,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(gpy_error(QAbstractSocket::SocketError)));
 
     connect(this,SIGNAL(Srv_Connect_msg(QTcpSocket *)),this,SLOT(Srv_Connect(QTcpSocket *)));
     connect(this,SIGNAL(Srv_disConnected_msg(QTcpSocket *)),this,SLOT(Srv_disConnected(QTcpSocket *)));
@@ -66,9 +71,14 @@ MainWindow::MainWindow(QWidget *parent) :
     //skt_finger->readAll();
     //SendCmd(skt_finger,"{\"cmd\":\"activeME\"}");
    // connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
+
     skt_rfid->connectToHost("192.168.1.151",7901);
     skt_rfid->readAll();
     SendCmd(skt_rfid,"{\"cmd\":\"activeME\"}");
+
+    skt_gpy->connectToHost("192.168.1.151",7902);
+    skt_gpy->readAll();
+    SendCmd(skt_gpy,"{\"cmd\":\"activeME\"}");
     //connect(skt_rfid,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));//RFID不需要其主动发信号过来
     flash = new Welcome(this);
     loadingWin = new Loading(this);
@@ -207,7 +217,18 @@ void MainWindow::rfid_Srv_disConnected()
 {
       emit Srv_disConnected(skt_rfid);
 }
-
+void MainWindow::gpy_error(QAbstractSocket::SocketError socketError)
+{
+    emit error_msg(socketError);
+}
+void MainWindow::gpy_Srv_Connect()
+{
+    emit Srv_Connect(skt_gpy);
+}
+void MainWindow::gpy_Srv_disConnected()
+{
+     emit Srv_disConnected(skt_gpy);
+}
 void MainWindow::finger_ReadReady()
 {
      emit ReadReady(skt_finger);
@@ -428,6 +449,8 @@ void MainWindow::borrow_tool_click_slot(gyButton * btn)
     brWin->sToolID = box->currentText();
     brWin->sToolName  = ui->tableWidget->item(btn->index,ToolName)->text();
     brWin->skt_rfid = skt_rfid;
+    brWin->skt_gpy = skt_gpy;
+
     if (btn->AppState==0)
     {
             brWin->Borrow = true;//借
@@ -437,8 +460,10 @@ void MainWindow::borrow_tool_click_slot(gyButton * btn)
     }else{
         //不会到这这里，因为appstate==2时,按钮被隐藏
     }
-brWin->setModal(true);
+//brWin->setModal(true);
+
 brWin->show();
+  brWin->exec();
 }
 void MainWindow::DealMsg(QString *Msg)
 {

@@ -7,6 +7,7 @@
 #include<QTcpSocket>
 #include <QTextDecoder>
 #include <QCloseEvent>
+#include<QWebView>
 
 namespace Ui {
 class BorrowAndReBack;
@@ -21,15 +22,25 @@ public:
     ~BorrowAndReBack();
     QString sToolID;
     QString sToolName;
+    QString PhotoURL;
     bool       Borrow;
+    bool       ScanOK;
+    bool       PhotoOK;
     QTimer *tmr;
     QString* SendCmd(QTcpSocket *skt, char * Cmd);
     QTcpSocket * skt_rfid;
-    bool continue_scan;
+    QTcpSocket * skt_gpy;
+    QWebView *view ;
+
 #define SCANTEXT1  "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">工具扫描中……</span></p></body></html>"
 #define SCANTEXT2  "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">工具扫描中…………</span></p></body></html>"
 #define STOPSCAN   "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">扫描被停止</span></p></body></html>"
-#define SCANOK      "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">已扫描到该工具</span></p></body></html>"
+#define SCANOK1      "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">工具扫到，拍照中……</span></p></body></html>"
+#define SCANOK2     "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">工具扫到，拍照中…………</span></p></body></html>"
+#define SCANOKANDPHOTOTAKED     "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">工具扫到并拍照成功!</span></p></body></html>"
+#define PHOTOTAKEOK     "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">拍照成功,请继续操作!</span></p></body></html>"
+#define STOPPHOTOTAKE     "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">拍照被停止!</span></p></body></html>"
+
 private:
     Ui::BorrowAndReBack *ui;
 public slots:
@@ -39,6 +50,12 @@ public slots:
 private slots:
    void on_BorrowAndReBack_finished(int result);
    void on_pushButton_2_clicked();
+
+   void on_lookphoto_clicked();
+
+   void on_pushButton_clicked(bool checked);
+
+   void on_pushButton_clicked();
 
 protected:
      void closeEvent(QCloseEvent *event);

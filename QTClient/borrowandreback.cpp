@@ -1,18 +1,21 @@
 #include "borrowandreback.h"
 #include "ui_borrowandreback.h"
-
-
+#include <QtScript>
+#include <QMessageBox>
 BorrowAndReBack::BorrowAndReBack(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::BorrowAndReBack)
 {
     ui->setupUi(this);
     tmr = new QTimer(this);
-    continue_scan = true;
+    view =  new QWebView();
     connect(tmr,SIGNAL(timeout()),this,SLOT(ScanTools()));
     //tmr->start(500);
     //ui->opbtn->setText("停止扫描");
     //ui->scanlb->setText(SCANTEXT1);
+    Qt::WindowFlags flags = view->windowFlags();
+    flags |=Qt::Dialog;
+       view->setWindowFlags(flags);
 }
 
 BorrowAndReBack::~BorrowAndReBack()
@@ -21,26 +24,62 @@ BorrowAndReBack::~BorrowAndReBack()
 }
 void BorrowAndReBack::ScanTools()
 {
-    QString cmdTxt =  "{\"cmd\":\"isThisToolHere\",\"toolid\":\""+sToolID+"\"}";
-    QString *sRet = SendCmd(skt_rfid,(cmdTxt.toLatin1()).data());
-    if( *sRet == "OK" && continue_scan)
+
+    if (!ScanOK)//还未扫描到工具
     {
-        continue_scan = false;
-        tmr->stop();
-        ui->scanlb->setText(SCANOK);
-        if(Borrow){
-                ui->opbtn->setText("确认借出");
+            QString cmdTxt =  "{\"cmd\":\"isThisToolHere\",\"toolid\":\""+sToolID+"\"}";
+            QString *sRet = SendCmd(skt_rfid,(cmdTxt.toLatin1()).data());
+            if( *sRet == "OK")
+            {
+                ScanOK = true;
+                //tmr->stop();
+                ui->scanlb->setText(SCANOK1);
+                ui->opbtn->setText("停止拍照");
+                tmr->stop();
+                tmr->start(1000);
             }else{
-                ui->opbtn->setText("确认归还");
+                if(ui->scanlb->text()==SCANTEXT1)
+                {
+                     ui->scanlb->setText(SCANTEXT2);
+                }else{
+                     ui->scanlb->setText(SCANTEXT1);
+                }
             }
-    }else{
-        if(ui->scanlb->text()==SCANTEXT1)
-        {
-             ui->scanlb->setText(SCANTEXT2);
-        }else{
-             ui->scanlb->setText(SCANTEXT1);
-        }
+
+    }else//已扫描到该工具
+    {
+            if(!PhotoOK)
+            {
+                 ui->scanlb->setText(ui->scanlb->text()==SCANOK1?SCANOK2:SCANOK1);
+
+                QString cmdTxt =  "{\"cmd\":\"TakePhoto\"}";
+                QString *sRet = SendCmd(skt_gpy,(cmdTxt.toLatin1()).data());
+                QScriptEngine engine;
+                QScriptValue sc = engine.evaluate("("+*sRet+")");
+
+                if(sc.property("status").toString()!="success")
+                {
+                     ui->scanlb->setText( "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">"+sc.property("msg").toString()+"</span></p></body></html>");
+                     return;
+                }else{
+                      PhotoOK =true;
+                      tmr->stop();
+                      PhotoURL = sc.property("msg").toString();
+                      ui->scanlb->setText(PHOTOTAKEOK);
+                      if(Borrow){
+                              ui->opbtn->setText("确认借出");
+                          }else{
+                              ui->opbtn->setText("确认归还");
+                          }
+                }
+
+
+            }
+
     }
+
+
+
 
 }
 
@@ -88,13 +127,11 @@ void BorrowAndReBack::on_opbtn_clicked()
     QString btnText = ui->opbtn->text() ;
     if (btnText== "停止扫描")
     {
-        continue_scan = false;
         tmr->stop();
         ui->opbtn->setText("开始扫描");
         ui->scanlb->setText(STOPSCAN);
     }else if(btnText == "开始扫描")
     {
-         continue_scan = true;
          tmr->start(500);
          ui->opbtn->setText("停止扫描");
          ui->scanlb->setText(SCANTEXT1);
@@ -104,6 +141,14 @@ void BorrowAndReBack::on_opbtn_clicked()
     }else if(btnText == "确认归还")
     {
 
+    }else if(btnText == "停止拍照")
+    {
+        tmr->stop();
+        ui->scanlb->setText(STOPPHOTOTAKE);
+        ui->opbtn->setText("开始拍照");
+     }else if(btnText == "开始拍照")
+    {
+        tmr->start(1000);
     }
 }
 
@@ -114,11 +159,13 @@ void BorrowAndReBack::on_BorrowAndReBack_finished(int result)
 
 void BorrowAndReBack::closeEvent(QCloseEvent *event)
 {
-    continue_scan = false;
     tmr->stop();
 }
 void BorrowAndReBack::showEvent(QShowEvent *event)
 {
+    PhotoURL = "";
+    ScanOK = false;
+    PhotoOK = false;
     ui->opbtn->setText("停止扫描");
     ui->scanlb->setText(SCANTEXT1);
     tmr->start(500);
@@ -126,4 +173,41 @@ void BorrowAndReBack::showEvent(QShowEvent *event)
 void BorrowAndReBack::on_pushButton_2_clicked()
 {
     this->close();
+}
+
+void BorrowAndReBack::on_lookphoto_clicked()
+{
+    if (PhotoURL == "")
+    {
+        QMessageBox::information(this,"提示","拍照还未成功！");
+        return;
+    }
+          view->load(QUrl( QString(PhotoURL)));
+               view->show();
+          //this->setModal(true);
+
+}
+
+void BorrowAndReBack::on_pushButton_clicked(bool checked)
+{
+
+}
+
+void BorrowAndReBack::on_pushButton_clicked()
+{
+     if (!ScanOK)
+     {
+         QMessageBox::information(this,"提示","还未扫描到工具，不可拍照!");
+         return;
+     }
+
+    if (tmr->isActive())
+    {
+        QMessageBox::information(this,"提示","其他操作正在执行，请稍后再试!");
+        return;
+    }
+
+    PhotoOK = false;
+    ui->scanlb->setText(SCANOK1);
+    tmr->start(1000);
 }
