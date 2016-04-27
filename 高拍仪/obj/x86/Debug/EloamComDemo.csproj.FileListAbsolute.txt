@@ -1,0 +1,40 @@
+E:\SVN\new\trunk\apps\sdk\samples\eloamCom\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\Interop.eloamComLib.dll
+E:\SVN\new\trunk\apps\sdk\samples\eloamCom\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\AxInterop.eloamComLib.dll
+E:\SVN\new\trunk\apps\sdk\samples\eloamCom\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\EloamComDemo.csproj.ResolveComReference.cache
+E:\SVN\new\trunk\apps\sdk\samples\eloamCom\c#\EloamComDemo\EloamComDemo\bin\Debug\EloamComDemo.exe
+E:\SVN\new\trunk\apps\sdk\samples\eloamCom\c#\EloamComDemo\EloamComDemo\bin\Debug\EloamComDemo.pdb
+E:\SVN\new\trunk\apps\sdk\samples\eloamCom\c#\EloamComDemo\EloamComDemo\bin\Debug\Interop.eloamComLib.dll
+E:\SVN\new\trunk\apps\sdk\samples\eloamCom\c#\EloamComDemo\EloamComDemo\bin\Debug\AxInterop.eloamComLib.dll
+E:\SVN\new\trunk\apps\sdk\samples\eloamCom\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\EloamComDemo.Form1.resources
+E:\SVN\new\trunk\apps\sdk\samples\eloamCom\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\EloamComDemo.Properties.Resources.resources
+E:\SVN\new\trunk\apps\sdk\samples\eloamCom\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\EloamComDemo.csproj.GenerateResource.Cache
+E:\SVN\new\trunk\apps\sdk\samples\eloamCom\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\EloamComDemo.exe
+E:\SVN\new\trunk\apps\sdk\samples\eloamCom\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\EloamComDemo.pdb
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\Interop.eloamComLib.dll
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\AxInterop.eloamComLib.dll
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\EloamComDemo.csproj.ResolveComReference.cache
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\EloamComDemo.exe
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\bin\Debug\EloamComDemo.exe
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\bin\Debug\EloamComDemo.pdb
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\bin\Debug\Interop.eloamComLib.dll
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\bin\Debug\AxInterop.eloamComLib.dll
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\EloamComDemo.Form1.resources
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\EloamComDemo.Properties.Resources.resources
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Program Files\eloamCom\samples\c#\EloamComDemo\EloamComDemo\obj\x86\Debug\EloamComDemo.pdb
+E:\gyTool-Manager\高拍仪\obj\x86\Debug\Interop.eloamComLib.dll
+E:\gyTool-Manager\高拍仪\obj\x86\Debug\AxInterop.eloamComLib.dll
+E:\gyTool-Manager\高拍仪\obj\x86\Debug\EloamComDemo.csproj.ResolveComReference.cache
+E:\gyTool-Manager\高拍仪\obj\x86\Debug\EloamComDemo.exe
+E:\gyTool-Manager\高拍仪\obj\x86\Debug\EloamComDemo.pdb
+E:\gyTool-Manager\高拍仪\bin\Debug\EloamComDemo.exe
+E:\gyTool-Manager\高拍仪\bin\Debug\EloamComDemo.pdb
+E:\gyTool-Manager\高拍仪\bin\Debug\Interop.eloamComLib.dll
+E:\gyTool-Manager\高拍仪\bin\Debug\AxInterop.eloamComLib.dll
+E:\gyTool-Manager\高拍仪\obj\x86\Debug\ResolveAssemblyReference.cache
+E:\gyTool-Manager\高拍仪\obj\x86\Debug\EloamComDemo.Form1.resources
+E:\gyTool-Manager\高拍仪\obj\x86\Debug\EloamComDemo.Properties.Resources.resources
+E:\gyTool-Manager\高拍仪\obj\x86\Debug\GenerateResource.read.1.tlog
+E:\gyTool-Manager\高拍仪\obj\x86\Debug\GenerateResource.write.1.tlog

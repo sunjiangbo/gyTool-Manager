@@ -1,0 +1,14 @@
+E:\gyTool-Manager\高拍仪\obj\x86\Release\Interop.eloamComLib.dll
+E:\gyTool-Manager\高拍仪\obj\x86\Release\AxInterop.eloamComLib.dll
+E:\gyTool-Manager\高拍仪\obj\x86\Release\EloamComDemo.csproj.ResolveComReference.cache
+E:\gyTool-Manager\高拍仪\bin\Release\EloamComDemo.exe
+E:\gyTool-Manager\高拍仪\bin\Release\EloamComDemo.pdb
+E:\gyTool-Manager\高拍仪\bin\Release\Interop.eloamComLib.dll
+E:\gyTool-Manager\高拍仪\bin\Release\AxInterop.eloamComLib.dll
+E:\gyTool-Manager\高拍仪\obj\x86\Release\ResolveAssemblyReference.cache
+E:\gyTool-Manager\高拍仪\obj\x86\Release\EloamComDemo.Form1.resources
+E:\gyTool-Manager\高拍仪\obj\x86\Release\EloamComDemo.Properties.Resources.resources
+E:\gyTool-Manager\高拍仪\obj\x86\Release\GenerateResource.read.1.tlog
+E:\gyTool-Manager\高拍仪\obj\x86\Release\GenerateResource.write.1.tlog
+E:\gyTool-Manager\高拍仪\obj\x86\Release\EloamComDemo.exe
+E:\gyTool-Manager\高拍仪\obj\x86\Release\EloamComDemo.pdb

@@ -217,20 +217,23 @@ namespace WindowsFormsApplication3
                     user.Active = 1;
                 }
 
-                if (Cmd == "isTheToolNumHere")
+                if (Cmd == "isThisToolHere")
                 {
-                    String sRet,ToolNum;
-                    ToolNum = JO["toolnum"].ToString();
+                    String sRet, ToolID;
+                    ToolID = JO["toolid"].ToString();
                     FilterMux.WaitOne();
-                    sRet = SetReaderFilterByToolNumAndRead(ToolNum);
+                    sRet = SetReaderFilterByToolNumAndRead(ToolID);
                     FilterMux.ReleaseMutex();
                     if (sRet == "OK")
                     {
-                        return "{\"status\":\"success\",\"msg\":\"工具信号被收到。\"}";
+                       // return "{\"status\":\"success\",\"msg\":\"工具信号被收到。\"}";
+                        AddMsg("信息", "处理完毕-->" + CmdDat+"-->OK", INFO);
+                        return "OK";
                     }
                     else
                     {
-                        return "{\"status\":\"failed\",\"msg\":\""+sRet+"\"}";
+                        AddMsg("信息", "处理完毕-->" + CmdDat+"-->NoFound", INFO);
+                        return "NoFound";
                     }
                 } 
 
