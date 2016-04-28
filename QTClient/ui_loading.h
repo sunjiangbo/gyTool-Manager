@@ -32,7 +32,7 @@ public:
         Loading->resize(213, 120);
         label = new QLabel(Loading);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(60, 30, 101, 81));
+        label->setGeometry(QRect(60, 30, 81, 81));
         label->setPixmap(QPixmap(QString::fromUtf8("img/loading.gif")));
         label_2 = new QLabel(Loading);
         label_2->setObjectName(QString::fromUtf8("label_2"));

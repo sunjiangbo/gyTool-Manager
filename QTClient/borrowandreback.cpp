@@ -2,6 +2,7 @@
 #include "ui_borrowandreback.h"
 #include <QtScript>
 #include <QMessageBox>
+
 BorrowAndReBack::BorrowAndReBack(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::BorrowAndReBack)
@@ -117,10 +118,6 @@ QString *BorrowAndReBack::SendCmd(QTcpSocket *skt, char * Cmd)
         return s;
 }
 
-void BorrowAndReBack::on_BorrowAndReBack_destroyed()
-{
-
-}
 
 void BorrowAndReBack::on_opbtn_clicked()
 {
@@ -137,7 +134,7 @@ void BorrowAndReBack::on_opbtn_clicked()
          ui->scanlb->setText(SCANTEXT1);
     }else if(btnText == "确认借出")
     {
-
+            //ui->scanlb->setText(BORROWBEFORE + QString("正在借出.......") + BORROWAFTER);
     }else if(btnText == "确认归还")
     {
 
@@ -167,6 +164,9 @@ void BorrowAndReBack::showEvent(QShowEvent *event)
     ScanOK = false;
     PhotoOK = false;
     ui->opbtn->setText("停止扫描");
+    ui->oplb->setText(LBBEFORE + QString(Borrow==true?"借用":"归还") + LBAFTER);
+    ui->oplb_2->setText(LBBEFORE + QString(sToolID) + LBAFTER);
+    ui->oplb_3->setText(LBBEFORE + QString(sToolName) + LBAFTER);
     ui->scanlb->setText(SCANTEXT1);
     tmr->start(500);
 }

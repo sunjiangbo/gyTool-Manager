@@ -5,20 +5,27 @@
 #include<QComboBox>
 #include<QMap>
 
+class ToolNameAndCoreID{
+       public :
+       QString Name;
+      QString CoreID;
+};
+
 class myComBox : public QComboBox
 {
     Q_OBJECT
 public:
     explicit myComBox();
     QString get_coreid();
-    void insert_coreid(int i,QString coreid);
+    QString get_toolname();
+    void insert_coreid(int i,QString ToolName,QString coreid);
 signals:
 
 public slots:
 
 
 private:
-    QMap<int ,QString > coreidmap;
+    QMap<int ,ToolNameAndCoreID *> coreidmap;
 };
 
 #endif // MYCOMBOX_H
