@@ -1,7 +1,8 @@
 #include "borrowandreback.h"
 #include "ui_borrowandreback.h"
-#include <QtScript>
+#include <QtScript/QtScript>
 #include <QMessageBox>
+
 
 BorrowAndReBack::BorrowAndReBack(QWidget *parent) :
     QDialog(parent),
@@ -9,7 +10,8 @@ BorrowAndReBack::BorrowAndReBack(QWidget *parent) :
 {
     ui->setupUi(this);
     tmr = new QTimer(this);
-    view =  new QWebView();
+    view =  new QWebView(this);
+
     connect(tmr,SIGNAL(timeout()),this,SLOT(ScanTools()));
     //tmr->start(500);
     //ui->opbtn->setText("停止扫描");
@@ -182,7 +184,7 @@ void BorrowAndReBack::on_lookphoto_clicked()
         QMessageBox::information(this,"提示","拍照还未成功！");
         return;
     }
-          view->load(QUrl( QString(PhotoURL)));
+              view->load(QUrl( QString(PhotoURL)));
                view->show();
           //this->setModal(true);
 
