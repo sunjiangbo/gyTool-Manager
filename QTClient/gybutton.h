@@ -9,7 +9,8 @@ class gyButton : public QPushButton
 public:
     explicit gyButton(int i);
     int index;
-    int AppState;
+    long AppState;
+    long ToolAppID;
 signals:
     void BorowseClicked(int i);
     void BorrowClicked (gyButton* btn);

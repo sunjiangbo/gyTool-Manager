@@ -22,7 +22,7 @@ static const uint qt_meta_data_BorrowAndReBack[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       8,   14, // methods
+       9,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -38,6 +38,7 @@ static const uint qt_meta_data_BorrowAndReBack[] = {
      145,   16,   16,   16, 0x08,
      176,  168,   16,   16, 0x08,
      204,   16,   16,   16, 0x08,
+     233,  228,   16,   16, 0x08,
 
        0        // eod
 };
@@ -50,7 +51,8 @@ static const char qt_meta_stringdata_BorrowAndReBack[] = {
     "on_pushButton_2_clicked()\0"
     "on_lookphoto_clicked()\0checked\0"
     "on_pushButton_clicked(bool)\0"
-    "on_pushButton_clicked()\0"
+    "on_pushButton_clicked()\0arg1\0"
+    "on_BorrowAndReBack_destroyed(QObject*)\0"
 };
 
 void BorrowAndReBack::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -67,6 +69,7 @@ void BorrowAndReBack::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
         case 5: _t->on_lookphoto_clicked(); break;
         case 6: _t->on_pushButton_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 7: _t->on_pushButton_clicked(); break;
+        case 8: _t->on_BorrowAndReBack_destroyed((*reinterpret_cast< QObject*(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -104,9 +107,9 @@ int BorrowAndReBack::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 8)
+        if (_id < 9)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 8;
+        _id -= 9;
     }
     return _id;
 }

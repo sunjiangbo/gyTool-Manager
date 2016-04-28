@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->tableWidget->setColumnCount(6);
      ui->tableWidget->setHorizontalHeaderLabels(QStringList()<<QString("工具名")<<QString("件号")<<QString("可替代(最终选择)")<<QString("实际状态")<<QString("查看工具箱")<<QString("操作"));
-     ui->tableWidget->setColumnWidth(ToolName,200);
+     ui->tableWidget->setColumnWidth(ToolNameCOL,200);
      ui->tableWidget->setColumnWidth(ToolID,100);
      ui->tableWidget->setColumnWidth(ALTER,200);
 
@@ -364,7 +364,7 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
        if(!it.value().property("toolname").toString().isEmpty()){
            int index = tb->rowCount();
            tb->insertRow(index);
-           tb->setItem(index,ToolName,new QTableWidgetItem(it.value().property("toolname").toString()));
+           tb->setItem(index,ToolNameCOL,new QTableWidgetItem(it.value().property("toolname").toString()));
            tb->setItem(index,ToolID,new QTableWidgetItem(it.value().property("toolid").toString()));
            gyButton *lkbtn =  new gyButton(index);
            lkbtn->setText("工具查看");
@@ -376,7 +376,8 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
 
             AppState = it.value().property("appstate").toString();
             gyButton *btn =  new gyButton(index);
-
+            btn->AppState = AppState.toInt();
+            btn->ToolAppID = it.value().property("appid").toInt32();
             tb->setCellWidget(index,OP,btn);
 
             connect(btn,SIGNAL(clicked()),btn,SLOT(Borrow_Clicked_slot()));
@@ -396,8 +397,8 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
                                     alter.next();
                                    if(!alter.value().property("toolid").toString().isEmpty()){
                                             pComboBox->addItem(alter.value().property("toolid").toString());
-                                            pComboBox->insert_coreid(pComboBox->count()-1,alter.value().property("coreid").toString());
-                                            qDebug()<<pComboBox->currentIndex()<<alter.value().property("coreid").toString();
+                                            pComboBox->insert_coreid(pComboBox->count()-1,alter.value().property("toolname").toString(),alter.value().property("coreid").toString());
+                                          //  qDebug()<<pComboBox->currentIndex()<<alter.value().property("coreid").toString();
                                            if(!map.contains(alter.value().property("toolid").toString()) && alter.value().property("pvcount").toInt32() <=min_pvCount ){
                                                     min_pvCount= alter.value().property("pvcount").toInt32() ;
                                                     min_pvCount_index = pComboBox->count()-1;
@@ -414,8 +415,9 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
             {
                         btn->setText("归还");
                         pComboBox->addItem(it.value().property("borrowedtoolid").toString());
+                        pComboBox->insert_coreid(pComboBox->count()-1,it.value().property("borrowedtoolname").toString(),it.value().property("borrowedtoolcoreid").toString());
                          pComboBox->setCurrentIndex(1);
-                        tb->setItem(index,ToolName,new QTableWidgetItem(it.value().property("borrowedtoolname").toString()));
+                        tb->setItem(index,ToolNameCOL,new QTableWidgetItem(it.value().property("borrowedtoolname").toString()));
 
                         QTableWidgetItem *im = new QTableWidgetItem(it.value().property("borrowedtoolid").toString());
                         im->setBackgroundColor(QColor(0,255,0));
@@ -445,12 +447,13 @@ void MainWindow::borrow_tool_click_slot(gyButton * btn)
         QMessageBox::information(0,"提示","请在下拉框中选择你要借用的工具!" );
         return;
     }
-
+    qDebug()<< "工具编号:"<<box->currentText();
     brWin->sToolID = box->currentText();
-    brWin->sToolName  = ui->tableWidget->item(btn->index,ToolName)->text();
+    qDebug()<< "工具名称:"<<box->get_toolname();
+    brWin->sToolName  = box->get_toolname();
     brWin->skt_rfid = skt_rfid;
     brWin->skt_gpy = skt_gpy;
-
+    //brWin->AppID = btn->ToolAppID;
     if (btn->AppState==0)
     {
             brWin->Borrow = true;//借
@@ -463,7 +466,7 @@ void MainWindow::borrow_tool_click_slot(gyButton * btn)
 //brWin->setModal(true);
 
 brWin->show();
-  brWin->exec();
+brWin->exec();
 }
 void MainWindow::DealMsg(QString *Msg)
 {
