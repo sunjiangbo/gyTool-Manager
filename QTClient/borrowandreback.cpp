@@ -211,3 +211,13 @@ void BorrowAndReBack::on_pushButton_clicked()
     ui->scanlb->setText(SCANOK1);
     tmr->start(1000);
 }
+
+void BorrowAndReBack::on_scanlb_destroyed()
+{
+
+}
+
+void BorrowAndReBack::on_BorrowAndReBack_destroyed(QObject *arg1)
+{
+
+}

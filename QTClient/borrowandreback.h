@@ -40,7 +40,8 @@ public:
 #define SCANOKANDPHOTOTAKED     "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">工具扫到并拍照成功!</span></p></body></html>"
 #define PHOTOTAKEOK     "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">拍照成功,请继续操作!</span></p></body></html>"
 #define STOPPHOTOTAKE     "<html><head/><body><p><span style=\" font-size:20pt; color:#0055ff;\">拍照被停止!</span></p></body></html>"
-
+#define LBBEFORE "<html><head/><body><p><span style=\" font-size:20pt; color:#ff0000;\">"
+#define LBAFTER    "</span></p></body></html>"
 private:
     Ui::BorrowAndReBack *ui;
 public slots:
@@ -56,6 +57,10 @@ private slots:
    void on_pushButton_clicked(bool checked);
 
    void on_pushButton_clicked();
+
+   void on_scanlb_destroyed();
+
+   void on_BorrowAndReBack_destroyed(QObject *arg1);
 
 protected:
      void closeEvent(QCloseEvent *event);

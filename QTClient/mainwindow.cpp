@@ -8,7 +8,7 @@
 #include <QByteArray>
 #include <QTextDecoder>
 #include <QtScript>
-#include<QNetworkRequest>
+#include<QNetworkRequest>a
 #include<QNetworkReply>
 #include<QDebug>
 #include<QComboBox>
