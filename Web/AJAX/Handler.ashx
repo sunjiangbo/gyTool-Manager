@@ -2774,6 +2774,8 @@ public String Test(HttpContext ctx)
         for (i = 0; i < dt.Rows.Count; i++)
         {
             jWrite.WriteStartObject();
+            jWrite.WritePropertyName("appid");
+            jWrite.WriteValue(dt.Rows[i]["ID"].ToString());
             jWrite.WritePropertyName("toolname");
             jWrite.WriteValue(dt.Rows[i]["WantToolName"].ToString());
             jWrite.WritePropertyName("toolid");
@@ -2792,6 +2794,8 @@ public String Test(HttpContext ctx)
             {
                 jWrite.WritePropertyName("borrowedtoolname");
                 jWrite.WriteValue(dt.Rows[i]["borrowedtoolname"].ToString());
+                jWrite.WritePropertyName("borrowedtoolcoreid");
+                jWrite.WriteValue(dt.Rows[i]["CoreID"].ToString());
                 jWrite.WritePropertyName("borrowedtoolid");
                 jWrite.WriteValue(dt.Rows[i]["borrowedtoolid"].ToString());
             }
@@ -2802,6 +2806,8 @@ public String Test(HttpContext ctx)
         return "{\"status\":\"success\",\"data\":"+sw.ToString()+"}";
 
     }
+    
+  //  public String GetToolNameByToolID (String )
     
    public void ProcessRequest (HttpContext context) 
    {
