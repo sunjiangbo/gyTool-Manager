@@ -37,7 +37,8 @@ public:
     QString FillNameAndCorp(QString userid);
     QString FillTaskList(QString userid);
     QString GetBorrowInfoByTaskID(QString TaskID);
-
+    QString gUserID;
+    QString gUserName;
 #define ToolNameCOL          0
 #define ToolID                1
 #define ALTER                 2

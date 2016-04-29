@@ -135,8 +135,11 @@
       <height>23</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">sss</string>
+    </property>
     <property name="text">
-     <string>PushButton</string>
+     <string>get</string>
     </property>
    </widget>
   </widget>

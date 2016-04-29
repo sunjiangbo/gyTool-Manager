@@ -82,6 +82,7 @@ public:
         pushButton = new QPushButton(centralWidget);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
         pushButton->setGeometry(QRect(60, 40, 75, 23));
+        pushButton->setStyleSheet(QString::fromUtf8("sss"));
         MainWindow->setCentralWidget(centralWidget);
         statusBar = new QStatusBar(MainWindow);
         statusBar->setObjectName(QString::fromUtf8("statusBar"));
@@ -101,7 +102,7 @@ public:
         uName->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt; color:#3c23ff;\">XXX</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt;\">\351\203\250\351\227\250\357\274\232</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         uCorp->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:14pt; color:#0000ff;\">XXX</span></p></body></html>", 0, QApplication::UnicodeUTF8));
-        pushButton->setText(QApplication::translate("MainWindow", "PushButton", 0, QApplication::UnicodeUTF8));
+        pushButton->setText(QApplication::translate("MainWindow", "get", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

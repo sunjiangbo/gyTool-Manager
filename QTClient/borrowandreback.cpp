@@ -2,6 +2,8 @@
 #include "ui_borrowandreback.h"
 #include <QtScript>
 #include <QMessageBox>
+#include<QNetworkRequest>
+#include<QNetworkReply>
 
 BorrowAndReBack::BorrowAndReBack(QWidget *parent) :
     QDialog(parent),
@@ -13,7 +15,7 @@ BorrowAndReBack::BorrowAndReBack(QWidget *parent) :
     connect(tmr,SIGNAL(timeout()),this,SLOT(ScanTools()));
     //tmr->start(500);
     //ui->opbtn->setText("停止扫描");
-    //ui->scanlb->setText(SCANTEXT1);
+    //ui->scanlb->setText(SCANTEXT1);s
     Qt::WindowFlags flags = view->windowFlags();
     flags |=Qt::Dialog;
        view->setWindowFlags(flags);
@@ -22,6 +24,49 @@ BorrowAndReBack::BorrowAndReBack(QWidget *parent) :
 BorrowAndReBack::~BorrowAndReBack()
 {
     delete ui;
+}
+ #define WEB_URL          "http://172.16.74.61:8080"
+QString BorrowAndReBack::httpSendCmd(QString Cmd)
+{
+    return httpsPostHelp(WEB_URL+QString("/Ajax/Handler.ashx"),Cmd);
+}
+const int TIMEOUT = (30 * 1000);
+QString BorrowAndReBack::httpsPostHelp(const QString &url, const QString &data)
+{
+    QString _result;
+    QNetworkRequest _request;
+    QNetworkAccessManager * m_pNetworkManager = new QNetworkAccessManager(this);
+    _request.setUrl(QUrl(url));
+    _request.setHeader(QNetworkRequest::ContentTypeHeader,
+                       QString("application/x-www-form-urlencoded"));
+
+    QNetworkReply *_reply = m_pNetworkManager->post(_request, data.toLatin1());
+    _reply->ignoreSslErrors();
+
+
+    QTime _t;
+    _t.start();
+
+    bool _timeout = false;
+
+    while (!_reply->isFinished()) {
+        QApplication::processEvents();
+        if (_t.elapsed() >= TIMEOUT) {
+            _timeout = true;
+            break;
+        }
+    }
+
+    if (!_timeout && _reply->error() == QNetworkReply::NoError) {
+        _result = _reply->readAll();
+    }else{
+        return "";
+    }
+
+    _reply->deleteLater();
+
+    return _result;
+
 }
 void BorrowAndReBack::ScanTools()
 {
@@ -134,9 +179,54 @@ void BorrowAndReBack::on_opbtn_clicked()
          ui->scanlb->setText(SCANTEXT1);
     }else if(btnText == "确认借出")
     {
-            //ui->scanlb->setText(BORROWBEFORE + QString("正在借出.......") + BORROWAFTER);
+           ui->scanlb->setText(BORROWBEFORE + QString("正在借出.......") + BORROWAFTER);
+           QString cmdtxt = "{\"cmd\":\"BRTool\",\"userid\":\"" + UserID
+                   + "\",\"username\":\""+UserName+"\""
+                   +",\"appid\":\""+QString::number(AppID)+"\""
+                     +",\"optype\":\"borrow\""
+                     +",\"toolid\":\""+sToolID+"\""
+                     +",\"toolname\":\""+sToolName+"\""
+                     +",\"pic\":\""+PhotoURL+"\""
+                   + "}";
+
+           QString cmdret =  httpSendCmd(cmdtxt);
+           QScriptEngine engine;
+           QScriptValue sc = engine.evaluate("("+cmdret+")");
+          qDebug()<<cmdret;
+           if (sc.property("status").toString()=="success")
+           {
+               QMessageBox::information(this,"提示","工具借用成功!");
+               this->close();
+               return;
+           }else{
+               ui->scanlb->setText(BORROWBEFORE +sc.property("msg").toString()  + BORROWAFTER);
+           }
+
     }else if(btnText == "确认归还")
     {
+        ui->scanlb->setText(BORROWBEFORE + QString("正在归还.......") + BORROWAFTER);
+        QString cmdtxt = "{\"cmd\":\"BRTool\",\"userid\":\"" + UserID
+               + "\",\"username\":\""+UserName+"\""
+                +",\"appid\":\""+QString::number(AppID)+"\""
+                  +",\"optype\":\"refund\""
+                  +",\"toolid\":\""+sToolID+"\""
+                  +",\"toolname\":\""+sToolName+"\""
+                  +",\"pic\":\""+PhotoURL+"\""
+                + "}";
+
+        QString cmdret =  httpSendCmd(cmdtxt);
+        QScriptEngine engine;
+        QScriptValue sc = engine.evaluate("("+cmdret+")");
+
+        if (sc.property("status").toString()=="success")
+        {
+            QMessageBox::information(this,"提示","工具归还成功!");
+            this->close();
+            return;
+        }else{
+            ui->scanlb->setText(BORROWBEFORE +sc.property("msg").toString()  + BORROWAFTER);
+        }
+
 
     }else if(btnText == "停止拍照")
     {
@@ -220,4 +310,18 @@ void BorrowAndReBack::on_BorrowAndReBack_destroyed()
 void BorrowAndReBack::on_BorrowAndReBack_destroyed(QObject *arg1)
 {
 
+}
+
+void BorrowAndReBack::on_pushButton_3_clicked()
+{
+    QString cmdtxt = "{\"cmd\":\"BRTool\",\"userid\":\"" + UserID
+           + "\",\"username\":\""+UserName+"\""
+            +",\"appid\":\""+QString::number(AppID)+"\""
+              +",\"optype\":\"refund\""
+              +",\"toolid\":\""+sToolID+"\""
+              +",\"toolname\":\""+sToolName+"\""
+              +",\"pic\":\""+PhotoURL+"\""
+            + "}";
+
+    QMessageBox::information(this,"提示", httpSendCmd(cmdtxt));
 }

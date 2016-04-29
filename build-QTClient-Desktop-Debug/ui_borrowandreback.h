@@ -36,6 +36,7 @@ public:
     QLabel *lb1_4;
     QPushButton *lookphoto;
     QPushButton *pushButton;
+    QPushButton *pushButton_3;
 
     void setupUi(QDialog *BorrowAndReBack)
     {
@@ -89,6 +90,9 @@ public:
         pushButton = new QPushButton(BorrowAndReBack);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
         pushButton->setGeometry(QRect(340, 190, 51, 27));
+        pushButton_3 = new QPushButton(BorrowAndReBack);
+        pushButton_3->setObjectName(QString::fromUtf8("pushButton_3"));
+        pushButton_3->setGeometry(QRect(430, 240, 85, 27));
 
         retranslateUi(BorrowAndReBack);
 
@@ -111,6 +115,7 @@ public:
         lb1_4->setText(QApplication::translate("BorrowAndReBack", "<html><head/><body><p><span style=\" font-size:20pt; color:#5500ff;\">\345\267\245\345\205\267\345\277\253\347\205\247:</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         lookphoto->setText(QApplication::translate("BorrowAndReBack", "\346\237\245\347\234\213", 0, QApplication::UnicodeUTF8));
         pushButton->setText(QApplication::translate("BorrowAndReBack", "\351\207\215\346\213\215", 0, QApplication::UnicodeUTF8));
+        pushButton_3->setText(QApplication::translate("BorrowAndReBack", "teset", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

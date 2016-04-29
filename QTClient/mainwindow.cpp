@@ -305,6 +305,8 @@ QString MainWindow::FillNameAndCorp(QString userid)
          return "失败" + sc.property("msg").toString();
      }
 
+     gUserID = userid;
+     gUserName  =sc.property("name").toString();
      ui->uName->setText( "<html><head/><body><p><span style=\" font-size:14pt; color:#3c23ff;\">"+sc.property("name").toString()+"</span></p></body></html>");
      ui->uCorp->setText("<html><head/><body><p><span style=\" font-size:14pt; color:#3c23ff;\">"+sc.property("corpname").toString()+"</span></p></body></html>");
 
@@ -420,11 +422,12 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
                         tb->setItem(index,ToolNameCOL,new QTableWidgetItem(it.value().property("borrowedtoolname").toString()));
 
                         QTableWidgetItem *im = new QTableWidgetItem(it.value().property("borrowedtoolid").toString());
-                        im->setBackgroundColor(QColor(0,255,0));
+                        im->setBackgroundColor(QColor(255,0,0));
                         tb->setItem(index,ToolID,im);
 
             }else{//已归还
                         btn->hide();
+                        btn->setText("已归还");
                         pComboBox->addItem(it.value().property("borrowedtoolid").toString());
                         QTableWidgetItem *im = new QTableWidgetItem(it.value().property("borrowedtoolid").toString());
                         im->setBackgroundColor(QColor(0,255,0));
@@ -442,6 +445,12 @@ void MainWindow::borrow_tool_click_slot(gyButton * btn)
 {
     myComBox *box =  (myComBox*)ui->tableWidget->cellWidget(btn->index,ALTER);
 
+    if (btn->text()=="已归还")
+    {
+        QMessageBox::information(0,"提示","该工具已经归还!" );
+        return;
+    }
+
     if(box->currentText()=="")
     {
         QMessageBox::information(0,"提示","请在下拉框中选择你要借用的工具!" );
@@ -453,7 +462,10 @@ void MainWindow::borrow_tool_click_slot(gyButton * btn)
     brWin->sToolName  = box->get_toolname();
     brWin->skt_rfid = skt_rfid;
     brWin->skt_gpy = skt_gpy;
-    //brWin->AppID = btn->ToolAppID;
+    brWin->AppID = btn->ToolAppID;
+    brWin->UserID = gUserID;
+    brWin->UserName = gUserName;
+
     if (btn->AppState==0)
     {
             brWin->Borrow = true;//借
