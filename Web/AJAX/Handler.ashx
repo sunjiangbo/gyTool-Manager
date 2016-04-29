@@ -2790,7 +2790,7 @@ public String Test(HttpContext ctx)
                 JObject JO = JObject.Parse(RetJson);
                 jWrite.WriteValue(JO["data"].ToString());
             }
-            else if (dt.Rows[i]["State"].ToString() == "1")
+            else 
             {
                 jWrite.WritePropertyName("borrowedtoolname");
                 jWrite.WriteValue(dt.Rows[i]["borrowedtoolname"].ToString());
@@ -2806,8 +2806,97 @@ public String Test(HttpContext ctx)
         return "{\"status\":\"success\",\"data\":"+sw.ToString()+"}";
 
     }
+
+    public String BorrowORRefundTool(JObject JO)
+    {
+        long AppID = Convert.ToInt32(JO["appid"].ToString());
+        long UserID = Convert.ToInt32(JO["userid"].ToString());
+        String opType =JO["optype"].ToString();
+        String ToolID = JO["toolid"].ToString();
+        String ToolName = JO["toolname"].ToString();
+        String username = JO["username"].ToString();
+        String Pic = JO["pic"].ToString();
+        
+        DataTable dt = MyManager.GetDataSet("SELECT * From ToolApp WHERE ID = " + AppID);
+
+        //return "{\"status\":\"failed\",\"msg\":\"该记录不存在，请刷新！\"}";  
+        if (dt.Rows.Count < 1)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"该记录不存在，请刷新！\"}";  
+        }
+        String AppState = dt.Rows[0]["State"].ToString();
+        
+        if (opType == "borrow")
+        {
+            if (AppState == "1")
+            {
+                return "{\"status\":\"failed\",\"msg\":\"工具已经被借出,请刷新.\"}";  
+            }
+            else if (AppState == "2")
+            {
+                return "{\"status\":\"failed\",\"msg\":\"工具已归还,如借,请重新申请!\"}"; 
+            }
+            else if (AppState == "0")
+            {
+                if (ToolID == "" || ToolName =="")
+                {
+                    return "{\"status\":\"failed\",\"msg\":\"工具编号或名称不可为空！\"}";  
+                }
+                if (1 == MyManager.ExecSQL("UPDATE  ToolApp Set State = 1,borrowtime='" + DateTime.Now.ToString() + "',borrowerid = '" + UserID + "',borrowername='" + username + "',borrowedtoolid='" + ToolID + "',borrowedtoolname='" + ToolName + "',borrowpic = '" + Pic + "' WHERE ID = " + AppID))
+                {
+                    return "{\"status\":\"success\",\"msg\":\"工具借用成功！\"}";
+                }
+                else {
+                    return "{\"status\":\"success\",\"msg\":\"工具借用失败！\"}";
+                }
+                  
+            }   
+            else
+            {
+                return "{\"status\":\"failed\",\"msg\":\"申请状态错误,请重新申请!\"}"; 
+            }
+        }
+        else
+        {
+            if (AppState == "1")
+            {
+                if (ToolID == "" || ToolName == "")
+                {
+                    return "{\"status\":\"failed\",\"msg\":\"工具编号或名称不可为空！\"}";
+                }
+
+                if (dt.Rows[0]["borrowedtoolid"].ToString() != ToolID)
+                {
+                    return "{\"status\":\"failed\",\"msg\":\"借出编号" + dt.Rows[0]["borrowedtoolid"].ToString() + "与归还工具编号不符！\"}";  
+                }
+
+                if (1 == MyManager.ExecSQL("UPDATE  ToolApp Set State = 2,refundtime='" + DateTime.Now.ToString() + "',refunderid = '" + UserID + "',refundername='" + username + "',refundpic = '" + Pic + "' WHERE ID = " + AppID))
+                {
+                    return "{\"status\":\"success\",\"msg\":\"工具归还成功！\"}";
+                }
+                else
+                {
+                    return "{\"status\":\"success\",\"msg\":\"工具归还失败！\"}";
+                }
+            }
+            else if (AppState == "2")
+            {
+                return "{\"status\":\"failed\",\"msg\":\"工具已归还!\"}";
+            }
+            else if (AppState == "0")
+            {
+                return "{\"status\":\"failed\",\"msg\":\"工具还未借出!\"}";                
+
+            }
+            else
+            {
+                return "{\"status\":\"failed\",\"msg\":\"申请状态错误,请重新申请!\"}";
+            }
+            
+        }
+    }
     
-  //  public String GetToolNameByToolID (String )
+
     
    public void ProcessRequest (HttpContext context) 
    {
@@ -3048,6 +3137,11 @@ public String Test(HttpContext ctx)
            {
                retJSON = GetBorrowInfoByTaskID(Convert.ToInt32(JO["taskid"].ToString()));
 
+           }
+
+           if (Cmd == "BRTool")
+           {
+               retJSON = BorrowORRefundTool(JO);
            }
            
            context.Response.Write(retJSON);
