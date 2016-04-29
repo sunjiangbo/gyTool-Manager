@@ -265,6 +265,8 @@ QString MainWindow::FillTaskList(QString userid)
     ui->treeWidget->clear();
     ui->treeWidget->setColumnCount(1);
     ui->treeWidget->setHeaderLabels(QStringList()<<"任务列表");
+    ui->tableWidget->clear();
+    ui->tableWidget->setRowCount(0);
     if (sc.property("status").toString() !="success"){
 
     }
@@ -288,7 +290,7 @@ QString MainWindow::FillTaskList(QString userid)
     ui->treeWidget->addTopLevelItem(root);QPushButton *btn =  new QPushButton();
 
     btn->setText("OK");
-
+ ui->treeWidget->expandAll();
 
     return "OK";
 
