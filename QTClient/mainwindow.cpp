@@ -7,7 +7,7 @@
 #include <QString>
 #include <QByteArray>
 #include <QTextDecoder>
-#include <QtScript>
+#include <QtScript/QtScript>
 #include<QNetworkRequest>
 #include<QNetworkReply>
 #include<QDebug>
@@ -15,7 +15,7 @@
 #include <QTableWidget>
 #include <QMap>
 #include <gybutton.h>
-#include<QWebView>
+#include<QtWebKit/QWebView>
 #include <mycombox.h>
 #include <borrowandreback.h>
 MainWindow::MainWindow(QWidget *parent) :
