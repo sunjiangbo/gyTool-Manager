@@ -2938,21 +2938,21 @@ public String Test(HttpContext ctx)
         refundstime = JO["refundstime"] == null ? "" : JO["refundstime"].ToString();
         refundetime = JO["refundetime"] == null ? "" : JO["refundetime"].ToString();
 
-        SQL = "SELECT * FROM ToolApp as A left join userlist as B on A.BorrowerID = B.ID left join userlist AS C on A.ReFunderID = B.ID WHERE 1=1 ";
+        SQL = "SELECT * FROM ToolApp WHERE 1=1 ";
         
         if (toolid != "")
         {
-            SQL += " AND case BorrowedToolID when  NULL then WantToolID else BorrowedToolID end  = '" + toolid + "'"; 
+            SQL += " AND case isnull([BorrowedToolID],'') when '' then [WantToolID] else [BorrowedToolID] end   = '" + toolid + "'"; 
         }
         
         if (toolname != "")
         {
-            SQL += " AND borrowedtoolname like '%" + toolname + "%'";
+            SQL += " AND case isnull([BorrowedToolName],'') when '' then [WantToolName] else [BorrowedToolName] end  like '%" + toolname + "%'";
         }
 
         if (borrowername != "")
         {
-            SQL += " AND borrowername like '%" + borrowername + "%'";
+            SQL += " AND case isnull([BorrowerName],'') when '' then [UserName] else [BorrowerName] end like '%" + borrowername + "%'";
         }
 
         if (borrowstime != "")
@@ -2980,7 +2980,7 @@ public String Test(HttpContext ctx)
             SQL += " AND refundtime <= '" + refundetime + "'";
         }
 
-        return GetGeneralJSONRetBySQL("SELECT * FROM ToolApp WHERE 1=1 ");
+        return GetGeneralJSONRetBySQL(SQL);
 
     }
     

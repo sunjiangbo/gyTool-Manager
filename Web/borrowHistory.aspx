@@ -97,6 +97,7 @@
                             [{ field: 'ID', title: '编号', width: 40, sortable: true },
                             { field: 'TaskID', title: '任务编号', width: 55, sortable: true,formatter: formatTask  },
                             { field: 'WantToolID', title: '申请件号', width: 55, sortable: true },
+                            { field: 'UserName', title: '申请人', width: 55, sortable: true },
                             { field: 'BorrowedToolID', title: '借出件号', width: 55, sortable: true },
                             { field: 'BorrowedToolName', title: '工具名称', width: 100, sortable: true },
                             { field: 'BorrowerName', title: '借用人', width: 50, sortable: true },
