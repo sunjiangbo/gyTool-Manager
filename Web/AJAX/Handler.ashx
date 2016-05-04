@@ -2818,11 +2818,15 @@ public String Test(HttpContext ctx)
         String Pic = JO["pic"].ToString();
         
         DataTable dt = MyManager.GetDataSet("SELECT * From ToolApp WHERE ID = " + AppID);
-
-        //return "{\"status\":\"failed\",\"msg\":\"该记录不存在，请刷新！\"}";  
+        DataTable dt1 =  MyManager.GetDataSet("SELECT * FROM CoreTool AS A join ToolState AS B  on A.State = B.StateID WHERE ToolID = '" + ToolID+ "'");
+       
         if (dt.Rows.Count < 1)
         {
             return "{\"status\":\"failed\",\"msg\":\"该记录不存在，请刷新！\"}";  
+        }
+        if (dt1.Rows.Count < 1)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"该编号的工具不存在！\"}";
         }
         String AppState = dt.Rows[0]["State"].ToString();
         
@@ -2830,7 +2834,7 @@ public String Test(HttpContext ctx)
         {
             if (AppState == "1")
             {
-                return "{\"status\":\"failed\",\"msg\":\"工具已经被借出,请刷新.\"}";  
+                return "{\"status\":\"failed\",\"msg\":\"该申请已外借,请刷新.\"}";  
             }
             else if (AppState == "2")
             {
@@ -2842,8 +2846,13 @@ public String Test(HttpContext ctx)
                 {
                     return "{\"status\":\"failed\",\"msg\":\"工具编号或名称不可为空！\"}";  
                 }
+                if (dt1.Rows[0]["State"].ToString() != "0")
+                {
+                    return "{\"status\":\"failed\",\"msg\":\"该工具状态为[" + dt1.Rows[0]["StateName"].ToString() + "],不可借出!\"}"; 
+                }
                 if (1 == MyManager.ExecSQL("UPDATE  ToolApp Set State = 1,borrowtime='" + DateTime.Now.ToString() + "',borrowerid = '" + UserID + "',borrowername='" + username + "',borrowedtoolid='" + ToolID + "',borrowedtoolname='" + ToolName + "',borrowpic = '" + Pic + "' WHERE ID = " + AppID))
                 {
+                    MyManager.ExecSQL("UPDATE CoreTool SET State = 2 WHERE ToolID = '" + ToolID + "'");
                     return "{\"status\":\"success\",\"msg\":\"工具借用成功！\"}";
                 }
                 else {
@@ -2869,9 +2878,20 @@ public String Test(HttpContext ctx)
                 {
                     return "{\"status\":\"failed\",\"msg\":\"借出编号" + dt.Rows[0]["borrowedtoolid"].ToString() + "与归还工具编号不符！\"}";  
                 }
-
+                if (dt1.Rows[0]["State"].ToString() != "2")
+                {
+                    return "{\"status\":\"failed\",\"msg\":\"该工具状态为[" + dt1.Rows[0]["StateName"].ToString() + "],不可借出!\"}";
+                }
+                
+                MyManager.ExecSQL("UPDATE CoreTool SET State = 0 WHERE ToolID = '" + ToolID + "'");
+                
                 if (1 == MyManager.ExecSQL("UPDATE  ToolApp Set State = 2,refundtime='" + DateTime.Now.ToString() + "',refunderid = '" + UserID + "',refundername='" + username + "',refundpic = '" + Pic + "' WHERE ID = " + AppID))
                 {
+                    if (MyManager.SELCount("SELECT Count(*) as Num From ToolApp WHERE State in (0,1) AND TaskID=" + dt.Rows[0]["TaskId"].ToString(), "Num") == 0)
+                    {
+                        //当该任务下面所有工具均已归还时，任务自动关闭
+                        MyManager.ExecSQL("UPDATE Tasks SET State = 10 WHERE ID = " + dt.Rows[0]["TaskID"].ToString());
+                    } 
                     return "{\"status\":\"success\",\"msg\":\"工具归还成功！\"}";
                 }
                 else
@@ -2895,8 +2915,74 @@ public String Test(HttpContext ctx)
             
         }
     }
-    
 
+
+    public String GetToolBorrowHistory(JObject JO)
+    {
+     String toolid = "";
+     String toolname = "";
+     String borrowername = "";
+     String borrowstime = ""; 
+     String borrowetime = "";
+     String refundername = "";
+     String refundstime = "";
+     String refundetime = "";
+     String SQL = "";
+        
+        toolid = JO["toolid"] == null ? "" : JO["toolid"].ToString();
+        toolname = JO["toolname"] == null ? "" : JO["toolname"].ToString();
+        borrowername = JO["borrowername"] == null ? "" : JO["borrowername"].ToString();
+        borrowstime = JO["borrowstime"] == null ? "" : JO["borrowstime"].ToString();
+        borrowetime = JO["borrowetime"] == null ? "" : JO["borrowetime"].ToString();
+        refundername = JO["refundername"] == null ? "" : JO["refundername"].ToString();
+        refundstime = JO["refundstime"] == null ? "" : JO["refundstime"].ToString();
+        refundetime = JO["refundetime"] == null ? "" : JO["refundetime"].ToString();
+
+        SQL = "SELECT * FROM ToolApp as A left join userlist as B on A.BorrowerID = B.ID left join userlist AS C on A.ReFunderID = B.ID WHERE 1=1 ";
+        
+        if (toolid != "")
+        {
+            SQL += " AND case BorrowedToolID when  NULL then WantToolID else BorrowedToolID end  = '" + toolid + "'"; 
+        }
+        
+        if (toolname != "")
+        {
+            SQL += " AND borrowedtoolname like '%" + toolname + "%'";
+        }
+
+        if (borrowername != "")
+        {
+            SQL += " AND borrowername like '%" + borrowername + "%'";
+        }
+
+        if (borrowstime != "")
+        {
+            SQL += " AND borrowtime >= '" + borrowstime + "'";
+        }
+
+        if (borrowetime != "")
+        {
+            SQL += " AND borrowtime <= '" + borrowetime + "'";
+        }
+
+        if (refundername  != "")
+        {
+            SQL += " AND refundername like '%" + refundername + "%'";
+        }
+
+        if (refundstime != "")
+        {
+            SQL += " AND refundtime >= '" + refundstime + "'";
+        }
+
+        if (refundetime != "")
+        {
+            SQL += " AND refundtime <= '" + refundetime + "'";
+        }
+
+        return GetGeneralJSONRetBySQL("SELECT * FROM ToolApp WHERE 1=1 ");
+
+    }
     
    public void ProcessRequest (HttpContext context) 
    {
@@ -3136,6 +3222,10 @@ public String Test(HttpContext ctx)
            if (Cmd == "GetBorrowInfoByTaskID")
            {
                retJSON = GetBorrowInfoByTaskID(Convert.ToInt32(JO["taskid"].ToString()));
+           }
+           if (Cmd == "GetToolBorrowHistory")
+           {
+               retJSON = GetToolBorrowHistory(JO);
 
            }
 

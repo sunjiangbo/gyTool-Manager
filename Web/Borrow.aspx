@@ -198,7 +198,7 @@
                 modal: true,
             });
             
-            $("#Win").window({ title: "工具箱本体模型选择", closed: false,onClose:function(){
+            $("#Win").window({ title: "工具领用人管理", closed: false,onClose:function(){
                 GetbrwerCount();
             }});
             $("#Win").window({ closed: false });
