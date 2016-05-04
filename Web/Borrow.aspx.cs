@@ -35,6 +35,6 @@ public partial class Borrow : System.Web.UI.Page
             return;
         }
 
-        if (Type == "0") { Response.Write("非法访问!"); Response.End(); return; }
+        if (Type == "0") { Response.Write("未授权的访问。。"); Response.End(); return; }
     }
 }

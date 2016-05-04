@@ -108,7 +108,7 @@
                             { field: 'RefundPic', title: '归还快照', width: 55, sortable: true ,formatter: formatLookRPic }
                         ]]
             });
-
+                LoadBorrowData();
             });
       
     </script>

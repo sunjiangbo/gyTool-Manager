@@ -121,11 +121,16 @@ public partial class TaskDetail : System.Web.UI.Page
 
         TaskID = Request["TaskID"].ToString();
         FillTaskBlanks(TaskID);
+        if (TaskState != "0")
+        {
+            Button1.Visible = false;
+
+        }
         if (TaskState != "1")
         {
             
 
-            //RecvLB.Text = RecvCorpName;
+            
 
         }
         else
@@ -182,6 +187,10 @@ public partial class TaskDetail : System.Web.UI.Page
     }
     protected void Button1_Click(object sender, EventArgs e)
     {
+        if (TaskState != "0")
+        {
+            Button1.Visible = false;
+        }
         WriteTaskProcess(TaskID, TaskType, RecvCorpID);
         MyManager.WriteTaskFlow(TaskID, Session["UserID"].ToString(), Session["CorpID"].ToString(), RecvCorpID, "任务创建", DateTime.Now.ToString());
         MyManager.ExecSQL("UPDATE Tasks Set State = 1 WHERE ID = " + TaskID);

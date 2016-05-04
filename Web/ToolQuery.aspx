@@ -111,7 +111,6 @@
     <script type="text/javascript">
         var Filter = { range: -1, name: "所有", ret: "all", specific: [] };
         var IsInitial = true; /*表明修改搜索条件*/
-    
 
         function PropertyChange(record) {
             if (record.id == -1) {
@@ -135,7 +134,21 @@
             }, null);
 
         }
-
+        
+        function LookBorrowHistory(ToolID) {
+            $('#Win').window({
+                width: 1024,
+                height: 600,
+                modal: true
+            });            
+            
+            $("#BorrowHS").attr("src","BorrowHistory.aspx?ToolID=" + ToolID);
+            $("#Win").window({ title: "工具借用历史", closed: false});
+            $("#Win").window({ closed: false });
+        }
+         function formatLook(val, row, index) {
+            return '<a href= "#" onclick="LookBorrowHistory(\''+row.toolid+'\')">查看</a>';                  
+        }
         function ToolClassChange(record) {
 
             $("#PropertyList").combobox('loadData', []);
@@ -305,6 +318,7 @@
                 { field: 'toolstate', title: '理论状态', width: 20, sortable: true },
                 { field: 'realtoolstate', title: '实际状态', width: 20, sortable: true },
                 { field: 'modifytime', title: '最后修改时间', width: 80, sortable: true },
+                { field: 'look', title: '借用记录', width: 80, sortable: true,formatter: formatLook},
             ]],
                     enableHeaderClickMenu: false,
                     enableHeaderContextMenu: false,
@@ -574,7 +588,11 @@
     
     </div>
           
-                
+             
+      <div id="Win" class="easyui-window"  style = "padding:0px; width:300px; height:500px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true" >
+                <iframe id ="BorrowHS"  width="97%" height="97%" frameborder="0"></iframe>
+            </div>
+       
 
     </form>
 </body>

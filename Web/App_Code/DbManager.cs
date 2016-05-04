@@ -425,7 +425,14 @@ public class MyManager
         {
             case 1:
                 {
-                    PageUrl = "ToolApp.aspx?TaskID=" + TaskID;
+                    if (MyManager.GetFiledByInput("SELECT State From Tasks WHERE ID=" + TaskID, "State") == "10")
+                    {
+                        PageUrl = "Borrow.aspx?TaskID=" + TaskID + "&reBack=Borrow.aspx?TaskID=" + TaskID;
+                    }
+                    else
+                    {
+                        PageUrl = "ToolApp.aspx?TaskID=" + TaskID;
+                    }
                     break;
                 }
             default:
