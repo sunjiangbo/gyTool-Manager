@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     loading.cpp \
     gybutton.cpp \
     mycombox.cpp \
-    borrowandreback.cpp
+    borrowandreback.cpp \
+    gytcpsocket.cpp
 
 HEADERS  += mainwindow.h \
     welcome.h \
@@ -30,7 +31,8 @@ HEADERS  += mainwindow.h \
     loading.h \
     gybutton.h \
     mycombox.h \
-    borrowandreback.h
+    borrowandreback.h \
+    gytcpsocket.h
 
 FORMS    += mainwindow.ui \
     welcome.ui \

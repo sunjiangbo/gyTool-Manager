@@ -15,6 +15,7 @@ public:
     explicit Welcome(QWidget *parent = 0);
     ~Welcome();
 
+
 private:
     Ui::Welcome *ui;
 };

@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include"loading.h"
 #include "ui_mainwindow.h"
-#include <QtNetwork/QTcpSocket>
-#include<QtNetwork/QHostAddress>
 #include <QMessageBox>
 #include <QString>
 #include <QByteArray>
@@ -46,9 +44,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label->show();
     ui->label->setScaledContents(true);
 
-    skt_finger = new QTcpSocket(this);
-    skt_rfid = new QTcpSocket(this);
-    skt_gpy = new QTcpSocket(this);
+    skt_finger = new gyTcpSocket(this);
+    skt_finger->devName = "指纹仪";
+    skt_rfid = new gyTcpSocket(this);
+    skt_rfid->devName = "RFID扫描仪";
+    skt_gpy = new gyTcpSocket(this);
+    skt_gpy->devName = "高拍仪";
 
     connect(skt_finger,SIGNAL(connected()),this,SLOT(finger_Srv_Connect()));
     connect(skt_finger,SIGNAL(disconnected()),this,SLOT(finger_Srv_disConnected()));
@@ -62,28 +63,22 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(skt_gpy,SIGNAL(disconnected()),this,SLOT(gpy_Srv_disConnected()));
     connect(skt_gpy,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(gpy_error(QAbstractSocket::SocketError)));
 
-    connect(this,SIGNAL(Srv_Connect_msg(QTcpSocket *)),this,SLOT(Srv_Connect(QTcpSocket *)));
-    connect(this,SIGNAL(Srv_disConnected_msg(QTcpSocket *)),this,SLOT(Srv_disConnected(QTcpSocket *)));
-    connect(this,SIGNAL(ReadReady_msg(QTcpSocket *skt)),this,SLOT(ReadReady(QTcpSocket *skt)));
-    connect(this,SIGNAL(error_msg(QAbstractSocket::SocketError)),this,SLOT(error(QAbstractSocket::SocketError)));
+    connect(this,SIGNAL(Srv_Connect_msg(gyTcpSocket *)),this,SLOT(Srv_Connect(gyTcpSocket *)));
+    connect(this,SIGNAL(Srv_disConnected_msg(gyTcpSocket *)),this,SLOT(Srv_disConnected(gyTcpSocket *)));
+    connect(this,SIGNAL(ReadReady_msg(gyTcpSocket *)),this,SLOT(ReadReady(gyTcpSocket *skt)));
+    connect(this,SIGNAL(error_msg(gyTcpSocket*,QAbstractSocket::SocketError)),this,SLOT(error(gyTcpSocket*,QAbstractSocket::SocketError)));
 
     //skt_finger->connectToHost("192.168.1.101",7900);
     //skt_finger->readAll();
     //SendCmd(skt_finger,"{\"cmd\":\"activeME\"}");
    // connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
 
-    skt_rfid->connectToHost("192.168.1.151",7901);
-    skt_rfid->readAll();
-    SendCmd(skt_rfid,"{\"cmd\":\"activeME\"}");
 
-    skt_gpy->connectToHost("192.168.1.151",7902);
-    skt_gpy->readAll();
-    SendCmd(skt_gpy,"{\"cmd\":\"activeME\"}");
     //connect(skt_rfid,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));//RFID不需要其主动发信号过来
     flash = new Welcome(this);
     loadingWin = new Loading(this);
 
-
+  CurTaskID="";
   // this->hide();
    //flash->exec();
   // flash->setModal(true);
@@ -92,6 +87,41 @@ MainWindow::MainWindow(QWidget *parent) :
     //ShowLoading("等待用户指纹....");
     //loadingWin
    // this->show();
+  fingeraddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"fingeraddr\"}","info");
+  rfidaddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"rfidaddr\"}","info");
+  gpyaddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"gpyaddr\"}","info");
+    QString s="";
+  if (gpyaddr=="")
+  {
+        s+=" 高拍仪";
+  }else if (rfidaddr==""){
+        s+=" RFID扫描器";
+  }else if (fingeraddr=="")
+  {
+         s+=" 指纹仪器";
+  }
+  if (s!=""){
+    QMessageBox::information(this,"提示","无法获取"+s+"的IP地址，程序将退出!");
+    QCoreApplication::exit();
+  }
+  ShowLoading("连接RFID扫描器....");
+  skt_rfid->connectToHost(rfidaddr,7901);
+    if (!skt_rfid->waitForConnected(-1))
+    {
+        QMessageBox::information(this,"提示","无法连接RFID扫描器的IP地址，程序将退出!");
+        QCoreApplication::exit();
+    }
+
+  ShowLoading("连接高拍仪....");
+  skt_gpy->connectToHost(gpyaddr,7902);
+  if (!skt_rfid->waitForConnected(-1))
+  {
+      QMessageBox::information(this,"提示","无法连接高拍仪的IP地址，程序将退出!");
+      QCoreApplication::exit();
+  }
+
+  CloseLoading();
+
 }
 void MainWindow::CloseLoading()
 {
@@ -108,6 +138,13 @@ void MainWindow::ShowLoading(QString msg)
 void MainWindow::DealJsonDat(QString jsonDat)
 {
 
+}
+QString MainWindow::GetHttpCmdContentByParam(QString Cmd,QString param)
+{
+        QString Ret = httpSendCmd(Cmd);
+        QScriptEngine engine;
+        QScriptValue sc = engine.evaluate("("+Ret+")");
+        return sc.property(param).toString();
 }
 QString MainWindow::httpSendCmd(QString Cmd)
 {
@@ -152,7 +189,7 @@ QString MainWindow::httpsPostHelp(const QString &url, const QString &data)
 
 }
 
-QString * MainWindow::ReadMsg(QTcpSocket *skt)
+QString * MainWindow::ReadMsg(gyTcpSocket *skt)
 {
     QTextCodec *codec = QTextCodec::codecForName("UTF8");
     QTextDecoder *decoder = codec->makeDecoder();
@@ -168,7 +205,7 @@ QString * MainWindow::ReadMsg(QTcpSocket *skt)
     qDebug(s->toAscii().data());
     return s;
 }
-QString* MainWindow::SendCmd(QTcpSocket *skt, char * Cmd)
+QString* MainWindow::SendCmd(gyTcpSocket *skt, char * Cmd)
 {
      qint64 len = 0,size = strlen (Cmd) + 1,t;
      //发信号之前断开
@@ -184,7 +221,7 @@ QString* MainWindow::SendCmd(QTcpSocket *skt, char * Cmd)
             len += t;
       }while(t!=-1&&len<size);
 
-     qDebug("waitForReadyRead");
+     qDebug("SendCmd-->waitForReadyRead");
       skt->waitForReadyRead();
 
      len =   0;
@@ -203,31 +240,31 @@ QString* MainWindow::SendCmd(QTcpSocket *skt, char * Cmd)
 }
 void MainWindow::finger_Srv_Connect()
 {
-    emit Srv_Connect(skt_finger);
+    emit Srv_Connect_msg(skt_finger);
 }
 void MainWindow::rfid_Srv_Connect()
 {
-    emit Srv_Connect(skt_rfid);
+    emit Srv_Connect_msg(skt_rfid);
 }
 void MainWindow::finger_Srv_disConnected()
 {
-      emit Srv_disConnected(skt_finger);
+      emit Srv_disConnected_msg(skt_finger);
 }
 void MainWindow::rfid_Srv_disConnected()
 {
-      emit Srv_disConnected(skt_rfid);
+      emit Srv_disConnected_msg(skt_rfid);
 }
 void MainWindow::gpy_error(QAbstractSocket::SocketError socketError)
 {
-    emit error_msg(socketError);
+    emit error_msg(skt_gpy,socketError);
 }
 void MainWindow::gpy_Srv_Connect()
 {
-    emit Srv_Connect(skt_gpy);
+    emit Srv_Connect_msg(skt_gpy);
 }
 void MainWindow::gpy_Srv_disConnected()
 {
-     emit Srv_disConnected(skt_gpy);
+     emit Srv_disConnected_msg(skt_gpy);
 }
 void MainWindow::finger_ReadReady()
 {
@@ -235,13 +272,13 @@ void MainWindow::finger_ReadReady()
 }
  void	MainWindow::finger_error (QAbstractSocket::SocketError socketError )
  {
-        emit error_msg(socketError);
+        emit error_msg(skt_finger,socketError);
  }
  void	MainWindow::rfid_error (QAbstractSocket::SocketError socketError )
  {
-        emit error_msg(socketError);
+        emit error_msg(skt_rfid,socketError);
  }
- void MainWindow::Srv_Connect(QTcpSocket * skt)
+ void MainWindow::Srv_Connect(gyTcpSocket * skt)
  {
      if (skt==skt_rfid){
              qDebug("rfid-->connected!");
@@ -249,9 +286,12 @@ void MainWindow::finger_ReadReady()
      {
             qDebug("finger-->connected!");
      }
+
+     skt->readAll();
+     SendCmd(skt,"{\"cmd\":\"activeME\"}");
  }
 
- void MainWindow::Srv_disConnected(QTcpSocket * skt)
+ void MainWindow::Srv_disConnected(gyTcpSocket * skt)
  {
      qDebug("finger_disConnected");
  }
@@ -344,6 +384,8 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
 #define LOOK                 3
 #define OP                      4
    */
+
+    if (TaskID=="")return "failed";
 
     QMap<QString, QString> map;
     QString cmdtxt = "{\"cmd\":\"GetBorrowInfoByTaskID\",\"taskid\":\"" + TaskID + "\"}",AppState="0";
@@ -481,6 +523,7 @@ void MainWindow::borrow_tool_click_slot(gyButton * btn)
 
 brWin->show();
 brWin->exec();
+GetBorrowInfoByTaskID(CurTaskID);
 }
 void MainWindow::DealMsg(QString *Msg)
 {
@@ -526,7 +569,7 @@ void MainWindow::DealMsg(QString *Msg)
 
     //if()
 }
- void MainWindow::ReadReady(QTcpSocket *skt)
+ void MainWindow::ReadReady(gyTcpSocket *skt)
  {
        qDebug("finger_ReadReady");
        QString *Msg = ReadMsg(skt);
@@ -537,9 +580,8 @@ void MainWindow::DealMsg(QString *Msg)
        }
  }
 
-  void	MainWindow::error(QAbstractSocket::SocketError socketError )
+  void	MainWindow::error(gyTcpSocket *skt ,QAbstractSocket::SocketError socketError )
   {
-      qDebug("finger_socketError\n");
 
   }
 MainWindow::~MainWindow()
@@ -579,6 +621,14 @@ void MainWindow::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
 {
     if (item->data(0,Qt::UserRole).toString()!="root")
     {
-       GetBorrowInfoByTaskID(item->data(0,Qt::UserRole).toString());
+        CurTaskID = item->data(0,Qt::UserRole).toString();
+       GetBorrowInfoByTaskID(CurTaskID);
     }
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    QString cmdtxt = "{\"cmd\":\"LinuxTest\",\"name\":\"李光耀\"}";
+    QString cmdret =  httpSendCmd(cmdtxt);
+    QMessageBox::information(this,"结果",cmdret);
 }
