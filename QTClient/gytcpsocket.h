@@ -11,6 +11,8 @@ public:
     explicit gyTcpSocket(QObject *parent = 0);
     QString devName;
     QString devAddr;
+    int devPort;
+    void gyConnect();
 signals:
 
 public slots:

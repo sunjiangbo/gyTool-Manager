@@ -5,3 +5,7 @@ gyTcpSocket::gyTcpSocket(QObject *parent) :
 {
 
 }
+void gyTcpSocket::gyConnect()
+{
+        this->connectToHost(devAddr,devPort);
+}

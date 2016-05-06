@@ -46,10 +46,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     skt_finger = new gyTcpSocket(this);
     skt_finger->devName = "指纹仪";
+    skt_finger->devPort = 7900;
     skt_rfid = new gyTcpSocket(this);
     skt_rfid->devName = "RFID扫描仪";
+    skt_rfid->devPort = 7901;
     skt_gpy = new gyTcpSocket(this);
     skt_gpy->devName = "高拍仪";
+    skt_gpy->devPort = 7902;
 
     connect(skt_finger,SIGNAL(connected()),this,SLOT(finger_Srv_Connect()));
     connect(skt_finger,SIGNAL(disconnected()),this,SLOT(finger_Srv_disConnected()));
@@ -78,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
     flash = new Welcome(this);
     loadingWin = new Loading(this);
 
-  CurTaskID="";
+   CurTaskID="";
   // this->hide();
    //flash->exec();
   // flash->setModal(true);
@@ -87,16 +90,16 @@ MainWindow::MainWindow(QWidget *parent) :
     //ShowLoading("等待用户指纹....");
     //loadingWin
    // this->show();
-  fingeraddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"fingeraddr\"}","info");
-  rfidaddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"rfidaddr\"}","info");
-  gpyaddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"gpyaddr\"}","info");
+  skt_finger->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"fingeraddr\"}","info");
+  skt_rfid->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"rfidaddr\"}","info");
+  skt_gpy->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"gpyaddr\"}","info");
     QString s="";
-  if (gpyaddr=="")
+  if (skt_gpy->devAddr=="")
   {
         s+=" 高拍仪";
-  }else if (rfidaddr==""){
+  }else if (skt_rfid->devAddr==""){
         s+=" RFID扫描器";
-  }else if (fingeraddr=="")
+  }else if (skt_finger->devAddr=="")
   {
          s+=" 指纹仪器";
   }
@@ -105,19 +108,27 @@ MainWindow::MainWindow(QWidget *parent) :
     QCoreApplication::exit();
   }
   ShowLoading("连接RFID扫描器....");
-  skt_rfid->connectToHost(rfidaddr,7901);
-    if (!skt_rfid->waitForConnected(-1))
+  skt_rfid->gyConnect();
+    if (!skt_rfid->waitForConnected())
     {
-        QMessageBox::information(this,"提示","无法连接RFID扫描器的IP地址，程序将退出!");
-        QCoreApplication::exit();
+        QMessageBox::information(this,"提示","无法连接RFID扫描器的服务程序，程序将退出!");
+          exit(-1);
     }
 
   ShowLoading("连接高拍仪....");
-  skt_gpy->connectToHost(gpyaddr,7902);
-  if (!skt_rfid->waitForConnected(-1))
+  skt_gpy->gyConnect();
+  if (!skt_rfid->waitForConnected())
   {
-      QMessageBox::information(this,"提示","无法连接高拍仪的IP地址，程序将退出!");
-      QCoreApplication::exit();
+      QMessageBox::information(this,"提示","无法连接高拍仪的服务程序，程序将退出!");
+    exit(-1);
+  }
+
+  ShowLoading("链接指纹仪....");
+  skt_finger->gyConnect();
+  if (!skt_finger->waitForConnected(10000))
+  {
+      QMessageBox::information(this,"提示","无法连接指纹仪器的服务程序，程序将退出!");
+      exit(-1);
   }
 
   CloseLoading();
@@ -280,20 +291,15 @@ void MainWindow::finger_ReadReady()
  }
  void MainWindow::Srv_Connect(gyTcpSocket * skt)
  {
-     if (skt==skt_rfid){
-             qDebug("rfid-->connected!");
-     }else if (skt==skt_finger)
-     {
-            qDebug("finger-->connected!");
-     }
-
+    qDebug()<<skt->devName<<"连接成功!";
      skt->readAll();
      SendCmd(skt,"{\"cmd\":\"activeME\"}");
  }
 
  void MainWindow::Srv_disConnected(gyTcpSocket * skt)
  {
-     qDebug("finger_disConnected");
+     qDebug()<<skt->devName<<"连接断开,开始重连";
+     skt->connectToHost(skt->devAddr,skt->devPort);
  }
 QString MainWindow::FillTaskList(QString userid)
 {
@@ -582,7 +588,7 @@ void MainWindow::DealMsg(QString *Msg)
 
   void	MainWindow::error(gyTcpSocket *skt ,QAbstractSocket::SocketError socketError )
   {
-
+                qDebug()<<skt->devName<<"Error:"+socketError;
   }
 MainWindow::~MainWindow()
 {
