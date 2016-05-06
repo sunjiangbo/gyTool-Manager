@@ -42,10 +42,6 @@ namespace WindowsFormsApplication1
             public int    PosY;           
         };
 
-         public const int INFO = 0;
-         public const int REMIND = 1;
-         public const int ALERT = 2;
-         public const int WARN = 3;
         List<Mach> MachLst = new List<Mach>();
         Mutex TagMux = new Mutex();
         Mutex CoreTabDAMux = new Mutex();
@@ -53,50 +49,8 @@ namespace WindowsFormsApplication1
         object clonedObj;
         Reader rd;
         Boolean isInventory = true;
-       
+        DataTable CoreTabDT;//CoreTool表的datatable,4秒更新一次
         SqlDataAdapter CoreTabDA;
-
-
-        private delegate void DispMSGDelegate(String Content, int Eventlevel);
-        public void AddMsg( String Content, int EventLevel)
-        {
-            String Type;
-            if (listView1.InvokeRequired == false)
-            {
-                ListViewItem item = new ListViewItem(listView1.Items.Count + 1 + "");
-                if (EventLevel == REMIND)
-                {
-                    item.ForeColor = Color.Green;
-                    Type = "提醒";
-                }
-                else if (EventLevel == ALERT)
-                {
-                    item.ForeColor = Color.Yellow;
-                    Type = "警告";
-                }
-                else if (EventLevel == WARN)
-                {
-                    item.ForeColor = Color.Red;
-                    Type = "报警";
-                }
-                else
-                {
-                    Type = "信息";
-                }
-                item.SubItems.Add(DateTime.Now.ToString());
-                item.SubItems.Add(Type);
-                item.SubItems.Add(Content);
-                listView1.Items.Insert(0, item);
-            }
-            else
-            {
-                DispMSGDelegate DMSGD = new DispMSGDelegate(AddMsg);
-
-                //使用控件lstMain的Invoke方法执行DMSGD代理(其类型是DispMSGDelegate)
-                listView1.Invoke(DMSGD, Content, EventLevel);
-
-            }
-        }
 
         void  initMach()
         {
@@ -167,19 +121,11 @@ namespace WindowsFormsApplication1
             if (TagDic.ContainsKey(EPC))
             {
                 tTagInfo = TagDic[EPC];
-                if ((tTagInfo.PosX == MachID && tTagInfo.PosY==Tag.Antenna) ||Tag.Rssi>(tTagInfo.Rssi+9) || ((TimeSpan)(Tag.Time - tTagInfo.LastSeen)).Seconds >20){
-                   /* 必须保证所有读写器和服务器时间同步
-                    * 算法描述:若最新位置和原位置相同，则更新其信息(主要是RSSI)。
-                    *          若位置不一致，则其RSSI必须大于原RSSI+9
-                    *          或者20s后强制更新。
-                    */
-                    
-                    tTagInfo.LastSeen = Tag.Time;
-                    tTagInfo.ReadCount++;
-                    tTagInfo.PosX = MachID;
-                    tTagInfo.PosY = Tag.Antenna;
-                    tTagInfo.Rssi = Tag.Rssi;
-                }
+                tTagInfo.LastSeen = Tag.Time;
+                tTagInfo.ReadCount++;
+                tTagInfo.PosX = MachID;
+                tTagInfo.PosY = Tag.Antenna;
+                tTagInfo.Rssi = Tag.Rssi;
             }
             else
             {
@@ -201,19 +147,19 @@ namespace WindowsFormsApplication1
             int i, j, k;
             String Ret = "";
 
-            if (mc.ReConnectedCount >100)
+            if (mc.ReConnectedCount > 5)
             {
                 /*本设备重连超过五次不成功，可能连接存在问题
                  */
 
-                MyManager.AddInfoToDB("错误", mc.MachName + "重连100次不成功,不再尝试连接。");
+                MyManager.AddInfoToDB("错误", mc.MachName + "重连5次不成功,不再尝试连接。");
                 return;
             }
 
             try
             {
                 mc.ReConnectedCount++;
-                Thread Old = mc.Mthread;//保存其旧线程，待重新连接完毕，关闭它，因为Reconnect本身所在线程就是旧线程
+
                 MyManager.AddInfoToDB("信息", mc.MachName + "开始重连.");
                 mc.rd = Reader.Create(mc.MachIP, ModuleTech.Region.NA, 4);
 
@@ -244,16 +190,13 @@ namespace WindowsFormsApplication1
                 mc.rd.ParamSet("ReadPlan", searchPlan);
                 mc.Mthread = new Thread(new ParameterizedThreadStart(TagMonitorThread));
                 mc.Mthread.Start(mc);
-               // Old.Abort();
                 MyManager.AddInfoToDB("信息", mc.MachName + "重连并启动监视线程成功！");
-                mc.ReConnectedCount=0;
-                isInventory = true;
+                mc.ReConnectedCount--;
             }
             catch (Exception ex)
             {
                 Ret = mc.MachName + "，重连-->" + ex.ToString();
                 MyManager.AddInfoToDB("错误", Ret);
-                AddMsg(Ret, WARN);
                 ReConnect(mc);
             }
             mc.ReConnectedCount = 0;
@@ -276,14 +219,11 @@ namespace WindowsFormsApplication1
                 }
                 catch (OpFaidedException ex1)
                 {
-                    MyManager.AddInfoToDB("OpFaidedException", mc.MachName + "->" + ex1.ToString());
-                    AddMsg("OpFaidedException:" + mc.MachName + "->" + ex1.ToString(), WARN);
+                    MyManager.AddInfoToDB("警告", mc.MachName + "->" + ex1.ToString());               
                 }
                 catch (Exception ex2)//需要重新连接机器
                 {
-                    MyManager.AddInfoToDB("错误", mc.MachName + "->" + ex2.ToString() + ",开始重新连接。");
-                    AddMsg("警告:"+ mc.MachName + "->" + ex2.ToString() + ",开始重新连接。", WARN);
-                    isInventory = false;
+                    MyManager.AddInfoToDB("错误", mc.MachName + "->" + ex2.ToString() + ",开始重新连接。");            
                     ReConnect(mc);
                 }
             }
@@ -305,8 +245,7 @@ namespace WindowsFormsApplication1
                 {
                     unFinished = 1;
                     MyManager.AddInfoToDB("错误", MachLst[i].MachName + "未建立连接!");
-                    //lst1.Items.Add(MachLst[i].MachName + "未建立连接!");
-                    AddMsg(MachLst[i].MachName + "未建立连接!",WARN);
+                    lst1.Items.Add(MachLst[i].MachName + "未建立连接!");
                     break;
                 }
                 //只显示EPC以FFFF FFFF开头的标签
@@ -322,11 +261,10 @@ namespace WindowsFormsApplication1
             for (i = 0; i < MachLst.Count; i++)
             {
                 MachLst[i].Mthread.Start(MachLst[i]);
-               // lst1.Items.Add("启动"+ MachLst[i].Mthread);
-                AddMsg("启动" + MachLst[i].Mthread, INFO);
+                lst1.Items.Add("启动"+ MachLst[i].Mthread);
             }
 
-            AddMsg("线程创建完毕", INFO);
+            lst1.Items.Add("创建线程完毕!");
         }
 
         public void GetCoreTab(object source, System.Timers.ElapsedEventArgs e)
@@ -358,80 +296,65 @@ namespace WindowsFormsApplication1
             t1.AutoReset = true;//设置是执行一次（false）还是一直执行(true)；
             t1.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件；
         }
-        public int GetSecendsDeta(DateTime Start,DateTime End)
-        {
-            TimeSpan span = (TimeSpan)(End - Start);
-            return span.Seconds;
-        }
         public void UpdateAllToolState(object source, System.Timers.ElapsedEventArgs e)
         {
-  
-            if (!isInventory) return;
-
              Dictionary<String, TagInfo> tmpTagDic = (Dictionary<String, TagInfo>) clonedObj;
              int i = 0;
              DataRow[] drs;
              String EPC;
              String State;
              TagInfo tag;
-             DataTable CoreTabDT = new DataTable();//CoreTool表的datatable,4秒更新一次
 
              CoreTabDAMux.WaitOne();
              CoreTabDA.Fill(CoreTabDT);
+             
 
-           //  for (i = 0; i < CoreTabDT.Rows.Count; )
-                 foreach (DataRow dr in CoreTabDT.Rows)
-                 {
-                     EPC = dr["EPC"].ToString();
-                     State = dr["State"].ToString();
-
-                     if (tmpTagDic.ContainsKey(EPC))//实际在库
-                     {
-                         tag = tmpTagDic[EPC];
-                         dr["PosX"] = tag.PosX;
-                         dr["PosY"] = tag.PosY;
-                         dr["LastSeen"] = tag.LastSeen.ToString();
-
-                         if (State == "0")//理论在库
-                         {
-                             dr["RealState"] = 5;
-                         }
-                         else if (State == "2") //理论借出
-                         {
-                             dr["RealState"] = 6;
-                         }
-                         else
-                         {
-                             dr["RealState"] = 0;
-                         }
-                         tmpTagDic.Remove(EPC);//从tmpTagDic中移除该tag，减小下次dict的查询负担。
-                     }
-                     else//实际不在库
-                     {
-                         if (State == "0")//在库
-                         {
-                             dr["RealState"] = 7;
-                         }
-                         else if (State == "2") //借出
-                         {
-                             dr["RealState"] = 2;
-                         }
-                         else
-                         {
-                             dr["RealState"] = 8;
-                         }
-                     }
-
-                 }
-             SqlCommand cmd = new SqlCommand();
-             SqlCommandBuilder sb = new SqlCommandBuilder(CoreTabDA);
-             DataTable dsModified = CoreTabDT.GetChanges(DataRowState.Modified);
-             if (dsModified!= null && dsModified.Rows.Count != 0)
+             foreach (DataRow dr in CoreTabDT.Rows)
              {
-                 cmd = sb.GetUpdateCommand();
-                 AddMsg(dsModified.Rows.Count +"-->"+ cmd.CommandText, INFO);
-                 CoreTabDA.Update(CoreTabDT);
-             }             
+                 EPC = dr["EPC"].ToString();
+                 State = dr["State"].ToString();
+
+                 if (tmpTagDic.ContainsKey(EPC))//实际在库
+                 {
+                     tag = tmpTagDic[EPC];
+                     dr["PosX"] = tag.PosX;
+                     dr["PosY"] = tag.PosY;
+                     dr["LastSeen"] = tag.LastSeen.ToString();
+
+                     if (State == "0")//理论在库
+                     {
+                         dr["RealState"] = 5;
+                     }
+                     else if (State == "2") //理论借出
+                     {
+                         dr["RealState"] = 6;
+                     }
+                     else
+                     {
+                         dr["RealState"] = 0;
+                     }
+                     tmpTagDic.Remove(EPC);//从tmpTagDic中移除该tag，减小下次dict的查询负担。
+                 }
+                 else//实际不在库
+                 {
+                     if (State == "0")//在库
+                     {
+                         dr["RealState"] = 7;
+                     }
+                     else if (State == "2") //借出
+                     {
+                         dr["RealState"] = 2;
+                     }
+                     else
+                     {
+                         dr["RealState"] = 8;
+                     }
+                 }
+                 
+             }
+
+             SqlCommandBuilder cmd = new SqlCommandBuilder(CoreTabDA);
+             CoreTabDA.Update(CoreTabDT);
              CoreTabDAMux.ReleaseMutex();            
         }
 
@@ -457,11 +380,11 @@ namespace WindowsFormsApplication1
                 return;
             }
 
-        //    lst1.Items.Add("连接成功！");
+            lst1.Items.Add("连接成功！");
             int[] connectedants = (int[])rd.ParamGet("ConnectedAntennas");
             for (int c = 0; c < connectedants.Length; ++c)
             {
-                //lst1.Items.Add(c + "->" + connectedants[c]);
+                lst1.Items.Add(c + "->" + connectedants[c]);
             }
             TagFilter tf = (TagFilter)rd.ParamGet("Singulation");
             
@@ -478,7 +401,6 @@ namespace WindowsFormsApplication1
         private void button2_Click(object sender, EventArgs e)
         {
             isInventory = false;
-            AddMsg("探测线程关闭", INFO);
             /*
             TagReadData[] tags = rd.Read(500);
             foreach (TagReadData tag in tags)
@@ -492,34 +414,31 @@ namespace WindowsFormsApplication1
 
         private void button3_Click(object sender, EventArgs e)
         {
-            
+            isInventory = true;
         }
         private void button4_Click(object sender, EventArgs e)
         {
-            isInventory = true;
-            AddMsg("探测线程重新开启", INFO);
+            for (int i = 0; i < MachLst.Count; i++)
+            {
+                lst1.Items.Add(MachLst[i].MachName + MachLst[i].MachIP);
+            }
         }
       
         private void Form1_Load(object sender, EventArgs e)
         {
-           
             String Ret;
-            isInventory = false;
             initMach();
             Ret = CheckAntAndInitReaders();
             if (Ret == "OK")
             {
-                //lst1.Items.Add("所有机器和天线连接正常!");
-                AddMsg("所有机器和天线连接正常", REMIND);
+                lst1.Items.Add("所有机器和天线连接正常!");
             }
             else
             {
-                AddMsg(Ret, WARN);
+                lst1.Items.Add(Ret);
             }
             CreateMonitorThreads();
             (new Thread(GetCoreTabThread)).Start();
-            (new Thread(UpdateAllToolStateThread)).Start();
-            isInventory = true;
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -534,26 +453,21 @@ namespace WindowsFormsApplication1
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (!isInventory) return;
-
             TagMux.WaitOne();
             BinaryFormatter Formatter = new BinaryFormatter(null, new StreamingContext(StreamingContextStates.Clone));
             MemoryStream stream = new MemoryStream();
             Formatter.Serialize(stream, TagDic);
             TagMux.ReleaseMutex();
-           
-            
+
             stream.Position = 0;
             clonedObj = Formatter.Deserialize(stream);
-            Dictionary<String, TagInfo> tmpTagDic = (Dictionary<String, TagInfo>)clonedObj;
             stream.Close();
 
-           // Dictionary<String, TagInfo> tmpTagDic;
-           // tmpTagDic =  (Dictionary<String, TagInfo>) clonedObj;
+            Dictionary<String, TagInfo> tmpTagDic = (Dictionary<String, TagInfo>) clonedObj;
 
             foreach (String Key in tmpTagDic.Keys)
             {
-                AddMsg(tmpTagDic[Key].LastSeen +"-->"+ MyManager.DecodeEPC(Key) + "-->天线:" + tmpTagDic[Key].PosY + "->信号强度:" + TagDic[Key].Rssi,INFO);
+                lst1.Items.Add(Key + "-->" + tmpTagDic[Key].PosY + "->" + TagDic[Key].Rssi);
                 if (lv1.Items.ContainsKey(Key))
                 {
                     ListViewItem item = lv1.Items[Key];
@@ -583,29 +497,6 @@ namespace WindowsFormsApplication1
         private void lv1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
-        }
-
-        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-            textBox2.Text = MyManager.GenerateEPC(textBox1.Text);
-        }
-
-        private void button3_Click_1(object sender, EventArgs e)
-        {
-            String s1,s2;
-            s1 = "10:01:00";
-            s2 = "10:01:07";
-            MessageBox.Show(GetSecendsDeta(Convert.ToDateTime(s1),Convert.ToDateTime(s2))+"");
         }
     }
 }

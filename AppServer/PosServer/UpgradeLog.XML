@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="WindowsFormsApplication1">
+</Property><Property Name="解决方案文件" Value="C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\WindowsFormsApplication1.sln">
+</Property><Property Name="用户选项文件" Value="C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\WindowsFormsApplication1.suo">
+</Property><Property Name="Date" Value="2016年5月6日">
+</Property><Property Name="Time" Value="10:56">
+</Property></Properties><Event ErrorLevel="0" Project="" Source="WindowsFormsApplication1.sln" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\WindowsFormsApplication1.sln">
+</Event><Event ErrorLevel="0" Project="" Source="WindowsFormsApplication1.suo" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\WindowsFormsApplication1.suo">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="WindowsFormsApplication1.csproj" Description="项目文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\WindowsFormsApplication1.csproj">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="MyManager.cs" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\MyManager.cs">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="Form1.cs" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\Form1.cs">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="Form1.Designer.cs" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\Form1.Designer.cs">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="Program.cs" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\Program.cs">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="Properties\AssemblyInfo.cs" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\Properties\AssemblyInfo.cs">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="Properties\Resources.Designer.cs" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\Properties\Resources.Designer.cs">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="Properties\Settings.Designer.cs" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\Properties\Settings.Designer.cs">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="App.config" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\App.config">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="Properties\Settings.settings" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\Properties\Settings.settings">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="Form1.resx" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\Form1.resx">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="Properties\Resources.resx" Description="文件已成功备份为 C:\Documents and Settings\Administrator\桌面\AppServer\PosServer\Backup\Properties\Resources.resx">
+</Event><Event ErrorLevel="0" Project="WindowsFormsApplication1" Source="WindowsFormsApplication1.csproj" Description="项目文件不需要转换。">
+</Event><Event ErrorLevel="3" Project="WindowsFormsApplication1" Source="WindowsFormsApplication1.csproj" Description="无需转换">
+</Event><Event ErrorLevel="0" Project="" Source="WindowsFormsApplication1.sln" Description="成功转换解决方案">
+</Event><Event ErrorLevel="3" Project="" Source="WindowsFormsApplication1.sln" Description="Converted">
+</Event></UpgradeLog>
