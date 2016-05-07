@@ -15,7 +15,8 @@
 #include <gybutton.h>
 #include<QtWebKit/QWebView>
 #include <mycombox.h>
-#include <borrowandreback.h>
+#include <borrowandreback.h>\
+#include <QTimer>
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -25,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     HandlerURL = QString(WEB_URL) + "/AJAX/handler.ashx";
 
-    ui->tableWidget->setColumnCount(6);
+     ui->tableWidget->setColumnCount(6);
      ui->tableWidget->setHorizontalHeaderLabels(QStringList()<<QString("工具名")<<QString("件号")<<QString("可替代(最终选择)")<<QString("实际状态")<<QString("查看工具箱")<<QString("操作"));
      ui->tableWidget->setColumnWidth(ToolNameCOL,200);
      ui->tableWidget->setColumnWidth(ToolID,100);
@@ -44,6 +45,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->label->show();
     ui->label->setScaledContents(true);
 
+   // Tmr = new QTimer(this);
+    //connect( Tmr,SIGNAL(timeout()), this, SLOT(TmrOut()) );
+   // Tmr->start(1000);
     skt_finger = new gyTcpSocket(this);
     skt_finger->devName = "指纹仪";
     skt_finger->devPort = 7900;
@@ -56,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(skt_finger,SIGNAL(connected()),this,SLOT(finger_Srv_Connect()));
     connect(skt_finger,SIGNAL(disconnected()),this,SLOT(finger_Srv_disConnected()));
+    connect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
     connect(skt_finger,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(finger_error(QAbstractSocket::SocketError)));
 
     connect(skt_rfid,SIGNAL(connected()),this,SLOT(rfid_Srv_Connect()));
@@ -93,6 +98,9 @@ MainWindow::MainWindow(QWidget *parent) :
   skt_finger->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"fingeraddr\"}","info");
   skt_rfid->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"rfidaddr\"}","info");
   skt_gpy->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"gpyaddr\"}","info");
+  qDebug()<<"skt"+skt_finger->devAddr;
+  qDebug()<<"gpy"+skt_gpy->devAddr;
+  qDebug()<<"rfid"+skt_rfid->devAddr;
     QString s="";
   if (skt_gpy->devAddr=="")
   {
@@ -109,7 +117,7 @@ MainWindow::MainWindow(QWidget *parent) :
   }
   ShowLoading("连接RFID扫描器....");
   skt_rfid->gyConnect();
-    if (!skt_rfid->waitForConnected())
+    if (!skt_rfid->waitForConnected(10000))
     {
         QMessageBox::information(this,"提示","无法连接RFID扫描器的服务程序，程序将退出!");
           exit(-1);
@@ -117,22 +125,48 @@ MainWindow::MainWindow(QWidget *parent) :
 
   ShowLoading("连接高拍仪....");
   skt_gpy->gyConnect();
-  if (!skt_rfid->waitForConnected())
+  if (!skt_rfid->waitForConnected(10000))
   {
       QMessageBox::information(this,"提示","无法连接高拍仪的服务程序，程序将退出!");
     exit(-1);
   }
 
-  ShowLoading("链接指纹仪....");
+ ShowLoading("链接指纹仪....");
   skt_finger->gyConnect();
   if (!skt_finger->waitForConnected(10000))
   {
       QMessageBox::information(this,"提示","无法连接指纹仪器的服务程序，程序将退出!");
       exit(-1);
   }
+   CloseLoading();
+  this->hide();
+  flash->showFullScreen();
+}
+//void MainWindow::TmrOut()
+//{
+ // Tmr->stop();
+//}
+void MainWindow::on_pushButton_clicked()
+{
 
-  CloseLoading();
+    QString userid = "24",txt;
+    ShowLoading("加载用户信息....");
 
+    txt = FillNameAndCorp(userid);
+    if (txt != "OK"){//加载用户信息错误
+       QMessageBox::information(0,"错误",txt);
+       CloseLoading();
+       return;
+    }
+
+    ShowLoading("加载用户任务列表....");
+    txt = FillTaskList(userid);
+    if (txt != "OK"){//加载用户信息错误
+       QMessageBox::information(0,"错误",txt);
+        CloseLoading();
+       return;
+    }
+ CloseLoading();
 }
 void MainWindow::CloseLoading()
 {
@@ -565,7 +599,7 @@ void MainWindow::DealMsg(QString *Msg)
             CloseLoading();
 
 
-            disconnect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
+           // disconnect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
             this->show();
             SendCmd(skt_finger,"{\"cmd\":\"DeactiveME\"}");
         }
@@ -580,7 +614,7 @@ void MainWindow::DealMsg(QString *Msg)
        qDebug("finger_ReadReady");
        QString *Msg = ReadMsg(skt);
        if (*Msg=="" || Msg->isEmpty()){
-           QMessageBox::information(0,"提示","收到空消息，可能连接断开");
+           QMessageBox::information(0,"提示",skt->devName + "发来空消息。");
        }else{
            DealMsg(Msg);
        }
@@ -595,28 +629,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_pushButton_clicked()
-{
-
-    QString userid = "24",txt;
-    ShowLoading("加载用户信息....");
-
-    txt = FillNameAndCorp(userid);
-    if (txt != "OK"){//加载用户信息错误
-       QMessageBox::information(0,"错误",txt);
-       CloseLoading();
-       return;
-    }
-
-    ShowLoading("加载用户任务列表....");
-    txt = FillTaskList(userid);
-    if (txt != "OK"){//加载用户信息错误
-       QMessageBox::information(0,"错误",txt);
-        CloseLoading();
-       return;
-    }
- CloseLoading();
-}
 
 void MainWindow::on_MainWindow_destroyed(QObject *arg1)
 {
