@@ -38,10 +38,10 @@ public:
     {
         if (ToolBorrowAndReturn->objectName().isEmpty())
             ToolBorrowAndReturn->setObjectName(QString::fromUtf8("ToolBorrowAndReturn"));
-        ToolBorrowAndReturn->resize(503, 272);
+        ToolBorrowAndReturn->resize(440, 272);
         oplb = new QLabel(ToolBorrowAndReturn);
         oplb->setObjectName(QString::fromUtf8("oplb"));
-        oplb->setGeometry(QRect(230, 23, 151, 51));
+        oplb->setGeometry(QRect(210, 23, 151, 51));
         lb1_2 = new QLabel(ToolBorrowAndReturn);
         lb1_2->setObjectName(QString::fromUtf8("lb1_2"));
         lb1_2->setGeometry(QRect(120, 70, 91, 41));
@@ -58,7 +58,7 @@ public:
         lb1_3->setFont(font);
         lb1_4 = new QLabel(ToolBorrowAndReturn);
         lb1_4->setObjectName(QString::fromUtf8("lb1_4"));
-        lb1_4->setGeometry(QRect(220, 150, 211, 41));
+        lb1_4->setGeometry(QRect(200, 150, 211, 41));
         lb1_4->setFont(font);
         lb1 = new QLabel(ToolBorrowAndReturn);
         lb1->setObjectName(QString::fromUtf8("lb1"));
@@ -66,7 +66,7 @@ public:
         lb1->setFont(font);
         oplb_2 = new QLabel(ToolBorrowAndReturn);
         oplb_2->setObjectName(QString::fromUtf8("oplb_2"));
-        oplb_2->setGeometry(QRect(230, 63, 151, 51));
+        oplb_2->setGeometry(QRect(210, 63, 151, 51));
         pushButton_2 = new QPushButton(ToolBorrowAndReturn);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
         pushButton_2->setGeometry(QRect(230, 220, 85, 27));
@@ -75,7 +75,7 @@ public:
         opbtn->setGeometry(QRect(110, 220, 85, 27));
         oplb_3 = new QLabel(ToolBorrowAndReturn);
         oplb_3->setObjectName(QString::fromUtf8("oplb_3"));
-        oplb_3->setGeometry(QRect(230, 100, 151, 51));
+        oplb_3->setGeometry(QRect(210, 100, 151, 51));
 
         retranslateUi(ToolBorrowAndReturn);
 

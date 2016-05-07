@@ -1,6 +1,6 @@
 #include "borrowandreback.h"
 #include "ui_borrowandreback.h"
-#include <QtScript>
+#include <QtScript/QtScript>
 #include <QMessageBox>
 #include<QNetworkRequest>
 #include<QNetworkReply>

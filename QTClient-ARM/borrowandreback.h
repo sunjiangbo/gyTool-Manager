@@ -8,6 +8,7 @@
 #include <QTextDecoder>
 #include <QCloseEvent>
 #include<QtWebKit/QWebView>
+#include<gytcpsocket.h>
 
 namespace Ui {
 class BorrowAndReBack;
@@ -27,9 +28,9 @@ public:
     bool       ScanOK;
     bool       PhotoOK;
     QTimer *tmr;
-    QString* SendCmd(QTcpSocket *skt, char * Cmd);
-    QTcpSocket * skt_rfid;
-    QTcpSocket * skt_gpy;
+    QString* SendCmd(gyTcpSocket *skt, char * Cmd);
+    gyTcpSocket * skt_rfid;
+    gyTcpSocket * skt_gpy;
     QWebView *view ;
    QString httpSendCmd(QString Cmd);
    QString httpsPostHelp(const QString &url, const QString &data);

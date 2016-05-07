@@ -13,6 +13,7 @@ public:
     QString devAddr;
     int devPort;
     void gyConnect();
+    int ReConnectCount;
 signals:
 
 public slots:

@@ -18,7 +18,6 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     welcome.cpp \
-    codelib.cpp \
     loading.cpp \
     gybutton.cpp \
     mycombox.cpp \
@@ -27,7 +26,6 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
     welcome.h \
-    codelib.h \
     loading.h \
     gybutton.h \
     mycombox.h \

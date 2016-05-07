@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
 
-
+FlashIsShowing   = false;
     ui->setupUi(this);
     HandlerURL = QString(WEB_URL) + "/AJAX/handler.ashx";
 
@@ -31,8 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
      ui->tableWidget->setColumnWidth(ToolNameCOL,200);
      ui->tableWidget->setColumnWidth(ToolID,100);
      ui->tableWidget->setColumnWidth(ALTER,200);
-
-     ui->tableWidget->setColumnWidth(LOOK,100);
+     ui->tableWidget->setColumnWidth(REALSTATE,110);
+     ui->tableWidget->setColumnWidth(LOOK,110);
      ui->tableWidget->setColumnWidth(OP,100);
      ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
       ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -98,9 +98,9 @@ MainWindow::MainWindow(QWidget *parent) :
   skt_finger->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"fingeraddr\"}","info");
   skt_rfid->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"rfidaddr\"}","info");
   skt_gpy->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"gpyaddr\"}","info");
-  qDebug()<<"skt"+skt_finger->devAddr;
-  qDebug()<<"gpy"+skt_gpy->devAddr;
-  qDebug()<<"rfid"+skt_rfid->devAddr;
+  qDebug()<<"skt:"+skt_finger->devAddr;
+  qDebug()<<"gpy:"+skt_gpy->devAddr;
+  qDebug()<<"rfid:"+skt_rfid->devAddr;
     QString s="";
   if (skt_gpy->devAddr=="")
   {
@@ -139,14 +139,11 @@ MainWindow::MainWindow(QWidget *parent) :
       exit(-1);
   }
    CloseLoading();
-  this->hide();
-  flash->showFullScreen();
-    this->hide();
-
-qDebug();<<"show---->Welcome!";
-
-
-
+this->hide();
+   FlashIsShowing = true;
+flash->showFullScreen();
+flash->exec();
+ websetting.setSupportZoom(true)
 }
 //void MainWindow::TmrOut()
 //{
@@ -351,7 +348,9 @@ QString MainWindow::FillTaskList(QString userid)
     ui->treeWidget->clear();
     ui->treeWidget->setColumnCount(1);
     ui->treeWidget->setHeaderLabels(QStringList()<<"任务列表");
-    ui->tableWidget->clear();
+    //ui->tableWidget->clear();
+    //ui->tableWidget->setRowCount(0);
+    ui->tableWidget->clearContents();
     ui->tableWidget->setRowCount(0);
     if (sc.property("status").toString() !="success"){
 
@@ -416,8 +415,8 @@ void MainWindow::look_tool_slot(int i)
   QWebView *view =  new QWebView();
 
         view->load(QUrl( QString(WEB_URL) + "/ToolBag.aspx?Type=2&BagID=" + box->get_coreid()));
-
-        view->show();
+        view->
+        view->showMaximized();
 
 
 }
@@ -587,6 +586,7 @@ void MainWindow::DealMsg(QString *Msg)
             //QString cmdtxt = "{\"cmd\":\"GetUserInfoByID\",\"userid\":\"" + sc.property("userid").toString() + "\"}";
             //qDebug("%s\n",cmdtxt);
             flash->close();
+            FlashIsShowing = false;
             ShowLoading("加载用户信息....");
 
             txt = FillNameAndCorp(sc.property("userid").toString());
@@ -606,7 +606,8 @@ void MainWindow::DealMsg(QString *Msg)
 
 
            // disconnect(skt_finger,SIGNAL(readyRead()),this,SLOT(finger_ReadReady()));
-            this->show();
+            this->showFullScreen();
+
             SendCmd(skt_finger,"{\"cmd\":\"DeactiveME\"}");
         }
          //
@@ -629,6 +630,35 @@ void MainWindow::DealMsg(QString *Msg)
   void	MainWindow::error(gyTcpSocket *skt ,QAbstractSocket::SocketError socketError )
   {
                 qDebug()<<skt->devName<<"Error:"+socketError;
+
+RE:
+                if (skt->ReConnectCount>100)
+                {
+                    QMessageBox::warning(NULL,"错误",skt->devName + "发生错误:" + socketError+",重连100次均失败,程序将退出!");
+                    exit(-1);
+                }
+                 skt->ReConnectCount++;
+                QMessageBox::warning(NULL,"错误",skt->devName + "发生错误:" + socketError+",第"+skt->ReConnectCount+"次重连(10s)，共100次。");
+                ShowLoading(skt->devName+" 重连中.....");
+                skt->disconnectFromHost();
+                skt->gyConnect();
+                if(skt->waitForConnected(10000))
+                {
+                    if (skt==skt_finger && !FlashIsShowing)
+                    {
+
+                    }else
+                    {
+                        SendCmd(skt,"{\"cmd\":\"activeME\"}");
+                    }
+                    CloseLoading();
+                     QMessageBox::information(NULL,"提示",skt->devName + "重新连接成功!");
+                }else//重新连接失败
+                {
+
+                               goto RE;
+                }
+
   }
 MainWindow::~MainWindow()
 {
@@ -655,4 +685,11 @@ void MainWindow::on_pushButton_2_clicked()
     QString cmdtxt = "{\"cmd\":\"LinuxTest\",\"name\":\"李光耀\"}";
     QString cmdret =  httpSendCmd(cmdtxt);
     QMessageBox::information(this,"结果",cmdret);
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+        SendCmd(skt_finger,"{\"cmd\":\"activeME\"}");
+        this->hide();
+        flash->showFullScreen();
 }

@@ -7,7 +7,7 @@
 #include<QTcpSocket>
 #include <QTextDecoder>
 #include <QCloseEvent>
-#include<QWebView>
+#include<QtWebKit/QWebView>
 #include<gytcpsocket.h>
 
 namespace Ui {

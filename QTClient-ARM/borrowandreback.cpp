@@ -75,6 +75,7 @@ void BorrowAndReBack::ScanTools()
     {
             QString cmdTxt =  "{\"cmd\":\"isThisToolHere\",\"toolid\":\""+sToolID+"\"}";
             QString *sRet = SendCmd(skt_rfid,(cmdTxt.toLatin1()).data());
+            QCoreApplication::processEvents() ;
             if( *sRet == "OK")
             {
                 ScanOK = true;
@@ -100,6 +101,7 @@ void BorrowAndReBack::ScanTools()
 
                 QString cmdTxt =  "{\"cmd\":\"TakePhoto\"}";
                 QString *sRet = SendCmd(skt_gpy,(cmdTxt.toLatin1()).data());
+                 QCoreApplication::processEvents() ;
                 QScriptEngine engine;
                 QScriptValue sc = engine.evaluate("("+*sRet+")");
 
@@ -123,13 +125,13 @@ void BorrowAndReBack::ScanTools()
             }
 
     }
-
+ QCoreApplication::processEvents() ;
 
 
 
 }
 
-QString *BorrowAndReBack::SendCmd(QTcpSocket *skt, char * Cmd)
+QString *BorrowAndReBack::SendCmd(gyTcpSocket *skt, char * Cmd)
 {
          qint64 len = 0,size = strlen (Cmd) + 1,t;
          //发信号之前断开
@@ -188,7 +190,7 @@ void BorrowAndReBack::on_opbtn_clicked()
                      +",\"toolname\":\""+sToolName+"\""
                      +",\"pic\":\""+PhotoURL+"\""
                    + "}";
-
+            qDebug()<<cmdtxt;
            QString cmdret =  httpSendCmd(cmdtxt);
            QScriptEngine engine;
            QScriptValue sc = engine.evaluate("("+cmdret+")");
@@ -213,7 +215,7 @@ void BorrowAndReBack::on_opbtn_clicked()
                   +",\"toolname\":\""+sToolName+"\""
                   +",\"pic\":\""+PhotoURL+"\""
                 + "}";
-
+  qDebug()<<cmdtxt;
         QString cmdret =  httpSendCmd(cmdtxt);
         QScriptEngine engine;
         QScriptValue sc = engine.evaluate("("+cmdret+")");
@@ -273,7 +275,7 @@ void BorrowAndReBack::on_lookphoto_clicked()
         return;
     }
           view->load(QUrl( QString(PhotoURL)));
-               view->show();
+          view->showMaximized();
           //this->setModal(true);
 
 }

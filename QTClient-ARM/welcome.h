@@ -2,7 +2,7 @@
 #define WELCOME_H
 
 #include <QDialog>
-
+  #include<QMovie>
 namespace Ui {
 class Welcome;
 }
@@ -14,6 +14,7 @@ class Welcome : public QDialog
 public:
     explicit Welcome(QWidget *parent = 0);
     ~Welcome();
+   QMovie *movie;
 
 private:
     Ui::Welcome *ui;

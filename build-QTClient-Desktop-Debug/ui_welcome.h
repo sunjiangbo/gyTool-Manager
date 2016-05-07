@@ -30,25 +30,25 @@ public:
     {
         if (Welcome->objectName().isEmpty())
             Welcome->setObjectName(QString::fromUtf8("Welcome"));
-        Welcome->resize(687, 489);
+        Welcome->resize(1024, 600);
         QFont font;
         font.setFamily(QString::fromUtf8("20 db"));
         font.setPointSize(16);
         Welcome->setFont(font);
         label = new QLabel(Welcome);
         label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(40, 0, 581, 81));
+        label->setGeometry(QRect(220, 70, 581, 81));
         label->setPixmap(QPixmap(QString::fromUtf8("img/logo.png")));
         label_3 = new QLabel(Welcome);
         label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(130, 110, 411, 71));
+        label_3->setGeometry(QRect(310, 180, 411, 71));
         QFont font1;
         font1.setFamily(QString::fromUtf8("\345\276\256\350\275\257\351\233\205\351\273\221"));
         font1.setPointSize(36);
         label_3->setFont(font1);
         label_2 = new QLabel(Welcome);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setGeometry(QRect(230, 200, 181, 271));
+        label_2->setGeometry(QRect(410, 270, 181, 271));
         label_2->setPixmap(QPixmap(QString::fromUtf8("img/zw1.png")));
 
         retranslateUi(Welcome);

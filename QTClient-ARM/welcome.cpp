@@ -15,10 +15,14 @@ Welcome::Welcome(QWidget *parent) :
 
     //qDebug("当前路径%s",QDir::currentPath());
     ui->setupUi(this);
-    QPixmap map("/home/img/zw1.png");
+    /*QPixmap map("/home/img/zw1.png");
     ui->label_2->setPixmap(map);
     ui->label_2->show();
     ui->label_2->setScaledContents(true);
+*/
+    movie = new QMovie("/home/img/dtzw.gif");
+    ui->label_2->setMovie(movie);
+    movie->start();
 
    QPixmap pixmap("/home/img/logo.png");
    ui->label->setPixmap(pixmap);
