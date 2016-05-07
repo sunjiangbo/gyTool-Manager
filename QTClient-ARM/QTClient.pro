@@ -13,25 +13,26 @@ DEPENDPATH += .
 INCLUDEPATH += .
 
 # Input
-HEADERS += borrowandreback.h \
-           codelib.h \
-           gybutton.h \
-           loading.h \
-           mainwindow.h \
-           mycombox.h \
-           toolborrowandreturn.h \
-           welcome.h
-FORMS += \
-         borrowandreback.ui \
-         loading.ui \
-         mainwindow.ui \
-         welcome.ui
-SOURCES += borrowandreback.cpp \
-           codelib.cpp \
-           gybutton.cpp \
-           loading.cpp \
-           main.cpp \
-           mainwindow.cpp \
-           mycombox.cpp \
-           toolborrowandreturn.cpp \
-           welcome.cpp
+SOURCES += main.cpp\
+        mainwindow.cpp \
+    welcome.cpp \
+    codelib.cpp \
+    loading.cpp \
+    gybutton.cpp \
+    mycombox.cpp \
+    borrowandreback.cpp \
+    gytcpsocket.cpp
+
+HEADERS  += mainwindow.h \
+    welcome.h \
+    codelib.h \
+    loading.h \
+    gybutton.h \
+    mycombox.h \
+    borrowandreback.h \
+    gytcpsocket.h
+
+FORMS    += mainwindow.ui \
+    welcome.ui \
+    loading.ui \
+    borrowandreback.ui

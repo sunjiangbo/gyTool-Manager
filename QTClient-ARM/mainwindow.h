@@ -11,6 +11,7 @@
 #include<QPushButton>
 #include <borrowandreback.h>
 #include <gybutton.h>
+#include<gytcpsocket.h>
 
 namespace Ui {
 class MainWindow;
@@ -23,14 +24,16 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    QTcpSocket * skt_finger;
-    QTcpSocket * skt_rfid;
-    QTcpSocket * skt_gpy;
-    QString *SendCmd(QTcpSocket* skt,char *Cmd);
+    gyTcpSocket * skt_finger;
+    gyTcpSocket * skt_rfid;
+    gyTcpSocket * skt_gpy;
+    QString *SendCmd(gyTcpSocket* skt,char *Cmd);
     void DealJsonDat(QString jsonDat);
     QString httpsPostHelp(const QString &url, const QString &data);
+    QString GetHttpCmdContentByParam(QString Cmd,QString param);
     QString httpSendCmd(QString Cmd);
-    QString * ReadMsg(QTcpSocket* skt);
+    QString * ReadMsg(gyTcpSocket* skt);
+    QString CurTaskID;
     void DealMsg(QString *Cmd);
     void ShowLoading(QString msg);
     void CloseLoading();
@@ -39,6 +42,11 @@ public:
     QString GetBorrowInfoByTaskID(QString TaskID);
     QString gUserID;
     QString gUserName;
+
+    QString gpyaddr;
+    QString rfidaddr;
+    QString fingeraddr;
+
 #define ToolNameCOL          0
 #define ToolID                1
 #define ALTER                 2
@@ -57,10 +65,10 @@ private:
     BorrowAndReBack * brWin;
 
 signals:
-    void Srv_Connect_msg(QTcpSocket *skt);
-    void  ReadReady_msg(QTcpSocket *skt);
-    void Srv_disConnected_msg(QTcpSocket *skt);
-    void error_msg(QAbstractSocket::SocketError socketError);
+    void Srv_Connect_msg(gyTcpSocket *skt);
+    void  ReadReady_msg(gyTcpSocket *skt);
+    void Srv_disConnected_msg(gyTcpSocket *skt);
+    void error_msg(gyTcpSocket *skt,QAbstractSocket::SocketError socketError);
 
 
   public slots:
@@ -77,10 +85,10 @@ signals:
     void gpy_Srv_disConnected();
     void gpy_error (QAbstractSocket::SocketError socketError );
 
-    void Srv_Connect(QTcpSocket *skt);
-    void ReadReady(QTcpSocket *skt);
-    void Srv_disConnected(QTcpSocket *skt);
-    void	error (QAbstractSocket::SocketError socketError );
+    void Srv_Connect(gyTcpSocket *skt);
+    void ReadReady(gyTcpSocket *skt);
+    void Srv_disConnected(gyTcpSocket *skt);
+    void	error (gyTcpSocket *skt,QAbstractSocket::SocketError socketError );
 //工具借用与查看按钮事件槽
     void look_tool_slot(int i);
     void borrow_tool_click_slot(gyButton* btn);
@@ -89,6 +97,7 @@ private slots:
     void on_MainWindow_destroyed(QObject *arg1);
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
 
+    void on_pushButton_2_clicked();
 };
 
 #endif // MAINWINDOW_H
