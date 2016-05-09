@@ -42,11 +42,10 @@ public:
     QString GetBorrowInfoByTaskID(QString TaskID);
     QString gUserID;
     QString gUserName;
-
+    bool FlashIsShowing;
     QString gpyaddr;
     QString rfidaddr;
     QString fingeraddr;
-
 #define ToolNameCOL          0
 #define ToolID                1
 #define ALTER                 2
@@ -98,6 +97,7 @@ private slots:
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
 
     void on_pushButton_2_clicked();
+    void on_pushButton_3_clicked();
 };
 
 #endif // MAINWINDOW_H

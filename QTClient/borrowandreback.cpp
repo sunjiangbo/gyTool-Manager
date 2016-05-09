@@ -75,6 +75,7 @@ void BorrowAndReBack::ScanTools()
     {
             QString cmdTxt =  "{\"cmd\":\"isThisToolHere\",\"toolid\":\""+sToolID+"\"}";
             QString *sRet = SendCmd(skt_rfid,(cmdTxt.toLatin1()).data());
+            QCoreApplication::processEvents() ;
             if( *sRet == "OK")
             {
                 ScanOK = true;
@@ -100,6 +101,7 @@ void BorrowAndReBack::ScanTools()
 
                 QString cmdTxt =  "{\"cmd\":\"TakePhoto\"}";
                 QString *sRet = SendCmd(skt_gpy,(cmdTxt.toLatin1()).data());
+                 QCoreApplication::processEvents() ;
                 QScriptEngine engine;
                 QScriptValue sc = engine.evaluate("("+*sRet+")");
 
@@ -123,7 +125,7 @@ void BorrowAndReBack::ScanTools()
             }
 
     }
-
+ QCoreApplication::processEvents() ;
 
 
 
@@ -273,7 +275,7 @@ void BorrowAndReBack::on_lookphoto_clicked()
         return;
     }
           view->load(QUrl( QString(PhotoURL)));
-               view->show();
+          view->showMaximized();
           //this->setModal(true);
 
 }

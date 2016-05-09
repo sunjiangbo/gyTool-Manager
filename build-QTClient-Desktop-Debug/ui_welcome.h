@@ -22,9 +22,9 @@ QT_BEGIN_NAMESPACE
 class Ui_Welcome
 {
 public:
-    QLabel *label;
     QLabel *label_3;
     QLabel *label_2;
+    QLabel *label;
 
     void setupUi(QDialog *Welcome)
     {
@@ -35,21 +35,21 @@ public:
         font.setFamily(QString::fromUtf8("20 db"));
         font.setPointSize(16);
         Welcome->setFont(font);
-        label = new QLabel(Welcome);
-        label->setObjectName(QString::fromUtf8("label"));
-        label->setGeometry(QRect(220, 70, 581, 81));
-        label->setPixmap(QPixmap(QString::fromUtf8("img/logo.png")));
         label_3 = new QLabel(Welcome);
         label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(310, 180, 411, 71));
+        label_3->setGeometry(QRect(250, 150, 671, 101));
         QFont font1;
-        font1.setFamily(QString::fromUtf8("\345\276\256\350\275\257\351\233\205\351\273\221"));
+        font1.setFamily(QString::fromUtf8("\346\226\271\346\255\243\350\241\214\346\245\267_GBK"));
         font1.setPointSize(36);
         label_3->setFont(font1);
         label_2 = new QLabel(Welcome);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setGeometry(QRect(410, 270, 181, 271));
+        label_2->setGeometry(QRect(370, 320, 191, 201));
         label_2->setPixmap(QPixmap(QString::fromUtf8("img/zw1.png")));
+        label = new QLabel(Welcome);
+        label->setObjectName(QString::fromUtf8("label"));
+        label->setGeometry(QRect(190, 20, 601, 91));
+        label->setPixmap(QPixmap(QString::fromUtf8("img/logo.png")));
 
         retranslateUi(Welcome);
 
@@ -59,9 +59,9 @@ public:
     void retranslateUi(QDialog *Welcome)
     {
         Welcome->setWindowTitle(QApplication::translate("Welcome", "Dialog", 0, QApplication::UnicodeUTF8));
-        label->setText(QString());
-        label_3->setText(QApplication::translate("Welcome", "<html><head/><body><p><span style=\" color:#000000;\">\345\267\245\345\205\267\347\256\241\347\220\206\347\263\273\347\273\237 V1.0</span></p></body></html>", 0, QApplication::UnicodeUTF8));
+        label_3->setText(QApplication::translate("Welcome", "<html><head/><body><p><span style=\" color:#0000ff;\">\345\267\245\345\205\267\347\256\241\347\220\206\347\263\273\347\273\237 </span><span style=\" font-size:22pt; color:#0000ff;\">V1.0</span></p></body></html>", 0, QApplication::UnicodeUTF8));
         label_2->setText(QString());
+        label->setText(QString());
     } // retranslateUi
 
 };

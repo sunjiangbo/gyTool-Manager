@@ -412,10 +412,9 @@ void MainWindow::look_tool_slot(int i)
 
 
  //QMessageBox::information(0,"提示","http://192.168.1.101/ToolBag.aspx?Type=2&BagID=" + box->get_coreid());
-  QWebView *view =  new QWebView();
+        QWebView *view =  new QWebView();
 
         view->load(QUrl( QString(WEB_URL) + "/ToolBag.aspx?Type=2&BagID=" + box->get_coreid()));
-
         view->showMaximized();
 
 

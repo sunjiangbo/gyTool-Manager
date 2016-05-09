@@ -6,7 +6,7 @@ QT       += core gui
 QT       += network
 QT        += script
 QT      += webkitwidgets
-QT +=  webkit
+QT      +=  webkit
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 

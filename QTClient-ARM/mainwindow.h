@@ -46,7 +46,6 @@ public:
     QString gpyaddr;
     QString rfidaddr;
     QString fingeraddr;
-
 #define ToolNameCOL          0
 #define ToolID                1
 #define ALTER                 2

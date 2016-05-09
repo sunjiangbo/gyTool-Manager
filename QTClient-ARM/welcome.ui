@@ -30,12 +30,12 @@
    </property>
    <property name="font">
     <font>
-     <family>Noto Sans [unknown]</family>
-     <pointsize>30</pointsize>
+     <family>方正行楷_GBK</family>
+     <pointsize>36</pointsize>
     </font>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:36pt; color:#000000;&quot;&gt;工具管理系统 &lt;/span&gt;&lt;span style=&quot; font-size:22pt; color:#000000;&quot;&gt;V1.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#0000ff;&quot;&gt;工具管理系统 &lt;/span&gt;&lt;span style=&quot; font-size:22pt; color:#0000ff;&quot;&gt;V1.0&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
