@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsApplication1", "WindowsFormsApplication1.csproj", "{D2DBF542-1F4A-4AB9-BDC8-18069417D85C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "工具定位", "工具定位.csproj", "{D2DBF542-1F4A-4AB9-BDC8-18069417D85C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -102,7 +102,7 @@ namespace WindowsFormsApplication1
         {
             Mach mc;
             String Ant;
-            DataTable dt = MyManager.GetDataSet("SELECT * FROM MachList");
+            DataTable dt = MyManager.GetDataSet("SELECT * FROM MachList Where Type ='Fix'");
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 mc = new Mach();

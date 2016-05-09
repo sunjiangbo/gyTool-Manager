@@ -1,0 +1,17 @@
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe.config
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\Interop.ZKFPEngXControl.dll
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\AxInterop.ZKFPEngXControl.dll
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\借还RFID后台程序.csproj.ResolveComReference.cache
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.exe
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.pdb
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.exe
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\bin\Debug\WindowsFormsApplication3.pdb
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\bin\Debug\ModuleAPI.dll
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\bin\Debug\Interop.ZKFPEngXControl.dll
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\bin\Debug\AxInterop.ZKFPEngXControl.dll
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\ResolveAssemblyReference.cache
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Form1.resources
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\WindowsFormsApplication3.Properties.Resources.resources
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\GenerateResource-ResGen.read.1.tlog
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\GenerateResource-ResGen.read.4.tlog
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Debug\GenerateResource-ResGen.write.1.tlog
