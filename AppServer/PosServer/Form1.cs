@@ -106,7 +106,7 @@ namespace WindowsFormsApplication1
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 mc = new Mach();
-                mc.MachID = Convert.ToInt32(dt.Rows[i]["ID"].ToString());
+                mc.MachID = Convert.ToInt32(dt.Rows[i]["MachID"].ToString());
                 mc.MachName = dt.Rows[i]["MachineName"].ToString();
                 mc.MachIP = dt.Rows[i]["IP"].ToString();
                // mc.ConnectedAnts = Array.ConvertAll<string, int>(dt.Rows[i]["ConnectedAnt"].ToString().Split('|'), delegate(string s) { return int.Parse(s); });
@@ -167,14 +167,14 @@ namespace WindowsFormsApplication1
             if (TagDic.ContainsKey(EPC))
             {
                 tTagInfo = TagDic[EPC];
-                if ((tTagInfo.PosX == MachID && tTagInfo.PosY==Tag.Antenna) ||Tag.Rssi>(tTagInfo.Rssi+9) || ((TimeSpan)(Tag.Time - tTagInfo.LastSeen)).Seconds >20){
+                if ((tTagInfo.PosX == MachID && tTagInfo.PosY==Tag.Antenna) ||Tag.Rssi>(tTagInfo.Rssi+9) || ((TimeSpan)(DateTime.Now - tTagInfo.LastSeen)).Seconds >10){
                    /* 必须保证所有读写器和服务器时间同步
                     * 算法描述:若最新位置和原位置相同，则更新其信息(主要是RSSI)。
                     *          若位置不一致，则其RSSI必须大于原RSSI+9
                     *          或者20s后强制更新。
                     */
                     
-                    tTagInfo.LastSeen = Tag.Time;
+                    tTagInfo.LastSeen = DateTime.Now;//Tag.Time;
                     tTagInfo.ReadCount++;
                     tTagInfo.PosX = MachID;
                     tTagInfo.PosY = Tag.Antenna;
@@ -185,7 +185,7 @@ namespace WindowsFormsApplication1
             {
                 tTagInfo = new TagInfo();
                 tTagInfo.ReadCount = 1;
-                tTagInfo.LastSeen = Tag.Time;
+                tTagInfo.LastSeen = DateTime.Now;//Tag.Time;
                 tTagInfo.PosX = MachID;
                 tTagInfo.PosY = Tag.Antenna;
                 tTagInfo.Rssi = Tag.Rssi;
@@ -323,7 +323,7 @@ namespace WindowsFormsApplication1
             {
                 MachLst[i].Mthread.Start(MachLst[i]);
                // lst1.Items.Add("启动"+ MachLst[i].Mthread);
-                AddMsg("启动" + MachLst[i].Mthread, INFO);
+                AddMsg(MachLst[i].MachName + "监视线程成功启动!", INFO);
             }
 
             AddMsg("线程创建完毕", INFO);
@@ -504,7 +504,7 @@ namespace WindowsFormsApplication1
         {
            
             String Ret;
-            isInventory = false;
+            isInventory = true;
             initMach();
             Ret = CheckAntAndInitReaders();
             if (Ret == "OK")

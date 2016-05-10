@@ -851,13 +851,12 @@ namespace EloamComDemo
             if (selectDevice.Items.Count == 0 || selectResolution.Items.Count == 0 || selectMode.Items.Count == 0)
             {
                 AddMsg("警告", "机器未连接或连接异常，请重新启动程序。", WARN);
-                return;
+               return;
             }
-
-            if (!VideoOpen()) {
-                AddMsg("警告", "机器打开失败!", WARN);
-                return;
-            }
+             if (!VideoOpen()) {
+               AddMsg("警告", "机器打开失败!", WARN);
+               return;
+           }
 
             AddMsg("信息", "机器打开成功!", INFO);
 

@@ -78,6 +78,7 @@ namespace WindowsFormsApplication3
                 mc.MachID = Convert.ToInt32(dt.Rows[0]["ID"].ToString());
                 mc.MachName = dt.Rows[0]["MachineName"].ToString();
                 mc.MachIP = dt.Rows[0]["IP"].ToString();
+                MessageBox.Show(mc.MachIP);
                  mc.ConnectedAnts = Array.ConvertAll<string, int>(dt.Rows[0]["ConnectedAnt"].ToString().Split('|'), delegate(string s) { return int.Parse(s); });
                 mc.rd = null;
           
