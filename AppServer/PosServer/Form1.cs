@@ -152,6 +152,9 @@ namespace WindowsFormsApplication1
                 {
                     Ret = MachLst[i].MachName + "-->" + ex.ToString();
                     MyManager.AddInfoToDB("错误",Ret);
+                    AddMsg(Ret, WARN);
+                    AddMsg("请检查后重新启动本程序!", WARN);
+                    isInventory = false;
                     break;
                 }
             }
@@ -377,9 +380,11 @@ namespace WindowsFormsApplication1
              DataTable CoreTabDT = new DataTable();//CoreTool表的datatable,4秒更新一次
 
              CoreTabDAMux.WaitOne();
-             CoreTabDA.Fill(CoreTabDT);
+             try
+             {
+                 CoreTabDA.Fill(CoreTabDT);
 
-           //  for (i = 0; i < CoreTabDT.Rows.Count; )
+                 //  for (i = 0; i < CoreTabDT.Rows.Count; )
                  foreach (DataRow dr in CoreTabDT.Rows)
                  {
                      EPC = dr["EPC"].ToString();
@@ -423,15 +428,21 @@ namespace WindowsFormsApplication1
                      }
 
                  }
-             SqlCommand cmd = new SqlCommand();
-             SqlCommandBuilder sb = new SqlCommandBuilder(CoreTabDA);
-             DataTable dsModified = CoreTabDT.GetChanges(DataRowState.Modified);
-             if (dsModified!= null && dsModified.Rows.Count != 0)
-             {
-                 cmd = sb.GetUpdateCommand();
-                 AddMsg(dsModified.Rows.Count +"-->"+ cmd.CommandText, INFO);
-                 CoreTabDA.Update(CoreTabDT);
-             }             
+                 SqlCommand cmd = new SqlCommand();
+                 SqlCommandBuilder sb = new SqlCommandBuilder(CoreTabDA);
+                 DataTable dsModified = CoreTabDT.GetChanges(DataRowState.Modified);
+                 if (dsModified != null && dsModified.Rows.Count != 0)
+                 {
+                     cmd = sb.GetUpdateCommand();
+                    // AddMsg(dsModified.Rows.Count + "-->" + cmd.CommandText, INFO);
+                     CoreTabDA.Update(CoreTabDT);
+                 }
+             }
+             catch (Exception exx) {
+                  MyManager.AddInfoToDB("错误", "UpdateAllToolState--->" + exx.Message);
+                 AddMsg("UpdateAllToolState--->" + exx.Message, WARN);
+             }
+
              CoreTabDAMux.ReleaseMutex();            
         }
 
@@ -541,45 +552,51 @@ namespace WindowsFormsApplication1
             MemoryStream stream = new MemoryStream();
             Formatter.Serialize(stream, TagDic);
             TagMux.ReleaseMutex();
-           
-            
+
+
             stream.Position = 0;
             clonedObj = Formatter.Deserialize(stream);
             Dictionary<String, TagInfo> tmpTagDic = (Dictionary<String, TagInfo>)clonedObj;
             stream.Close();
 
-           // Dictionary<String, TagInfo> tmpTagDic;
-           // tmpTagDic =  (Dictionary<String, TagInfo>) clonedObj;
-
-            foreach (String Key in tmpTagDic.Keys)
+            // Dictionary<String, TagInfo> tmpTagDic;
+            // tmpTagDic =  (Dictionary<String, TagInfo>) clonedObj;
+            try
             {
-                AddMsg(tmpTagDic[Key].LastSeen +"-->"+ MyManager.DecodeEPC(Key) + "-->天线:" + tmpTagDic[Key].PosY + "->信号强度:" + TagDic[Key].Rssi,INFO);
-                if (lv1.Items.ContainsKey(Key))
+                foreach (String Key in tmpTagDic.Keys)
                 {
-                    ListViewItem item = lv1.Items[Key];
+                 //  AddMsg(tmpTagDic[Key].LastSeen + "-->" + MyManager.DecodeEPC(Key) + "-->天线:" + tmpTagDic[Key].PosY + "->信号强度:" + TagDic[Key].Rssi, INFO);
+                    if (lv1.Items.ContainsKey(Key))
+                    {
+                        ListViewItem item = lv1.Items[Key];
 
-                    item.SubItems[1].Text = MyManager.DecodeEPC(Key);
-                    item.SubItems[2].Text = tmpTagDic[Key].LastSeen.ToString();
-                    item.SubItems[3].Text = tmpTagDic[Key].ReadCount.ToString();
-                    item.SubItems[4].Text = tmpTagDic[Key].Rssi.ToString();
-                    item.SubItems[5].Text = tmpTagDic[Key].PosY.ToString();
-                    item.SubItems[6].Text = tmpTagDic[Key].PosX.ToString();
+                        item.SubItems[1].Text = MyManager.DecodeEPC(Key);
+                        item.SubItems[2].Text = tmpTagDic[Key].LastSeen.ToString();
+                        item.SubItems[3].Text = tmpTagDic[Key].ReadCount.ToString();
+                        item.SubItems[4].Text = tmpTagDic[Key].Rssi.ToString();
+                        item.SubItems[5].Text = tmpTagDic[Key].PosY.ToString();
+                        item.SubItems[6].Text = tmpTagDic[Key].PosX.ToString();
+                    }
+                    else
+                    {
+                        ListViewItem item = new ListViewItem(Key);
+                        item.Name = Key;
+                        item.SubItems.Add(MyManager.DecodeEPC(Key));
+                        item.SubItems.Add(tmpTagDic[Key].LastSeen.ToString());
+                        item.SubItems.Add(tmpTagDic[Key].ReadCount.ToString());
+                        item.SubItems.Add(tmpTagDic[Key].Rssi.ToString());
+                        item.SubItems.Add(tmpTagDic[Key].PosY.ToString());
+                        item.SubItems.Add(tmpTagDic[Key].PosX.ToString());
+                        lv1.Items.Add(item);
+                    }
                 }
-                else
-                {
-                    ListViewItem item = new ListViewItem(Key);
-                    item.Name = Key;
-                    item.SubItems.Add(MyManager.DecodeEPC(Key));
-                    item.SubItems.Add(tmpTagDic[Key].LastSeen.ToString());
-                    item.SubItems.Add(tmpTagDic[Key].ReadCount.ToString());
-                    item.SubItems.Add(tmpTagDic[Key].Rssi.ToString());
-                    item.SubItems.Add(tmpTagDic[Key].PosY.ToString());
-                    item.SubItems.Add(tmpTagDic[Key].PosX.ToString());
-                    lv1.Items.Add(item);
-                }
+
+            }
+            catch (Exception exxx)
+            {
+                MyManager.AddInfoToDB("错误", "UpdateAllToolState--->" + exxx.Message);
             }
         }
-
         private void lv1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
