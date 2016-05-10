@@ -249,6 +249,7 @@ namespace WindowsFormsApplication1
                 mc.Mthread.Start(mc);
                // Old.Abort();
                 MyManager.AddInfoToDB("信息", mc.MachName + "重连并启动监视线程成功！");
+                Old.Abort();
                 mc.ReConnectedCount=0;
                 isInventory = true;
             }
@@ -286,7 +287,7 @@ namespace WindowsFormsApplication1
                 {
                     MyManager.AddInfoToDB("错误", mc.MachName + "->" + ex2.ToString() + ",开始重新连接。");
                     AddMsg("警告:"+ mc.MachName + "->" + ex2.ToString() + ",开始重新连接。", WARN);
-                    isInventory = false;
+                    //isInventory = false;
                     ReConnect(mc);
                 }
             }
