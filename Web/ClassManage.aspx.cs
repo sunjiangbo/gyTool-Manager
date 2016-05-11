@@ -50,6 +50,12 @@ public partial class ClassManage : System.Web.UI.Page
     protected void Page_Load(object sender, EventArgs e)
     {
         int ClassID = 0;
+
+        if (Session["UserID"] == null)
+        {
+            Response.Redirect("Login.htm");
+        }
+
         if (Request["ClassID"] == null)
         {
             Response.Write("failed");

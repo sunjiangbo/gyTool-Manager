@@ -24,6 +24,10 @@ public partial class HitTool : System.Web.UI.Page
     public int BagID;
     protected void Page_Load(object sender, EventArgs e)
     {
+        if (Session["UserID"] == null)
+        {
+            Response.Redirect("Login.htm");
+        }
         try
         {
             if (Request["BagID"] != null)

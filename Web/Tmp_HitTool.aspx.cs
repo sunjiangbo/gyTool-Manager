@@ -11,7 +11,10 @@ public partial class Borrow : System.Web.UI.Page
     protected void Page_Load(object sender, EventArgs e)
     {
         int Count = 0;
-
+        if (Session["UserID"] == null)
+        {
+            Response.Redirect("Login.htm");
+        }
         if (Request["TaskID"] == null || Session["UserID"]==null) { Response.Write("非法访问!"); Response.End(); return; }
 
         if (Request["reBack"] != null) { reBack = Request["reBack"].ToString(); }

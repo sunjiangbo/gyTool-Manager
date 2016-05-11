@@ -73,7 +73,11 @@ public partial class TaskManage : System.Web.UI.Page
     }
     protected void Page_Load(object sender, EventArgs e)
     {
-      
+
+        if (Session["UserID"] == null)
+        {
+            Response.Redirect("Login.htm");
+        }
         if (Session["UserType"].ToString() == "0")
         {
             GIList = GetGropInfoList(Session["CorpParentID"].ToString());

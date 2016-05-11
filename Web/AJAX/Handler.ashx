@@ -504,6 +504,28 @@ public String Test(HttpContext ctx)
         }
         return json;
     }
+    public String DelPropertyValue1(int PropertyID, String Value)
+    {
+        String json = "";
+        DataTable dt = MyManager.GetDataSet("SELECT ID  FROM [PropertyValues] where PropertyID =" + PropertyID + " AND Value = '" + Value + "' AND (ParentID is NULL or ParentID=0)");
+
+        if (dt.Rows.Count > 0)
+        {
+            json = "{\"status\":\"failed\",\"msg\":\"该值已经存在!\"}";
+            return json;
+        }
+
+        int iRet = MyManager.ExecSQL("INSERT INTO PropertyValues (PropertyID,Value,ValueType) VALUES (" + PropertyID + ",'" + Value + "',0)");
+        if (iRet == 1)
+        {
+            json = "{\"status\":\"success\"}";
+        }
+        else
+        {
+            json = "{\"status\":\"failed\",\"msg\":\"添加属性取值失败!\"}";
+        }
+        return json;
+    }
     public String ChangePropertyNecessary(int PropertyID ,int Necessary)
     {
         String json = "{\"status\":\"failed\",\"msg\":\"改变属性失败!\"}";
@@ -1405,6 +1427,12 @@ public String Test(HttpContext ctx)
                 jWrite.WriteValue(dt.Rows[i]["rkID"].ToString());
                 jWrite.WritePropertyName("toolid");
                 jWrite.WriteValue(dt.Rows[i]["toolid"].ToString());
+                jWrite.WritePropertyName("posx");
+                jWrite.WriteValue(dt.Rows[i]["PosX"].ToString());
+                jWrite.WritePropertyName("posy");
+                jWrite.WriteValue(dt.Rows[i]["PosY"].ToString());
+                jWrite.WritePropertyName("lastseen");
+                jWrite.WriteValue(dt.Rows[i]["LastSeen"].ToString());
                 jWrite.WritePropertyName("toolstate");
                 jWrite.WriteValue(dt.Rows[i]["StateName"].ToString());
                 jWrite.WritePropertyName("realtoolstate");
@@ -2543,7 +2571,7 @@ public String Test(HttpContext ctx)
        return ExcelURL;
     }
 
-    public String AddToCoreTool(JObject JO)
+    public String AddToCoreTool(JObject JO)//工具包入编核心函数
     {
         String TaskID = "",rkIDs="";
         Boolean bRight = false;
@@ -2638,7 +2666,7 @@ public String Test(HttpContext ctx)
             dr = RetDT.Select(" rkID = " + JA[0]["sn"].ToString());
 
             StoredID = dr[0]["StoredID"].ToString();
-            CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask]) SELECT rkID,ModelType,"+BagID+" AS ModelID,'"
+            CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(EPC,rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask]) SELECT '" + MyManager.GenerateEPC(ToolID) + "'as EPC,rkID,ModelType," + BagID + " AS ModelID,'"
                                                                             + ToolID + "' AS ToolID,'" + BagName + "' AS ToolName,'" + DateTime.Now.ToString() + "' AS ModifyTime,1,'" + TaskID + "' AS RelatedTask FROM StoredTool WHERE ID = " + StoredID + ";SELECT IDENT_CURRENT('CoreTool') AS CurID", "CurID");
 
             dr = dt.Select("ValueType = 1 ");/*工具箱子编号为 AA 等*/
@@ -2813,8 +2841,8 @@ public String Test(HttpContext ctx)
         long UserID = Convert.ToInt32(JO["userid"].ToString());
         String opType =JO["optype"].ToString();
         String ToolID = JO["toolid"].ToString();
-        String ToolName = JO["toolname"].ToString();
-        String username = JO["username"].ToString();
+        String ToolName = System.Web.HttpUtility.UrlDecode(JO["toolname"].ToString(), System.Text.Encoding.UTF8) ;
+        String username = System.Web.HttpUtility.UrlDecode(JO["username"].ToString(), System.Text.Encoding.UTF8);
         String Pic = JO["pic"].ToString();
         
         DataTable dt = MyManager.GetDataSet("SELECT * From ToolApp WHERE ID = " + AppID);
@@ -2928,6 +2956,7 @@ public String Test(HttpContext ctx)
      String refundstime = "";
      String refundetime = "";
      String SQL = "";
+     String apper = "";
         
         toolid = JO["toolid"] == null ? "" : JO["toolid"].ToString();
         toolname = JO["toolname"] == null ? "" : JO["toolname"].ToString();
@@ -2937,8 +2966,14 @@ public String Test(HttpContext ctx)
         refundername = JO["refundername"] == null ? "" : JO["refundername"].ToString();
         refundstime = JO["refundstime"] == null ? "" : JO["refundstime"].ToString();
         refundetime = JO["refundetime"] == null ? "" : JO["refundetime"].ToString();
+        apper = JO["apper"] == null ? "" : JO["apper"].ToString();
 
-        SQL = "SELECT * FROM ToolApp WHERE 1=1 ";
+        SQL = "SELECT A.*,B.Name FROM ToolApp AS A join UserList  AS B on B.ID = A.UserID  WHERE 1=1 ";
+
+        if (apper != "")
+        {
+            SQL += " AND Name like '%" + apper + "%' ";
+        }
         
         if (toolid != "")
         {
@@ -2952,7 +2987,7 @@ public String Test(HttpContext ctx)
 
         if (borrowername != "")
         {
-            SQL += " AND case isnull([BorrowerName],'') when '' then [UserName] else [BorrowerName] end like '%" + borrowername + "%'";
+            SQL += " AND case isnull([BorrowerName],'') when '' then A.[UserName] else [BorrowerName] end like '%" + borrowername + "%'";
         }
 
         if (borrowstime != "")
@@ -2983,7 +3018,58 @@ public String Test(HttpContext ctx)
         return GetGeneralJSONRetBySQL(SQL);
 
     }
-    
+    public String devGetInfo(JObject JO)
+    {
+        String Type = JO["type"].ToString();
+        DataTable dt = MyManager.GetDataSet("SELECT Info From devInfo Where Type='" +Type+ "'");
+        if (dt.Rows.Count == 0)
+        {
+            return "{\"status\":\"failed\",\"info\":\"\"}"; 
+        }
+
+        return "{\"status\":\"success\",\"info\":\"" + dt.Rows[0]["Info"].ToString() + "\"}"; 
+    }
+
+    public String GetToolPos(JObject JO)
+    {
+        String ToolID = JO["toolid"].ToString();
+        DataTable dt = MyManager.GetDataSet("SELECT PosX,PosY,RealState From CoreTool Where ToolID = '" + ToolID + "'");
+        String PosX,PosY,RealState;
+        if (dt.Rows.Count == 0)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"工具不存在!\"}";
+        }
+
+        if (dt.Rows[0]["PosX"] == System.DBNull.Value)
+        {
+             PosX = "X";     
+        }else
+        {
+            PosX=dt.Rows[0]["PosX"].ToString();
+        }
+        if (System.DBNull.Value == dt.Rows[0]["PosY"])
+        {
+            PosY = "X";  
+        }            
+        else {
+            PosY = dt.Rows[0]["PosY"].ToString();
+            
+        }
+        if (System.DBNull.Value == dt.Rows[0]["RealState"])
+        {
+            RealState = "-1";
+        }
+        else
+        {
+            RealState = dt.Rows[0]["RealState"].ToString();
+
+        }
+
+
+        return "{\"status\":\"success\",\"posx\":\""+PosX+"\",\"posy\":\""+PosY+"\",\"realstate\":\""+RealState+"\"}";
+                        
+        
+    }
    public void ProcessRequest (HttpContext context) 
    {
 
@@ -2993,7 +3079,7 @@ public String Test(HttpContext ctx)
         gCtx = context;
        try
         {
-   
+            
          StreamReader reader = new StreamReader(context.Request.InputStream);
             json_old = reader.ReadToEnd();
            /* if (json == "")
@@ -3228,11 +3314,25 @@ public String Test(HttpContext ctx)
                retJSON = GetToolBorrowHistory(JO);
 
            }
+           if (Cmd == "GetToolPos")
+           {
+               retJSON = GetToolPos(JO);
+           }
 
            if (Cmd == "BRTool")
            {
                retJSON = BorrowORRefundTool(JO);
            }
+           if (Cmd == "LinuxTest")
+           {
+               //retJSON = Encoding.Default.GetString(Encoding.Convert(System.Text.Encoding.UTF8, System.Text.Encoding.Default, Encoding.GetEncoding("UTF-8").GetBytes(JO["name"].ToString())));
+              // retJSON = System.Web.HttpUtility.UrlDecode(JO["name"].ToString(), System.Text.Encoding.Default);
+               retJSON = "gyLinuxer";
+           }
+           if (Cmd == "devGetInfo")
+           {
+               retJSON = devGetInfo(JO);
+            }
            
            context.Response.Write(retJSON);
            

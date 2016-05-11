@@ -14,6 +14,7 @@
         //function ()
         var toolid = '<%= toolid %>';
          var toolname = '<%= toolname %>';
+          var apper = '<%= apper %>';
           var borrowername = '<%= borrowername %>';
            var borrowstime = '<%= borrowstime %>';
             var borrowetime = '<%= borrowetime %>';
@@ -54,6 +55,7 @@
                 height: 768,
                 modal: true,
                 shadow:true,
+                inline:false,
             });
             
             
@@ -63,10 +65,11 @@
         }
         function ShowTask(TaskID) {
             $('#Win1').window({
-                width: 1024,
-                height: 600,
+                width: 600,
+                height: 300,
                 modal: true,
                 shadow:true,
+                inline:false,
             });
             
             
@@ -76,7 +79,16 @@
         }
         function LoadBorrowData()
         {
-            cmd = { "cmd": "GetToolBorrowHistory", "toolid": toolid , "toolname": toolname ,"borrowername": borrowername,"borrowstime": borrowstime,"borrowetime": borrowetime,"refundername": refundername,"refundstime": refundstime,"refundetime": refundetime};
+            toolid = $("#toolid").val();
+            toolname = $("#toolname").val();
+            borrowername = $("#borrowername").val();
+            borrowstime = $("#borrowstime").val();
+            borrowetime = $("#borrowetime").val();
+            refundername = $("#refundername").val();
+            refundstime = $("#refundstime").val();
+            refundetime = $("#refundetime").val();
+            apper = $("#apper").val();
+            cmd = { "cmd": "GetToolBorrowHistory", "toolid": toolid ,"apper":apper, "toolname": toolname ,"borrowername": borrowername,"borrowstime": borrowstime,"borrowetime": borrowetime,"refundername": refundername,"refundstime": refundstime,"refundetime": refundetime};
             MyAjax(cmd, BindGrid, null);
         }
         
@@ -108,18 +120,40 @@
                             { field: 'RefundPic', title: '归还快照', width: 55, sortable: true ,formatter: formatLookRPic }
                         ]]
             });
-                LoadBorrowData();
+                 cmd = { "cmd": "GetToolBorrowHistory", "toolid": toolid ,"apper":apper, "toolname": toolname ,"borrowername": borrowername,"borrowstime": borrowstime,"borrowetime": borrowetime,"refundername": refundername,"refundstime": refundstime,"refundetime": refundetime};
+                 MyAjax(cmd, BindGrid, null);
+                 $("#load").bind("click", function () { LoadBorrowData(); });
             });
       
     </script>
     <title></title>
+    <style>
+        .NormalLB
+        {
+        	width:50px;
+        	margin:5px;
+        }
+        .KLB
+        {
+        	width:100px;
+        	margin:5px;
+        }
+    </style>
 </head>
 <body>
     <form id="form1" runat="server">
 
     <div >
-    <a  id = "Add" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="" onclick= "javascript:LoadBorrowData();">
-				<span style="" >加载</span>
+    <span style="" >件号:</span><input class= "NormalLB" id="toolid"/>
+    <span style="" >工具名:</span><input class= "KLB" id="toolname"/>
+    <span style="" >申请者:</span><input class= "NormalLB" id="apper"/>
+    <span style="" >借用者:</span><input  class= "NormalLB"  id="borrowername"/>
+    <span style="" >借用时间:</span><input class= "KLB" id="borrowstime"/><input  class= "KLB" id="borrowetime"/>
+    <span style="" >归还者:</span><input class= "NormalLB"  id="refundername"/>
+    <span style="" >归还时间:</span><input class= "KLB" id="refundstime"/>
+    <input class= "KLB" name="refundetime"/>
+    <a  id = "load" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="" onclick= "javascript:LoadBorrowData();">
+				<span style="" >查询</span>
 			</a>
         <table id="tb" style=" "></table>
     </div>

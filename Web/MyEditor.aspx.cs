@@ -9,6 +9,10 @@ public partial class _Default : System.Web.UI.Page
     static String TaskID = "";
     protected void Page_Load(object sender, EventArgs e)
     {
+        if (Session["UserID"] == null)
+        {
+            Response.Redirect("Login.htm");
+        }
         if (Request["TaskID"] == null) return;
 
         TaskID = Request["TaskID"].ToString();

@@ -10,6 +10,10 @@ public partial class Query : System.Web.UI.Page
     public String TaskID = "";
     protected void Page_Load(object sender, EventArgs e)
     {
+        if (Session["UserID"] == null)
+        {
+            Response.Redirect("Login.htm");
+        }
         if (Request["TaskID"] != null) { TaskID = Request["TaskID"].ToString(); }
     }
 }

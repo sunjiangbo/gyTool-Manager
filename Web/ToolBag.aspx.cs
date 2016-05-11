@@ -27,6 +27,10 @@ public partial class ToolBag : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        if (Session["UserID"] == null)
+        {
+            Response.Redirect("Login.htm");
+        }
         if (Request["BagID"] == null)
         {
             Response.Write("请求参数不全!!");

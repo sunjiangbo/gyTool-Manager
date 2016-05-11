@@ -66,7 +66,10 @@ public partial class test : System.Web.UI.Page
     }
     protected void Button1_Click(object sender, EventArgs e)
     {
-        int i=0;
-       while(i++<50000)Response.Write( GetNextID() +"</br>");
+        /*cmd.CommandText = "SELECT COUNT(*) FROM userinfo WHERE NAME=@username and PASSWORD=@passwd";
+        //将name的数据赋值给查询语句中的username  
+        cmd.Parameters.Add(new SqlParameter("username", name));
+        //将pwd的数据赋值给查询语句中的passwd  
+        cmd.Parameters.Add(new SqlParameter("passwd", pwd));*/ 
     }
 }

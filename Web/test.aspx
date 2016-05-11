@@ -11,9 +11,10 @@
 	<script type="text/javascript" src="jquery.easyui.min.js"></script>
     <script type="text/javascript" src="JS/MyJS.js"></script>
     <style>
-*{
-    font-family: 微软雅黑, 宋体, Arial;  
-  }
+        *{
+    font-family: 微软雅黑, 宋体, Arial;
+            height: 27px;
+        }
 table{
     
     padding: 0px;

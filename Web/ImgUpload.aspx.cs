@@ -23,6 +23,10 @@ public partial class ImgUpload : System.Web.UI.Page
         }
 
         HttpPostedFile file = Request.Files[0];
+        if (!file.FileName.EndsWith("jpg"))
+        {
+            return;
+        }
         file.SaveAs(MapPath("\\upload\\") + file.FileName);
         Response.Write("http://"  + Request.Url.Host + ":" + Request.Url.Port + "/upload/"+file.FileName);
     }

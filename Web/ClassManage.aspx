@@ -161,7 +161,48 @@
             }
         });
     }
+    function DelValue(PropertyID,ComboxID)
+    {
+         value = $("#cm" + ComboxID).combo('getText');
 
+        if (value == "") {
+            $.messager.alert("提示","请选择你要删除的取值.");
+            return;
+        }
+        $.messager.progress({ title: '提示', msg: '正在处理，请稍候!' });
+
+        $.ajax({
+            url: 'AJAX/Handler.ashx',
+            type: "POST",
+            data: JSON.stringify({ "cmd": "DelPropertyValue", "value": $("#cm" + ComboxID).combo("getText"), "PropertyID": PropertyID }),
+            dataType: 'json',
+            success: function (data) {
+                
+                if (data.status == "success") {
+                    $.messager.alert('提示', '成功！');
+                    $.messager.progress('close');
+                    window.location.href = "ClassManage.aspx?ClassID=" + CID;
+                } else {
+                    $.messager.progress('close');
+                    $.messager.show({
+                        title: '提示',
+                        msg: data.msg,
+                        timeout: 3000,
+                        showType: 'fade'
+                    });
+                }
+            },
+            error: function (xhr, s, e) {
+                $.messager.progress('close');
+                $.messager.show({
+                    title: '提示',
+                    msg: data.msg,
+                    timeout: 3000,
+                    showType: 'fade'
+                });
+            }
+        });
+    }
     function AddValue(PropertyID, ComboxID/*对应 ID*/) 
     {
         // alert(PropertyID + "->" + cmid);
@@ -240,12 +281,14 @@
                     ck = 'checked = "true"';
                 } else { ck = ''; }
 
-                tr += '<td>' + cm + '</select></div></td>' + '<td><input name = "property" id = "pck' + jsondat[i].id + '"type="checkbox" ' + ck + '/></td>' + '<td><a id="add' + cmid + '"  class="easyui-linkbutton" data-options="iconCls:\'icon-add\'" onclick = "AddValue(' + jsondat[i].id + ',' + jsondat[i].id + ');">增加取值</a></td></tr>';
+                tr += '<td>' + cm + '</select></div></td>' + '<td><input name = "property" id = "pck' + jsondat[i].id + '"type="checkbox" ' + ck + '/></td>' + '<td><a id="add' + cmid + '"  class="easyui-linkbutton" data-options="iconCls:\'icon-add\'" onclick = "AddValue(' + jsondat[i].id + ',' + jsondat[i].id + ');">增加取值</a></td>'+'<td><a id="delval' + cmid + '"  class="easyui-linkbutton" data-options="iconCls:\'icon-add\'" onclick = "DelValue(' + jsondat[i].id + ',' + jsondat[i].id + ');">删除取值</a>'+'</td><td><a id="delp' + cmid + '"  class="easyui-linkbutton" data-options="iconCls:\'icon-add\'" onclick = "DelP(' + jsondat[i].id + ',' + jsondat[i].id + ');">删除属性</a>'+'</td>'+'</tr>';
                 $(".MyTable").append($(tr));
                 $("#" + cmid).combobox({ editable: true });
                 $("#" + cmid).combobox('setText', '');
                 $("#add" + cmid).linkbutton();     /*解析 增加取值按钮*/
-
+                $("#delval" + cmid).linkbutton();
+                $("#delp" + cmid).linkbutton();
+                
                 $("#ck" + jsondat[i].id).data("PropertyID", jsondat[i].id); //在每行checkbox上绑定数据 PropertyID
                 $("#ck" + jsondat[i].id).change(ckxClick);
 
@@ -278,6 +321,12 @@
                 </td>
                 <td>
                     匹配
+                </td>
+                 <td>
+                    操作
+                </td>
+                <td>
+                    操作
                 </td>
                  <td>
                     操作

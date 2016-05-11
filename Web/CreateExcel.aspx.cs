@@ -30,6 +30,11 @@ public partial class CreateExcel : System.Web.UI.Page
         String Type, Note = "", mTableName, subTableName, zdName, State;/*批注*/
         DataRow[] dr, dr1;
         DataTable dt2;
+        if (Session["UserID"] == null)
+        {
+            Response.Redirect("Login.htm");
+        }
+
         dt2 = MyManager.GetDataSet("SELECT * From [HitTool] Where State = 1 AND TaskID = '" + HitTaskID + "'");
         if (dt2.Rows.Count == 0) { return; }
         Type = dt2.Rows[0]["Type"].ToString();

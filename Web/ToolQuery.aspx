@@ -137,9 +137,10 @@
         
         function LookBorrowHistory(ToolID) {
             $('#Win').window({
-                width: 1024,
-                height: 600,
-                modal: true
+                width: 800,
+                height: 400,
+                modal: true,
+                inline:false,                
             });            
             
             $("#BorrowHS").attr("src","BorrowHistory.aspx?ToolID=" + ToolID);
@@ -147,7 +148,9 @@
             $("#Win").window({ closed: false });
         }
          function formatLook(val, row, index) {
-            return '<a href= "#" onclick="LookBorrowHistory(\''+row.toolid+'\')">查看</a>';                  
+            if (row.toolstate != undefined ){
+                return '<a href= "#" onclick="LookBorrowHistory(\''+row.toolid+'\')">查看</a>'; 
+            }                 
         }
         function ToolClassChange(record) {
 
@@ -307,7 +310,7 @@
                         [{ field: 'ck', checkbox: true },
                          { field: 'rkid', title: '入库编号', width: 20, sortable: true },
                         { field: 'toolid', title: '件号', width: 20, sortable: true },
-                        { field: 'name', title: '名称', width: 40, sortable: true, tooltip: true, formatter:
+                        { field: 'name', title: '名称', width: 60, sortable: true, tooltip: true, formatter:
                 function (val, row, index) {
                     Str = '<div style="padding:10px 200px"><p><a  href="javascript:void(0)" class="easyui-tooltip" data-options="hideEvent: \'none\',content: function(){return $("<div>' + val + '</div>");},onShow: function(){var t = $(this);t.tooltip(\'tip\').focus().unbind().bind(\'blur\',function(){tooltip(\'hide\');});}">Hover me</a> to display toolbar.</p>	</div>';
 
@@ -315,8 +318,11 @@
                     return '<a  class = "myCell" id="tip' + row.id + '">' + val + '</a>';
                 }
                         },
-                { field: 'toolstate', title: '理论状态', width: 20, sortable: true },
-                { field: 'realtoolstate', title: '实际状态', width: 20, sortable: true },
+                { field: 'toolstate', title: '理论状态', width: 25, sortable: true },
+                { field: 'lastseen', title: '最后发现时间', width: 50, sortable: true },
+                { field: 'posx', title: '所在货架', width: 25, sortable: true },
+                { field: 'posy', title: '所在层', width: 20, sortable: true },
+                { field: 'realtoolstate', title: '实际状态', width: 25, sortable: true },
                 { field: 'modifytime', title: '最后修改时间', width: 80, sortable: true },
                 { field: 'look', title: '借用记录', width: 80, sortable: true,formatter: formatLook},
             ]],
