@@ -1,0 +1,11 @@
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\bin\Release\WindowsFormsApplication3.exe.config
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Release\Interop.ZKFPEngXControl.dll
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Release\AxInterop.ZKFPEngXControl.dll
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Release\借还RFID后台程序.csproj.ResolveComReference.cache
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Release\WindowsFormsApplication3.exe
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Release\WindowsFormsApplication3.pdb
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Release\ResolveAssemblyReference.cache
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Release\WindowsFormsApplication3.Form1.resources
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Release\WindowsFormsApplication3.Properties.Resources.resources
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Release\GenerateResource-ResGen.read.1.tlog
+E:\gyTool-Manager\C#基本TCP框架 -RFID\WindowsFormsApplication3\obj\Release\GenerateResource-ResGen.write.1.tlog

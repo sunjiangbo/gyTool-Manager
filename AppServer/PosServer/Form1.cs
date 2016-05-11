@@ -16,6 +16,10 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Net;
+using System.Net.Sockets;
+using Newtonsoft.Json.Linq;
+
 namespace WindowsFormsApplication1
 {
     public partial class Form1 : Form
@@ -53,10 +57,176 @@ namespace WindowsFormsApplication1
         object clonedObj;
         Reader rd;
         Boolean isInventory = true;
-       
+        TcpListener mListener;
+        int Port;
+        List<rUser> UserList;
         SqlDataAdapter CoreTabDA;
 
+        public void LightCtl(int PosX, int PosY, bool lightOn)
+        {
+            int i,j;
+            if (PosX == 0 && PosY == 0)
+            {
+                for ( i = 0; i < MachLst.Count; i++)
+                    {
+                       for(j=0;j<4;j++){
+                           MachLst[i].rd.GPOSet(j, lightOn?false:true);
+                       }
+                    }
+                return;
+            }
 
+            MachLst[PosX].rd.GPOSet(PosY, lightOn ? false : true);
+        }
+
+        private String DealCmd(rUser user, String CmdDat)
+        {
+
+            JObject JO = JObject.Parse(CmdDat);
+            try
+            {
+                String Cmd = JO["cmd"].ToString();
+
+                if (Cmd == "DeactiveME")
+                {
+
+                    SendToClient("{\"status\":\"success\",\"msg\":\"失活执行成功,提前发送\"}");
+                    user.Active = 0;
+                }
+
+                if (Cmd == "activeME")
+                {
+                    user.Active = 1;
+                }
+
+                if (Cmd == "LightCtl")
+                {
+                    LightCtl(Convert.ToInt32(JO["posx"].ToString()),Convert.ToInt32(JO["posy"].ToString()),JO["lighton"].ToString()=="true"?true:false);
+                }              
+
+
+                AddMsg( "处理完毕-->" + CmdDat, INFO);
+                return "{\"status\":\"success\",\"msg\":\"命令执行成功\"}";
+
+            }
+            catch (Exception e)
+            {
+                AddMsg("执行" + CmdDat + "错误!" + e.Message, WARN);
+                return "{\"status\":\"failed\",\"reason\":\"解析命令失败!\"}";
+            }
+
+        }
+        private void ReceiveData(object obj)
+        {
+            rUser user = (rUser)obj;
+            TcpClient client = user.client;
+            int RDCN = 0;
+            Boolean Continue = true;
+            byte[] buff = new byte[4096];
+            AddMsg( "启动一个接收消息线程", INFO);
+            while (Continue)
+            {
+                string RecvStr = null;
+
+                try
+                {
+                    //从网络流中读出字符串
+                    //此方法会自动判断字符串长度前缀，并根据长度前缀读出字符串
+                    RDCN = 0;
+                    RecvStr = null;
+                    do
+                    {
+
+                        RDCN = user.NWStream.Read(buff, 0, 4096);
+                        RecvStr += System.Text.Encoding.UTF8.GetString(buff, 0, RDCN);
+                    } while (user.NWStream.DataAvailable);
+
+                    //if (RecvStr != null || RecvStr != "")
+                    {
+                        AddMsg("收到消息"+RecvStr, 0);
+                    }
+                    //   do
+                    //   {
+                    //Thread.Sleep(3000);
+                    //SendToClient(DateTime.Now.ToString()+"");
+                    SendToClient(DealCmd(user, RecvStr));
+                    //byte [] ptrby = System.Text.Encoding.UTF8.GetBytes(RecvStr);
+                    //  user.NWStream.Write(ptrby, 0, ptrby.Length);
+                    // RecvStr += System.Text.Encoding.UTF8.GetString(buff, 0, RDCN);
+                    // } while (user.NWStream.DataAvailable )
+                }
+                catch (Exception ex)
+                {
+                    AddMsg("异常"+ ex.ToString(), 3);
+                }
+                if (RecvStr == null || RDCN == 0)
+                {//跟客户端失去联系
+                    AddMsg( "跟客户端失去联系", 3);
+                    Continue = false;
+                }
+
+            }
+
+            UserList.Remove(user);
+            client.Close();
+
+        }
+
+        private void SendToClient(String str)
+        {
+            int i = 0;
+            rUser user;
+            for (i = 0; i < UserList.Count; i++)
+            {
+                user = UserList[i];
+                if (user.Active == 1)
+                {
+                    try
+                    {
+                        byte[] ptrby = System.Text.Encoding.UTF8.GetBytes(str);
+                        user.NWStream.Write(ptrby, 0, ptrby.Length);
+                        //将字符串写入网络流，此方法会自动附加字符串长度前缀
+                        // user.bw.Write(str);
+                        //user.bw.Flush();
+                        AddMsg("发送消息->" + i+ str, INFO);
+
+                    }
+                    catch
+                    {//发送失败
+                        AddMsg("发送消息失败->" + i+ str, WARN);
+                    }
+                }
+            }
+        }
+
+        private void ListenClientConnect()
+        {
+            while (true)
+            {
+                TcpClient newClient = null;
+                try
+                {
+                    //等待用户进入
+                    newClient = mListener.AcceptTcpClient();
+                }
+                catch
+                {
+                    //当单击“停止监听”或者退出此窗体时AcceptTcpClient()会产生异常
+                    //因此可以利用此异常退出循环
+                    break;
+                }
+                AddMsg("新连接" + ((IPEndPoint)newClient.Client.RemoteEndPoint).Address.ToString(), INFO);
+
+                //每接受一个客户端连接,就创建一个对应的线程循环接收该客户端发来的信息
+                ParameterizedThreadStart pts = new ParameterizedThreadStart(ReceiveData);
+                Thread threadReceive = new Thread(pts);
+                rUser user = new rUser(newClient);
+                user.Active = 0;
+                UserList.Add(user);
+                threadReceive.Start(user);
+
+            }
+        }
         private delegate void DispMSGDelegate(String Content, int Eventlevel);
         public void AddMsg( String Content, int EventLevel)
         {
@@ -102,7 +272,8 @@ namespace WindowsFormsApplication1
         {
             Mach mc;
             String Ant;
-            DataTable dt = MyManager.GetDataSet("SELECT * FROM MachList Where Type ='Fix'");
+            DataTable dt = MyManager.GetDataSet("SELECT * FROM MachList Where Type ='Fix' ORDER BY MachID ASC");
+           
             for (int i = 0; i < dt.Rows.Count; i++)
             {
                 mc = new Mach();
@@ -112,6 +283,7 @@ namespace WindowsFormsApplication1
                // mc.ConnectedAnts = Array.ConvertAll<string, int>(dt.Rows[i]["ConnectedAnt"].ToString().Split('|'), delegate(string s) { return int.Parse(s); });
                 mc.rd = null;
                 MachLst.Add(mc);
+                
             }
         }
         
@@ -517,6 +689,30 @@ namespace WindowsFormsApplication1
            
             String Ret;
             isInventory = true;
+            Port = 7903;
+            mListener = new TcpListener(Port);
+            try
+            {
+                mListener.Start();
+            }
+            catch (Exception ex)
+            {
+                mListener.Stop();
+                MessageBox.Show("在端口监听失败,程序退出!");
+                Application.Exit();
+            }
+            AddMsg("Tcp监听成功!", 1);
+
+            UserList = new List<rUser>();
+
+           
+
+            ThreadStart ts = new ThreadStart(ListenClientConnect);
+            Thread myThread = new Thread(ts);
+            myThread.Start();
+
+
+
             initMach();
             Ret = CheckAntAndInitReaders();
             if (Ret == "OK")

@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "借还RFID后台程序", "借还RFID后台程序.csproj", "{0EA981F9-67D9-4D44-8A58-50839B637F67}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup1", "..\Setup1\Setup1.vdproj", "{884D3031-8334-43D0-831C-247239506018}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0EA981F9-67D9-4D44-8A58-50839B637F67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0EA981F9-67D9-4D44-8A58-50839B637F67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0EA981F9-67D9-4D44-8A58-50839B637F67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0EA981F9-67D9-4D44-8A58-50839B637F67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{884D3031-8334-43D0-831C-247239506018}.Debug|Any CPU.ActiveCfg = Debug
+		{884D3031-8334-43D0-831C-247239506018}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

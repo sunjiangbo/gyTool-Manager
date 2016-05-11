@@ -1,0 +1,16 @@
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Release\WindowsFormsApplication3.exe.config
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Release\Interop.ZKFPEngXControl.dll
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Release\AxInterop.ZKFPEngXControl.dll
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Release\指纹后台程序.csproj.ResolveComReference.cache
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Release\WindowsFormsApplication3.exe
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Release\WindowsFormsApplication3.pdb
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Release\WindowsFormsApplication3.exe
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Release\WindowsFormsApplication3.pdb
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Release\Newtonsoft.Json.dll
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Release\Interop.ZKFPEngXControl.dll
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\bin\Release\AxInterop.ZKFPEngXControl.dll
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Release\ResolveAssemblyReference.cache
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Release\WindowsFormsApplication3.Form1.resources
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Release\WindowsFormsApplication3.Properties.Resources.resources
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Release\GenerateResource.read.1.tlog
+E:\gyTool-Manager\C#基本TCP框架 -指纹\WindowsFormsApplication3\obj\Release\GenerateResource.write.1.tlog
