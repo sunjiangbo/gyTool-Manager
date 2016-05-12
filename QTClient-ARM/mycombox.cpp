@@ -2,7 +2,7 @@
 
 myComBox::myComBox()
 {
-
+          connect(this,SIGNAL(currentIndexChanged(QString )),this,SLOT(CBoxChange(QString)));
 }
 
 QString myComBox::get_coreid()
@@ -26,4 +26,9 @@ void myComBox::insert_coreid(int i, QString  ToolName,QString coreid)
           ss->CoreID  = coreid;
           coreidmap[i] = ss;
       }
+}
+
+void myComBox::CBoxChange(QString Text)
+{
+    emit CBoxChange_Signal(Text,this);
 }

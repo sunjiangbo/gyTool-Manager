@@ -12,11 +12,15 @@
 #include <borrowandreback.h>
 #include <gybutton.h>
 #include<gytcpsocket.h>
+#include <mycombox.h>
 
 namespace Ui {
 class MainWindow;
 }
-
+struct resList {
+        void * data;
+        resList * next;
+};
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -27,6 +31,7 @@ public:
     gyTcpSocket * skt_finger;
     gyTcpSocket * skt_rfid;
     gyTcpSocket * skt_gpy;
+    gyTcpSocket * skt_light;
     QString *SendCmd(gyTcpSocket* skt,char *Cmd);
     void DealJsonDat(QString jsonDat);
     QString httpsPostHelp(const QString &url, const QString &data);
@@ -37,6 +42,8 @@ public:
     void DealMsg(QString *Cmd);
     void ShowLoading(QString msg);
     void CloseLoading();
+    void addMeToRes(void *);
+    void deleteAllRes();
     QString FillNameAndCorp(QString userid);
     QString FillTaskList(QString userid);
     QString GetBorrowInfoByTaskID(QString TaskID);
@@ -46,6 +53,11 @@ public:
     QString gpyaddr;
     QString rfidaddr;
     QString fingeraddr;
+    resList  *curRes;
+    QMap <QString ,int> light_map;
+    QTimer * lighttmr;
+    bool FirstInit;
+    int  LightFlashCnt;
 #define ToolNameCOL          0
 #define ToolID                1
 #define ALTER                 2
@@ -76,6 +88,10 @@ signals:
     void finger_Srv_disConnected();
     void finger_error (QAbstractSocket::SocketError socketError );
 
+    void light_Srv_Connect();
+    void light_Srv_disConnected();
+    void light_error (QAbstractSocket::SocketError socketError );
+
     void rfid_Srv_Connect();
     void rfid_Srv_disConnected();
     void rfid_error (QAbstractSocket::SocketError socketError );
@@ -88,6 +104,9 @@ signals:
     void ReadReady(gyTcpSocket *skt);
     void Srv_disConnected(gyTcpSocket *skt);
     void	error (gyTcpSocket *skt,QAbstractSocket::SocketError socketError );
+
+    void LightFlash();
+
 //工具借用与查看按钮事件槽
     void look_tool_slot(int i);
     void borrow_tool_click_slot(gyButton* btn);
@@ -95,7 +114,7 @@ private slots:
     void on_pushButton_clicked();
     void on_MainWindow_destroyed(QObject *arg1);
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
-
+   void ComBoxItemChange(QString toolid,myComBox* box);
     void on_pushButton_2_clicked();
     void on_pushButton_3_clicked();
 };

@@ -21,7 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-
+LightFlashCnt =0;
+FirstInit = true;
 FlashIsShowing   = false;
     ui->setupUi(this);
     HandlerURL = QString(WEB_URL) + "/AJAX/handler.ashx";
@@ -45,6 +46,9 @@ FlashIsShowing   = false;
     ui->label->show();
     ui->label->setScaledContents(true);
 
+    lighttmr = new QTimer(this);
+    connect(lighttmr,SIGNAL(timeout()),this,SLOT(LightFlash()));
+
    // Tmr = new QTimer(this);
     //connect( Tmr,SIGNAL(timeout()), this, SLOT(TmrOut()) );
    // Tmr->start(1000);
@@ -57,6 +61,9 @@ FlashIsShowing   = false;
     skt_gpy = new gyTcpSocket(this);
     skt_gpy->devName = "高拍仪";
     skt_gpy->devPort = 7902;
+    skt_light = new gyTcpSocket(this);
+    skt_light->devName = "亮灯后台";
+    skt_light->devPort = 7903;
 
     connect(skt_finger,SIGNAL(connected()),this,SLOT(finger_Srv_Connect()));
     connect(skt_finger,SIGNAL(disconnected()),this,SLOT(finger_Srv_disConnected()));
@@ -70,6 +77,11 @@ FlashIsShowing   = false;
     connect(skt_gpy,SIGNAL(connected()),this,SLOT(gpy_Srv_Connect()));
     connect(skt_gpy,SIGNAL(disconnected()),this,SLOT(gpy_Srv_disConnected()));
     connect(skt_gpy,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(gpy_error(QAbstractSocket::SocketError)));
+
+    connect(skt_light,SIGNAL(connected()),this,SLOT(light_Srv_Connect()));
+    connect(skt_light,SIGNAL(disconnected()),this,SLOT(light_Srv_disConnected()));
+    connect(skt_light,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(light_error(QAbstractSocket::SocketError)));
+
 
     connect(this,SIGNAL(Srv_Connect_msg(gyTcpSocket *)),this,SLOT(Srv_Connect(gyTcpSocket *)));
     connect(this,SIGNAL(Srv_disConnected_msg(gyTcpSocket *)),this,SLOT(Srv_disConnected(gyTcpSocket *)));
@@ -98,6 +110,7 @@ FlashIsShowing   = false;
   skt_finger->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"fingeraddr\"}","info");
   skt_rfid->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"rfidaddr\"}","info");
   skt_gpy->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"gpyaddr\"}","info");
+  skt_light->devAddr = GetHttpCmdContentByParam("{\"cmd\":\"devGetInfo\",\"type\":\"lightaddr\"}","info");
   qDebug()<<"skt:"+skt_finger->devAddr;
   qDebug()<<"gpy:"+skt_gpy->devAddr;
   qDebug()<<"rfid:"+skt_rfid->devAddr;
@@ -110,11 +123,13 @@ FlashIsShowing   = false;
   }else if (skt_finger->devAddr=="")
   {
          s+=" 指纹仪器";
+  }else if (skt_light->devAddr=="")
+  {
+       s+= " 亮灯后台 ";
   }
   if (s!=""){
     QMessageBox::information(this,"提示","无法获取"+s+"的IP地址，程序将退出!");
     QCoreApplication::exit();
-    //return;
   }
   ShowLoading("连接RFID扫描器....");
   skt_rfid->gyConnect();
@@ -132,13 +147,22 @@ FlashIsShowing   = false;
     exit(-1);
   }
 
- ShowLoading("链接指纹仪....");
+ ShowLoading("连接指纹仪....");
   skt_finger->gyConnect();
   if (!skt_finger->waitForConnected(10000))
   {
       QMessageBox::information(this,"提示","无法连接指纹仪器的服务程序，程序将退出!");
       exit(-1);
   }
+
+  ShowLoading("连接亮灯后台....");
+   skt_light->gyConnect();
+   if (!skt_light->waitForConnected(10000))
+   {
+       QMessageBox::information(this,"提示","无法连接指亮灯后台的服务程序，程序将退出!");
+       exit(-1);
+   }
+curRes = NULL;
    CloseLoading();
 this->hide();
    FlashIsShowing = true;
@@ -205,6 +229,7 @@ QString MainWindow::httpsPostHelp(const QString &url, const QString &data)
     QString _result;
     QNetworkRequest _request;
     QNetworkAccessManager * m_pNetworkManager = new QNetworkAccessManager(this);
+    addMeToRes(m_pNetworkManager);
     _request.setUrl(QUrl(url));
     _request.setHeader(QNetworkRequest::ContentTypeHeader,
                        QString("application/x-www-form-urlencoded"));
@@ -244,7 +269,7 @@ QString * MainWindow::ReadMsg(gyTcpSocket *skt)
     QTextDecoder *decoder = codec->makeDecoder();
     QByteArray datagram;
     QString *s= new QString("");
-
+    addMeToRes(s);
     qDebug("收到%d字节消息",skt->bytesAvailable());
     datagram.resize(skt->bytesAvailable());
 
@@ -259,6 +284,7 @@ QString* MainWindow::SendCmd(gyTcpSocket *skt, char * Cmd)
      qint64 len = 0,size = strlen (Cmd) + 1,t;
      //发信号之前断开
      QString *s= new QString("");
+     addMeToRes(s);
       if (skt->ConnectedState != QAbstractSocket::ConnectedState || sizeof(Cmd)==0){
             return (new QString(""));
       }
@@ -315,6 +341,14 @@ void MainWindow::gpy_Srv_disConnected()
 {
      emit Srv_disConnected_msg(skt_gpy);
 }
+void MainWindow::light_Srv_Connect()
+{
+    emit Srv_Connect_msg(skt_light);
+}
+void MainWindow::light_Srv_disConnected()
+{
+     emit Srv_disConnected_msg(skt_light);
+}
 void MainWindow::finger_ReadReady()
 {
      emit ReadReady(skt_finger);
@@ -327,13 +361,40 @@ void MainWindow::finger_ReadReady()
  {
         emit error_msg(skt_rfid,socketError);
  }
+ void	MainWindow::light_error (QAbstractSocket::SocketError socketError )
+ {
+        emit error_msg(skt_light,socketError);
+ }
  void MainWindow::Srv_Connect(gyTcpSocket * skt)
  {
     qDebug()<<skt->devName<<"连接成功!";
      skt->readAll();
      SendCmd(skt,"{\"cmd\":\"activeME\"}");
+     if(FirstInit&&skt==skt_light)
+     {
+         qDebug()<<"lighttmr start!!!!";
+               lighttmr->start(1000);
+     }
  }
+void MainWindow::addMeToRes(void * Res)
+{
+            resList * t = new resList();
+            t->data = Res;
+            t->next = curRes;
+            curRes = t;
+}
+void MainWindow::deleteAllRes()
+{
+        resList  * t = curRes;
 
+        while(curRes!=NULL)
+        {
+                   t = curRes;
+                   curRes = curRes->next;
+                   delete t->data;
+                   delete t;
+         }
+}
  void MainWindow::Srv_disConnected(gyTcpSocket * skt)
  {
      qDebug()<<skt->devName<<"连接断开,开始重连";
@@ -359,7 +420,7 @@ QString MainWindow::FillTaskList(QString userid)
 
     QTreeWidgetItem * root=new QTreeWidgetItem(QStringList()<<"TaskList");
     root->setData(0,Qt::UserRole,"root");
-
+    addMeToRes(root);
     QScriptValueIterator it(sc.property("tasklist"));
     while (it.hasNext())
     {
@@ -367,7 +428,7 @@ QString MainWindow::FillTaskList(QString userid)
        if(!it.value().property("showname").toString().isEmpty()){
            //qDebug() << it.value().property("a").toString();
             QTreeWidgetItem * chd=new QTreeWidgetItem( QStringList()<<it.value().property("showname").toString());
-
+            addMeToRes(chd);
             chd->setData(0,Qt::UserRole,it.value().property("taskid").toString());
             root->addChild(chd);
        }
@@ -432,7 +493,7 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
 
     if (TaskID=="")return "failed";
 
-    QMap<QString, QString> map;
+
     QString cmdtxt = "{\"cmd\":\"GetBorrowInfoByTaskID\",\"taskid\":\"" + TaskID + "\"}",AppState="0";
     QString cmdret =  httpSendCmd(cmdtxt);
     QScriptEngine engine;
@@ -455,9 +516,15 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
        if(!it.value().property("toolname").toString().isEmpty()){
            int index = tb->rowCount();
            tb->insertRow(index);
-           tb->setItem(index,ToolNameCOL,new QTableWidgetItem(it.value().property("toolname").toString()));
-           tb->setItem(index,ToolID,new QTableWidgetItem(it.value().property("toolid").toString()));
+           QTableWidgetItem *item;
+           item = new QTableWidgetItem(it.value().property("toolname").toString());
+           addMeToRes(item);
+           tb->setItem(index,ToolNameCOL,item);
+            item = new QTableWidgetItem(it.value().property("toolid").toString());
+            addMeToRes(item);
+           tb->setItem(index,ToolID,item);
            gyButton *lkbtn =  new gyButton(index);
+           addMeToRes(lkbtn);
            lkbtn->setText("工具查看");
 
            connect(lkbtn,SIGNAL(clicked()),lkbtn,SLOT(Borowse_Clicked_slot()));
@@ -467,6 +534,7 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
 
             AppState = it.value().property("appstate").toString();
             gyButton *btn =  new gyButton(index);
+            addMeToRes(btn);
             btn->AppState = AppState.toInt();
             btn->ToolAppID = it.value().property("appid").toInt32();
             tb->setCellWidget(index,OP,btn);
@@ -474,6 +542,7 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
             connect(btn,SIGNAL(clicked()),btn,SLOT(Borrow_Clicked_slot()));
             connect(btn,SIGNAL(BorrowClicked(gyButton*)),this,SLOT(borrow_tool_click_slot(gyButton* )));
             myComBox *pComboBox = new myComBox();
+            addMeToRes(pComboBox);
             pComboBox->addItem("");
             if(AppState == "0")//已提交
             {
@@ -490,27 +559,27 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
                                             pComboBox->addItem(alter.value().property("toolid").toString());
                                             pComboBox->insert_coreid(pComboBox->count()-1,alter.value().property("toolname").toString(),alter.value().property("coreid").toString());
                                           //  qDebug()<<pComboBox->currentIndex()<<alter.value().property("coreid").toString();
-                                           if(!map.contains(alter.value().property("toolid").toString()) && alter.value().property("pvcount").toInt32() <=min_pvCount ){
-                                                    min_pvCount= alter.value().property("pvcount").toInt32() ;
-                                                    min_pvCount_index = pComboBox->count()-1;
-                                                    map[alter.value().property("toolid").toString()]="true";
-                                           }
-                                   }
+                                            }
                           }
 
+                        connect(pComboBox,SIGNAL(CBoxChange_Signal(QString,myComBox*)),this,SLOT(ComBoxItemChange(QString,myComBox*)));
+                        pComboBox->curindex = tb->rowCount()-1;
                        qDebug()<<"index-->"<<min_pvCount_index;
-                       pComboBox->setCurrentIndex(min_pvCount_index);
+                       ///pComboBox->setCurrentIndex(min_pvCount_index);
                         btn->setText("借出");
 
              }else if (AppState=="1")//已借出待归还
             {
                         btn->setText("归还");
+
                         pComboBox->addItem(it.value().property("borrowedtoolid").toString());
                         pComboBox->insert_coreid(pComboBox->count()-1,it.value().property("borrowedtoolname").toString(),it.value().property("borrowedtoolcoreid").toString());
-                         pComboBox->setCurrentIndex(1);
-                        tb->setItem(index,ToolNameCOL,new QTableWidgetItem(it.value().property("borrowedtoolname").toString()));
-
+                         pComboBox->setCurrentIndex(0);
+                         item = new QTableWidgetItem(it.value().property("borrowedtoolname").toString());
+                         addMeToRes(item);
+                        tb->setItem(index,ToolNameCOL,item);
                         QTableWidgetItem *im = new QTableWidgetItem(it.value().property("borrowedtoolid").toString());
+                        addMeToRes(im);
                         im->setBackgroundColor(QColor(255,0,0));
                         tb->setItem(index,ToolID,im);
 
@@ -519,6 +588,7 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
                         btn->setText("已归还");
                         pComboBox->addItem(it.value().property("borrowedtoolid").toString());
                         QTableWidgetItem *im = new QTableWidgetItem(it.value().property("borrowedtoolid").toString());
+                        addMeToRes(im);
                         im->setBackgroundColor(QColor(0,255,0));
                          tb->setItem(index,ToolID,im);
             }
@@ -529,6 +599,77 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
 
     }
    return  "OK";
+}
+void MainWindow::LightFlash()
+{
+         if (FirstInit&&LightFlashCnt<8)
+         {
+             QString cmdtxt  = "{\"cmd\":\"LightCtl\",\"lighton\":\""+QString((LightFlashCnt%2)==0?"true":"false")+"\",\"posx\":\"0\",\"posy\":\"0\"}";
+              SendCmd(skt_light,(cmdtxt.toLatin1()).data());
+                    LightFlashCnt++;
+         }else{
+             FirstInit = false;
+             lighttmr->stop();
+         }
+}
+void MainWindow::ComBoxItemChange(QString toolid,myComBox * box)
+{
+    QString cmdtxt = "{\"cmd\":\"GetToolPos\",\"toolid\":\"" + toolid + "\"}";
+    QString cmdret =  httpSendCmd(cmdtxt);
+    QScriptEngine engine;
+    QScriptValue sc = engine.evaluate("("+cmdret+")");
+    QString PosX,PosY;
+   // QMessageBox::information(this,"提示",cmdret);
+    if(sc.property("status").toString()!="success")
+    {
+       // QMessageBox::information(this,"提示","获取工具实时位置失败!");
+        return;
+    }else{
+
+    }
+
+    PosX = sc.property("posx").toString();
+    PosY = sc.property("posy").toString();
+
+
+    QTableWidgetItem *im = new QTableWidgetItem(PosX+"号"+PosY+"层");
+    addMeToRes(im);
+    if (sc.property("realstate").toString()!="5"){
+                 im->setBackgroundColor(QColor(255,0,0));
+    }
+    if (PosX!="X")
+    {
+              QString MapKey = QString ("%1%2").arg(PosX.toInt(),-3,10,QChar('0')).arg(PosY.toInt(),-3,10,QChar('0'));
+              if (light_map.contains(MapKey)){
+                    light_map[MapKey]++;
+                    qDebug()<<"old light found (" + PosX + "," + PosY +")";
+              }else{
+                    light_map[MapKey]= 1;
+                     QString cmdtxt  = "{\"cmd\":\"LightCtl\",\"lighton\":\"true\",\"posx\":\"" +PosX + "\",\"posy\":\""+PosY+"\"}";
+                      QString *sRet =  SendCmd(skt_light,(cmdtxt.toLatin1()).data());
+                      qDebug()<<"new light  (" + PosX + "," + PosY +")-->"<<*sRet;
+              }
+    }
+    if (box->LastLightPosX!="")//此处要记住解决用户点击其他任务时，上个任务的灯遗留问题
+    {
+        QString MapKey = QString ("%1%2").arg( box->LastLightPosX .toInt(),-3,10,QChar('0')).arg( box->LastLightPosY.toInt(),-3,10,QChar('0'));
+        if(light_map.contains(MapKey))
+        {
+            if(light_map[MapKey]==1){
+                QString cmdtext = "{\"cmd\":\"LightCtl\",\"lighton\":\"false\",\"posx\":\"" + box->LastLightPosX + "\",\"posy\":\""+box->LastLightPosY+"\"}";
+                QString *sRet =  SendCmd(skt_light,(cmdtext.toLatin1()).data());
+                 qDebug()<<"close light  (" + box->LastLightPosX  + "," + box->LastLightPosY +")-->"<<*sRet;
+                 light_map.remove(MapKey);
+            }else{
+                light_map[MapKey]--;
+            }
+        }
+
+    }
+    box->LastLightPosX = PosX;
+    box->LastLightPosY = PosY;
+    ui->tableWidget->setItem(box->curindex,REALSTATE,im);
+
 }
 void MainWindow::borrow_tool_click_slot(gyButton * btn)
 {
@@ -690,6 +831,8 @@ void MainWindow::on_pushButton_2_clicked()
 void MainWindow::on_pushButton_3_clicked()
 {
         SendCmd(skt_finger,"{\"cmd\":\"activeME\"}");
+        light_map.clear();
+        //deleteAllRes();
         this->hide();
         flash->showFullScreen();
 }
