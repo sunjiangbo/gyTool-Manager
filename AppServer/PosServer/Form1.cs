@@ -62,21 +62,52 @@ namespace WindowsFormsApplication1
         List<rUser> UserList;
         SqlDataAdapter CoreTabDA;
 
-        public void LightCtl(int PosX, int PosY, bool lightOn)
+        public String LightCtl(int PosX, int PosY, bool lightOn)
         {
-            int i,j;
-            if (PosX == 0 && PosY == 0)
-            {
-                for ( i = 0; i < MachLst.Count; i++)
-                    {
-                       for(j=0;j<4;j++){
-                           MachLst[i].rd.GPOSet(j, lightOn?false:true);
-                       }
-                    }
-                return;
-            }
+            int i, j;
+             AddMsg("LightCtl:" + PosX  +" " + PosY,INFO);
+             try
+             {
+                 if (PosX == 0 && PosY == 0)
+                 {
+                     for (i = 0; i < MachLst.Count; i++)
+                     {
+                         for (j = 1; j <= 4; j++)
+                         {
+                             MachLst[i].rd.GPOSet(j, true/*lightOn==true?false:true*/);
+                             AddMsg("cur" + i + " " + j, INFO);
+                         }
+                     }
+                     return "{\"status\":\"success\",\"msg\":\"命令执行成功\"}";
+                 }
 
-            MachLst[PosX].rd.GPOSet(PosY, lightOn ? false : true);
+
+                 //GPOSet false-->高电平  true-->低电平
+                 Mach tMc = null;
+                 foreach (Mach t in MachLst)
+                 {
+                     if (t.MachID == PosX)
+                     {
+                         tMc = t;
+                         AddMsg("找到机器:" + tMc.MachName, INFO);
+                         break;
+                     }
+                 }
+
+                 if (tMc == null)
+                 {
+                     return "{\"status\":\"failed\",\"msg\":\"该货架没有RFID未连接服务器\"}";
+                 }
+                 AddMsg("开始执行GPOSet(" + PosY + "," + (lightOn == true ? "true" : "false") + ")", INFO);
+                 tMc.rd.GPOSet(PosY, lightOn ? false : true);
+                 return "{\"status\":\"success\",\"msg\":\"命令执行成功\"}";
+             }
+             catch (Exception ex)
+             {
+                 AddMsg("LightCtl->" + ex.Message, WARN);
+                 return "{\"status\":\"failed\",\"msg\":\""+ex.Message+"\"}";
+             }
+
         }
 
         private String DealCmd(rUser user, String CmdDat)
@@ -101,7 +132,9 @@ namespace WindowsFormsApplication1
 
                 if (Cmd == "LightCtl")
                 {
-                    LightCtl(Convert.ToInt32(JO["posx"].ToString()),Convert.ToInt32(JO["posy"].ToString()),JO["lighton"].ToString()=="true"?true:false);
+                    String sRet =  LightCtl(Convert.ToInt32(JO["posx"].ToString()),Convert.ToInt32(JO["posy"].ToString()),JO["lighton"].ToString()=="true"?true:false);
+                    AddMsg(sRet, INFO);
+                    return sRet;
                 }              
 
 
@@ -111,8 +144,8 @@ namespace WindowsFormsApplication1
             }
             catch (Exception e)
             {
-                AddMsg("执行" + CmdDat + "错误!" + e.Message, WARN);
-                return "{\"status\":\"failed\",\"reason\":\"解析命令失败!\"}";
+                AddMsg("执行错误!" + CmdDat + e.Message, WARN);
+                return "{\"status\":\"failed\",\"reason\":\"解析命令失败!" + e.Message + "\"}";
             }
 
         }
@@ -256,7 +289,7 @@ namespace WindowsFormsApplication1
                 item.SubItems.Add(DateTime.Now.ToString());
                 item.SubItems.Add(Type);
                 item.SubItems.Add(Content);
-                listView1.Items.Insert(0, item);
+                listView1.Items.Add(item);
             }
             else
             {
@@ -296,7 +329,8 @@ namespace WindowsFormsApplication1
                 try
                 {
                     MachLst[i].rd = Reader.Create(MachLst[i].MachIP, ModuleTech.Region.NA, 4);
-
+                    
+                    //MachLst[i].rd.GPOSet(1,false);
                     int[] connectedants = (int[])MachLst[i].rd.ParamGet("ConnectedAntennas");
                     if (connectedants.Length <1)
                     {
@@ -522,14 +556,14 @@ namespace WindowsFormsApplication1
        */
         public void GetCoreTabThread()
         {
-            System.Timers.Timer t = new System.Timers.Timer(1500);//
+            System.Timers.Timer t = new System.Timers.Timer(3000);//
             t.Elapsed += new System.Timers.ElapsedEventHandler(GetCoreTab);
             t.AutoReset = true;//设置是执行一次（false）还是一直执行(true)；
             t.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件；
         }
         public void UpdateAllToolStateThread()
         {
-            System.Timers.Timer t1 = new System.Timers.Timer(2000);//
+            System.Timers.Timer t1 = new System.Timers.Timer(4000);//
             t1.Elapsed += new System.Timers.ElapsedEventHandler(UpdateAllToolState);
             t1.AutoReset = true;//设置是执行一次（false）还是一直执行(true)；
             t1.Enabled = true;//是否执行System.Timers.Timer.Elapsed事件；
@@ -689,7 +723,7 @@ namespace WindowsFormsApplication1
            
             String Ret;
             isInventory = true;
-            Port = 7903;
+           /* Port = 7903;
             mListener = new TcpListener(Port);
             try
             {
@@ -701,7 +735,7 @@ namespace WindowsFormsApplication1
                 MessageBox.Show("在端口监听失败,程序退出!");
                 Application.Exit();
             }
-            AddMsg("Tcp监听成功!", 1);
+            AddMsg("Tcp"+Port+"监听成功!", 1);
 
             UserList = new List<rUser>();
 
@@ -711,8 +745,8 @@ namespace WindowsFormsApplication1
             Thread myThread = new Thread(ts);
             myThread.Start();
 
-
-
+            */
+           
             initMach();
             Ret = CheckAntAndInitReaders();
             if (Ret == "OK")
@@ -724,6 +758,8 @@ namespace WindowsFormsApplication1
             {
                 AddMsg(Ret, WARN);
             }
+
+            //LightCtl(3,2, false);
             CreateMonitorThreads();
             (new Thread(GetCoreTabThread)).Start();
             (new Thread(UpdateAllToolStateThread)).Start();
@@ -820,6 +856,16 @@ namespace WindowsFormsApplication1
             s1 = "10:01:00";
             s2 = "10:01:07";
             MessageBox.Show(GetSecendsDeta(Convert.ToDateTime(s1),Convert.ToDateTime(s2))+"");
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+            LightCtl(0, 0, false);
+        }
+
+        private void button3_Click_2(object sender, EventArgs e)
+        {
+            LightCtl(0, 0, false);
         }
     }
 }

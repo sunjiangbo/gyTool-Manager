@@ -1,0 +1,13 @@
+E:\gyTool-Manager\AppServer\PosServer\bin\Debug\WindowsFormsApplication1.exe.config
+E:\gyTool-Manager\AppServer\PosServer\bin\Debug\WindowsFormsApplication1.exe
+E:\gyTool-Manager\AppServer\PosServer\bin\Debug\WindowsFormsApplication1.pdb
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\ResolveAssemblyReference.cache
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.Form1.resources
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.Properties.Resources.resources
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\GenerateResource-ResGen.read.1.tlog
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\GenerateResource-ResGen.write.1.tlog
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.exe
+E:\gyTool-Manager\AppServer\PosServer\obj\Debug\WindowsFormsApplication1.pdb
+E:\gyTool-Manager\亮灯控制程序\bin\Debug\WindowsFormsApplication1.exe.config
+E:\gyTool-Manager\亮灯控制程序\obj\Debug\WindowsFormsApplication1.exe
+E:\gyTool-Manager\亮灯控制程序\obj\Debug\WindowsFormsApplication1.pdb
