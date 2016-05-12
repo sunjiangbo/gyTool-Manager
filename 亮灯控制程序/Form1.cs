@@ -314,10 +314,7 @@ namespace WindowsFormsApplication1
                 {
                     McArr[i].rd = Reader.Create(McArr[i].MachIP, ModuleTech.Region.NA, 4) ;
                     AddMsg("开始连接" + McArr[i].MachName, INFO);
-                    for (j = 1; j <= 4; j++)
-                    {
-                        McArr[i].rd.GPOSet(j, false);
-                    }
+                  
 
                     AddMsg( McArr[i].MachName + "连接成功！", INFO);
                     MyManager.AddInfoToDB("信息", McArr[i].MachName + "连接成功！");
