@@ -493,6 +493,9 @@ QString MainWindow::GetBorrowInfoByTaskID(QString TaskID)
 
     if (TaskID=="")return "failed";
 
+    QString cmdtext = "{\"cmd\":\"LightCtl\",\"lighton\":\"false\",\"posx\":\"0\",\"posy\":\"0\"}";
+   SendCmd(skt_light,(cmdtext.toLatin1()).data());
+    light_map.clear();
 
     QString cmdtxt = "{\"cmd\":\"GetBorrowInfoByTaskID\",\"taskid\":\"" + TaskID + "\"}",AppState="0";
     QString cmdret =  httpSendCmd(cmdtxt);
