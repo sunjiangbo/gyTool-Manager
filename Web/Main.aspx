@@ -47,6 +47,10 @@
                 $(p).panel("setTitle", $(a).text());
                 main.window.location = 'ToolQuery.aspx';
             }
+             if ($.trim($(a).text()) == '借还历史') {
+                $(p).panel("setTitle", $(a).text());
+                main.window.location = 'BorrowHistory.aspx';
+            }
 
         }       
     </script>
@@ -83,7 +87,7 @@
         <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'"  onclick="ItemClick(this);">工具入编</a></div>
         <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search'"  onclick="ItemClick(this);">打号任务</a></div>
         <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search1'"  onclick="ItemClick(this);">工具查询</a></div>
-        <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'"  onclick="">计量工具</a></div>
+        <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'"  onclick="ItemClick(this);">借还历史</a></div>
 		</div>
     </div>      
     </div>   

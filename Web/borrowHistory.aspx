@@ -140,8 +140,11 @@
         }
     </style>
 </head>
-<body>
+<body id = "cc" class="easyui-layout">
+
     <form id="form1" runat="server">
+   <div id= "MContent" title = "借还查询" region="center"">
+    <div title="库存查询" >
 
     <div >
     <span style="" >件号:</span><input class= "NormalLB" id="toolid"/>
@@ -163,6 +166,9 @@
             <div id="Win1" class="easyui-window"  style = "padding:0px; width:300px; height:500px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true" >
                 <iframe id ="TaskFR"  width="97%" height="97%" frameborder="0"></iframe>
             </div>
+           </div>
+           </div>
+           
     </form>
 </body>
 </html>
