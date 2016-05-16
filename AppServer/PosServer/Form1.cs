@@ -472,8 +472,8 @@ namespace WindowsFormsApplication1
 
         void TagMonitorThread(object Mach)
         {
-            Mach mc = (Mach)Mach;
-            int MachID = mc.MachID;
+           Mach mc = (Mach)Mach;
+           int MachID = mc.MachID;
            while (isInventory)
             {
                 try
@@ -483,6 +483,7 @@ namespace WindowsFormsApplication1
                     {
                         AddTagToDic(tag, MachID);
                     }
+                    //Thread.Sleep(4000);
                 }
                 catch (OpFaidedException ex1)
                 {

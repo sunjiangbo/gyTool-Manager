@@ -1,0 +1,9 @@
+C:\Documents and Settings\Administrator\桌面\DAM3018D\GetEPC\GetEPC\bin\Debug\GetEPC.exe
+C:\Documents and Settings\Administrator\桌面\DAM3018D\GetEPC\GetEPC\bin\Debug\GetEPC.pdb
+C:\Documents and Settings\Administrator\桌面\DAM3018D\GetEPC\GetEPC\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\Administrator\桌面\DAM3018D\GetEPC\GetEPC\obj\x86\Debug\GetEPC.Form1.resources
+C:\Documents and Settings\Administrator\桌面\DAM3018D\GetEPC\GetEPC\obj\x86\Debug\GetEPC.Properties.Resources.resources
+C:\Documents and Settings\Administrator\桌面\DAM3018D\GetEPC\GetEPC\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Documents and Settings\Administrator\桌面\DAM3018D\GetEPC\GetEPC\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Documents and Settings\Administrator\桌面\DAM3018D\GetEPC\GetEPC\obj\x86\Debug\GetEPC.exe
+C:\Documents and Settings\Administrator\桌面\DAM3018D\GetEPC\GetEPC\obj\x86\Debug\GetEPC.pdb
