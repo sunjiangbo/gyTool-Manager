@@ -36,9 +36,9 @@ public partial class Login : System.Web.UI.Page
         {
             JObject JO = JObject.Parse(json);
 
-            txtUserName = JO["username"].ToString();
+            txtUserName = "{"+JO["username"].ToString()+"}";
 
-            txtPassword = JO["pwd"].ToString();
+            txtPassword = "{"+JO["pwd"].ToString()+"}";
 
             /*Response.Write("dat:" +json+"\n");
              Response.Write("parse:" + txtUserName + txtPassword + "\n");
@@ -49,13 +49,18 @@ public partial class Login : System.Web.UI.Page
                 Response.Write(json);
                 return;
             }
-
+            DataTable dt = new DataTable();
+            SqlConnection myConn = new SqlConnection(System.Configuration.ConfigurationSettings.AppSettings["ConnStr"]);
             //Response.Write("h1\n");
-
-            DataTable dt = MyManager.GetDataSet("SELECT UserList.*, Corps.CorpName,Corps.CorpType,Corps.ParentID FROM UserList left join Corps on UserList.CorpID = Corps.CorpID Where UserName = '" + txtUserName + "' And Pwd = '" + System.Web.Security.FormsAuthentication.HashPasswordForStoringInConfigFile(txtPassword, "MD5").ToUpper() + "'");
+            SqlCommand cmd = new SqlCommand("SELECT UserList.*, Corps.CorpName,Corps.CorpType,Corps.ParentID FROM UserList left join Corps on UserList.CorpID = Corps.CorpID Where UserName = @UserName AND Pwd = @Pwd", myConn);
+            cmd.Parameters.AddWithValue("@Username", txtUserName);
+            cmd.Parameters.AddWithValue("@Pwd", txtPassword);
+            SqlDataAdapter da = new SqlDataAdapter(cmd);
+            da.Fill(dt);
+            //DataTable dt = MyManager.GetDataSet("SELECT UserList.*, Corps.CorpName,Corps.CorpType,Corps.ParentID FROM UserList left join Corps on UserList.CorpID = Corps.CorpID Where UserName = '" + txtUserName + "' And Pwd = '" + /*System.Web.Security.FormsAuthentication.HashPasswordForStoringInConfigFile(txtPassword, "MD5").ToUpper()*/ + "'");
 
             //  Response.Write("h2\n");
-            if (dt.Rows.Count == 0)
+            if (dt.Rows.Count ==0)
             {
                 json = "{\"status\":\"failed\",\"Msg\":\"密码错误!\"}";
                 Response.Write(json);

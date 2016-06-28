@@ -203,4 +203,19 @@ public partial class TaskDetail : System.Web.UI.Page
         Button1.Visible = false;
         Page.ClientScript.RegisterStartupScript(Page.GetType(), "message", "<script language='JavaScript'>$.alert.messager('提示','任务转发成功!');</script>");
     }
+    protected void TaskFlowGV_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+    protected void TaskFlowGV_SelectedIndexChanged1(object sender, EventArgs e)
+    {
+
+    }
+    protected void TaskFlowGV_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType != DataControlRowType.Header)
+        {
+            e.Row.Cells[0].Text = (e.Row.RowIndex + 1).ToString();
+        }
+    }
 }

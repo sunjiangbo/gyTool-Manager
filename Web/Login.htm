@@ -51,7 +51,7 @@
         }
   $(function(){
        
-       // $("#mP").panel("move",{top:$(document).scrollTop() + ($(window).height()-250) * 0.5});
+       // $("#w")
   }
   );
     </script>
@@ -69,27 +69,42 @@
 
     text-align:center;
     }
+    #BodyBg{ 
+    width: 100%;  
+    height: 100%;  
+    position: absolute;  
+    left: 0px;  
+    top: 0px;  
+    z-index: 0; 
+} 
+ 
+.stretch { 
+    width:100%; 
+    height:100%; 
+} 
 </style>
     </style>
 </head>
 <body >
-  
-  <div class ="">
-
-    <div id = "mP" class="easyui-panel" title="用户登陆" style="width:400px;padding:30px 70px 20px 70px">
-		<div style="margin-bottom:10px">
-			<input id = "username" class="easyui-textbox" style="width:100%;height:40px;padding:12px" data-options="iconCls:'icon-man',iconWidth:38"/>
-		</div>
-		<div style="margin-bottom:20px">
-			<input id= "pwd" class="easyui-textbox" type="password" style="width:100%;height:40px;padding:12px" data-options="iconCls:'icon-lock',iconWidth:38"/>
-		</div>
-		<div>
-			<a  id = "btn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="padding:5px 0px;width:100%;" onclick= "javascript:UserLogin();">
-				<span style="font-size:14px;" >登陆</span>
-			</a>
-		</div>
-	</div>
+  <div id="BodyBg"> 
+    <img src="img/fm.jpg" class="stretch" alt="" /> 
+    <div id="w" class="easyui-window" title="请先登录" data-options="modal:true,iconCls:'Lockgo',closable:false,minimizable:false" style="width:400px;padding:20px 70px 20px 70px;">
+         
+        <div style="margin-bottom:10px">
+            <input class="easyui-textbox" id="username" style="width:100%;height:30px;padding:12px" data-options="prompt:'',iconCls:'icon-man',iconWidth:38">
+        </div>
+        <div style="margin-bottom:20px">
+            <input class="easyui-textbox" id="pwd" type="password" style="width:100%;height:30px;padding:12px" data-options="prompt:'',iconCls:'icon-lock',iconWidth:38">
+        </div>
+        
+        <div>
+            <a href="javascript:;" onclick="UserLogin()" class="easyui-linkbutton" data-options="iconCls:'icon-ok'" style="padding:5px 0px;width:100%;">
+                <span style="font-size:14px;">登录</span>
+            </a>
+        </div>
+         </div>
 </div>
+  
     
 </body>
 </html>

@@ -100,7 +100,8 @@
 
 <div id= "Center" region="center" title = "">
   <iframe id="main" name="main" scrolling="auto" frameborder="0" scrolling="yes" width="100%"
-                    height="100%" src=""></iframe>
+                    height="100%" src="">
+                    </iframe>
 </div>
 
 
