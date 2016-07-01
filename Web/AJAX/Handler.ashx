@@ -668,7 +668,7 @@ public String Test(HttpContext ctx)
             if (Type ==1 /*增加工具箱，看是否有重名。*/) {
                 if ("0" != MyManager.GetFiledByInput("SELECT Count(ID) as Num FROM PropertyValues WHERE valueType =1 AND value = '" + ToolName + "'", "Num"))
                 {
-                    return "{\"status\":\"failed\",\"msg\":\"该工具箱名已存在，请更换！\"}";
+                    return "{\"status\":\"failed\",\"msg\":\"该工具包名已存在，请更换！\"}";
                 }
             }
             else if (Type == 2)/*增加包内工具，看是否有重名。*/
@@ -682,9 +682,7 @@ public String Test(HttpContext ctx)
             //检查所有必要属性是否填写完整.
             JArray JA = JArray.FromObject(JO["values"]);
             tmp = "(";
-            SQL = "";
-
-            
+            SQL = "";           
             
             foreach(JToken jt in JA)
             {
@@ -709,7 +707,7 @@ public String Test(HttpContext ctx)
             if (Type == 1)/*添加工具包！*/
             {
                CurBagID = Convert.ToInt32( MyManager.GetFiledByInput("INSERT INTO [PropertyValues] (PropertyID,Value,ValueType,ParentID,Num) VALUES (" + ClassID + ",'" + ToolName + "'," + TOOL_BAG_TYPE + ",IDENT_CURRENT('PropertyValues'),1);SELECT IDENT_CURRENT('PropertyValues') AS CurID", "CurID"));
-               MyManager.ExecSQL("UPDATE PropertyValues Set Rank = " + CurBagID + " WHERE ID = " + CurBagID);
+               MyManager.ExecSQL("UPDATE PropertyValues Set Rank = '" + CurBagID + "' WHERE ID = " + CurBagID);
                if (CurBagID <= 0) return "{\"status\":\"faild\",\"msg\":\"插入工具包失败！\"}";
                SQL = SQL.Replace("sToolPID", CurBagID.ToString()); 
                MyManager.ExecSQL(SQL);
@@ -1781,7 +1779,7 @@ public String Test(HttpContext ctx)
         int ClassID = Convert.ToInt32(JO["classid"].ToString());//有可能是独立工具ID
         int Type  = Convert.ToInt32(JO["type"].ToString());//1:工具包 2：独立工具
         int i, j, k, HitNum = Convert.ToInt32(JO["hitnum"].ToString());
-        String StoreID, ToolID, HitTaskID = JO["taskid"].ToString(),newRank="0";
+        String StoreID, ToolID, HitTaskID = JO["taskid"].ToString(),newRank="0",OldSN,failedMsg="";
         DataRow[] dr;
         String[] Rank;
         int iRet =0;
@@ -1791,12 +1789,30 @@ public String Test(HttpContext ctx)
 */
         
         /***************开始对工具编号**************/
+        JArray OldSNArr = JArray.Parse(JO["oldsns"].ToString());
+        
+        for(i=0;i<OldSNArr.Count;i++)
+        {
+            if (MyManager.CheckSNExist(OldSNArr[i]["yzsn"].ToString()))
+            {
+                failedMsg += OldSNArr[i]["yzsn"].ToString() + " ";
+            }
+        }
 
+        if (failedMsg != "")
+        {
+            return "{\"status\":\"failed\",\"msg\":\"失败!"+failedMsg+ "\"}";
+        }         
+  
+        
         DataTable dt = MyManager.GetDataSet("SELECT * FROM PropertyValues Where ParentID =" + ClassID );
         for (i = 0; i < HitNum; i++)
         {
-
-
+            OldSN = "";
+            if (i < OldSNArr.Count)
+            {
+                OldSN = OldSNArr[i]["yzsn"].ToString();
+            } 
             if (Type != 5)//工具包入库
             {
                 newRank = "0";
@@ -1834,10 +1850,10 @@ public String Test(HttpContext ctx)
             }
             else//独立工具入库，则只需将其属性导入StoreToolValue即可
             {
-               
+                
                     JArray JA = JArray.Parse(JO["values"].ToString());
                     String SQL = "";
-                    StoreID = MyManager.GetFiledByInput("INSERT INTO StoredTool (RelatedTask,[State],rkID,Rank,[StoredName],[ModelID],[ModelType],[StoreTime]) VALUES ('"+JO["taskid"].ToString()+"',4," + MyManager.GetNextFlowID() + ",NULL,'"
+                StoreID = MyManager.GetFiledByInput("INSERT INTO StoredTool (RelatedTask,[State],rkID,Rank,[StoredName],[ModelID],[ModelType],[StoreTime]) VALUES ('" + JO["taskid"].ToString() + "',4," + (OldSN==""?MyManager.GetNextFlowID():OldSN) + ",NULL,'"
                                                          + JO["toolname"].ToString() + "',"
                                                          + JO["classid"].ToString() + ",0,"
                                                          + "'" + DateTime.Now.ToString() + "');SELECT IDENT_CURRENT('StoredTool') AS CurID;", "CurID");
@@ -3070,6 +3086,37 @@ public String Test(HttpContext ctx)
                         
         
     }
+
+    public String CheckOldSNExist(int oldsn)
+    {
+        if (MyManager.CheckSNExist(oldsn.ToString()))
+        {
+            return "{\"status\":\"failed\",\"msg\":\"序号"+oldsn+"已经存在!\"}";
+        }
+        return "{\"status\":\"success\",\"msg\":\"序号" + oldsn + "可以使用!\",\"oldsn\":\""+oldsn+"\"}";
+    }
+    public String ModifyPropertyName(JObject JO)
+    {
+            //首先查看该工具类中该属性ID是否存在
+        DataTable dt;
+        dt = MyManager.GetDataSet("SELECT ID FROM ClassPropertys WHERE NodeType = 3 AND ID =" + Convert.ToInt32(JO["propertyid"].ToString()) + " AND ParentID = " + Convert.ToInt32(JO["cid"].ToString()));
+        if (dt.Rows.Count == 0)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"该属性不存在!\"}";
+        }
+        if (JO["newname"].ToString().Trim().IndexOf(" ") != -1 || JO["newname"].ToString().Trim().IndexOf("'") != -1 || JO["newname"].ToString().Trim() == "")
+        {
+            return "{\"status\":\"failed\",\"msg\":\"属性名中不可含有分号或者空格!\"}";
+        }//查看是否有重名属性
+        dt = MyManager.GetDataSet("SELECT ID FROM ClassPropertys WHERE PARENTID = " + Convert.ToInt32(JO["cid"].ToString()) + " AND NodeType =3 AND ID <>" + Convert.ToInt32(JO["propertyid"].ToString()) + "  AND Name = '" + JO["newname"].ToString().Trim() + "'");
+        if (dt.Rows.Count !=0 )
+        {
+             return "{\"status\":\"failed\",\"msg\":\"该属性与其他属性重名!\"}";
+        }
+
+        MyManager.ExecSQL("Update ClassPropertys Set Name = '" + JO["newname"].ToString().Trim() + "'" + " WHERE ID =" + Convert.ToInt32(JO["propertyid"].ToString()));
+        return "{\"status\":\"success\",\"msg\":\"属性名修改成功!\"}";
+    }
    public void ProcessRequest (HttpContext context) 
    {
 
@@ -3333,7 +3380,15 @@ public String Test(HttpContext ctx)
            {
                retJSON = devGetInfo(JO);
             }
-           
+           if (Cmd == "CheckOldSNExist")
+           {
+               retJSON = CheckOldSNExist(Convert.ToInt32(JO["oldsn"].ToString()));
+           }
+
+           if (Cmd == "ModifyPropertyName")
+           {
+               retJSON = ModifyPropertyName(JO);  
+           }
            context.Response.Write(retJSON);
            
         }

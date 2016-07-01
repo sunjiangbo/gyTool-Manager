@@ -9,7 +9,7 @@
 	<link rel="stylesheet" type="text/css" href="demo/demo.css">
 	<script type="text/javascript" src="jquery.min.js"></script>
 	<script type="text/javascript" src="jquery.easyui.min.js"></script>
-    <script type="text/javascript" src="JS/MyJS.js"></script>
+    <script type="text/javascript" src="js/MyJS.js"></script>
     <link href="Css/MyCSS.css" rel="stylesheet" type="text/css" />
     
 </head>
@@ -248,7 +248,43 @@
 
     
     }
-
+    
+    
+    function ModifyPropertyName()
+    {
+        var newname = $("#newPName").val();
+        var oldname = $("#oldPName").text();
+        var propertyID = $("#oldPName").attr("name");
+        
+        if(newname == "" || newname==oldname ||propertyID =='')
+        {
+             $.messager.alert('提示', '必须填写新属性名，且不能和旧属性名相同!');
+            return;
+        }
+        o = {};
+        o.cmd = "ModifyPropertyName";
+        o.cid = CID;
+        o.propertyid = propertyID;
+        o.newname = newname;
+        MyAjax(o,function(data){
+             if (data.status == "success")
+             {
+                $.messager.alert('提示', '属性名修改成功!');
+                $("#tWin").window({  closed: true });
+                window.location.href = "ClassManage.aspx?ClassID=" + CID;
+             }else{
+                $.messager.alert('修改失败',data.msg);
+             }
+        },null);
+    }   
+    function MDFP(PropertyID)
+    {
+ 
+         $("#oldPName").text($("#property"+PropertyID).text());
+         $("#oldPName").attr("name",PropertyID);
+         $("#newPName").val("");
+         $("#tWin").window({  width:270,height:115,closed: false });
+    }
     $(function() {
 
         if (isPostBack) return;
@@ -261,7 +297,7 @@
             jsondat = dat.data;
             for (i = 0; i < jsondat.length; i++) {
 
-                tr = '<tr><td>' + jsondat[i].valuename + '</td>';
+                tr = '<tr><td><span id=property'+ jsondat[i].id +'>'+ jsondat[i].valuename + '</span></td>';
                 cmid = "cm" + jsondat[i].id; /*即combox的id*/
 
                 ck = "";
@@ -281,7 +317,7 @@
                     ck = 'checked = "true"';
                 } else { ck = ''; }
 
-                tr += '<td>' + cm + '</select></div></td>' + '<td><input name = "property" id = "pck' + jsondat[i].id + '"type="checkbox" ' + ck + '/></td>' + '<td><a id="add' + cmid + '"  class="easyui-linkbutton" data-options="iconCls:\'icon-add\'" onclick = "AddValue(' + jsondat[i].id + ',' + jsondat[i].id + ');">增加取值</a></td>'+'<td><a id="delval' + cmid + '"  class="easyui-linkbutton" data-options="iconCls:\'icon-add\'" onclick = "DelValue(' + jsondat[i].id + ',' + jsondat[i].id + ');">删除取值</a>'+'</td><td><a id="delp' + cmid + '"  class="easyui-linkbutton" data-options="iconCls:\'icon-add\'" onclick = "DelP(' + jsondat[i].id + ',' + jsondat[i].id + ');">删除属性</a>'+'</td>'+'</tr>';
+                tr += '<td>' + cm + '</select></div></td>' + '<td><input name = "property" id = "pck' + jsondat[i].id + '"type="checkbox" ' + ck + '/></td>' + '<td><a id="add' + cmid + '"  class="easyui-linkbutton" data-options="iconCls:\'icon-add\'" onclick = "AddValue(' + jsondat[i].id + ',' + jsondat[i].id + ');">增加取值</a></td>'+'<td><a id="delp' + cmid + '"  class="easyui-linkbutton" data-options="iconCls:\'icon-remove\'" onclick = "MDFP(' + jsondat[i].id + ');">改属性名</a>'+'</td>'+'</tr>';
                 $(".MyTable").append($(tr));
                 $("#" + cmid).combobox({ editable: true });
                 $("#" + cmid).combobox('setText', '');
@@ -300,7 +336,7 @@
             $.messager.alert('提示', '发生错误,请联系李光耀!');
         }
 
-        lastrow = '<tr><td>新属性名:</td><td><input id = "ckadd" type="checkbox" /></td><td><input id="nameInput" type= "text"/></td><td><input id = "pckadd" checked = "true" type="checkbox" /></td><td><a id="add" href="#" onclick = "AddProperty();" class="easyui-linkbutton" data-options="iconCls:\'icon-ok\'">增加属性</a></td></tr>';
+        lastrow = '<tr><td>新属性名:</td><td><input id = "ckadd" type="checkbox" /></td><td><input id="nameInput" type= "text"/></td><td><input id = "pckadd" checked = "true" type="checkbox" /></td><td  colspan="2"><a id="add" href="#" onclick = "AddProperty();" class="easyui-linkbutton" data-options="iconCls:\'icon-ok\'">增加属性</a></td></tr>';
         $(".MyTable").append($(lastrow));
         $("#tool").css("width", $(".MyTable").width());
         $("#add").linkbutton();
@@ -328,22 +364,25 @@
                 <td>
                     操作
                 </td>
-                 <td>
-                    操作
-                </td>
+                
             </tr>
      
         </table>
 
         	
 
-    
+    <div id="tWin" class="easyui-window"  style = "padding:10px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'属性名修改'" style="width:500px;height:120px;" >
+                <div><span >原属性名:</span><span id="oldPName"  style="color:Red; padding:10px;"></span> ==> <input id = "newPName" type="text" style="width:70px; margin-left:10px"/></div>
+                <div style=" text-align:center; margin:10px;">
+                <input id  = "MDPBtn" type ="button" onclick = "ModifyPropertyName();" class="easyui-linkbutton" value="确认"/>
+                </div>
+            </div>
 
 
     </form>
 
         
-    <p>
+   
 
 
         

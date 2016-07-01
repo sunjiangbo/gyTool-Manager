@@ -31,6 +31,9 @@
 .icon-reload{
 	background:url('icons/reload.png') no-repeat center center;
 }
+.icon-modify{
+	background:url('icons/modify.png') no-repeat center center;
+}
 .icon-search{
 	background:url('icons/search.png') no-repeat center center;
 }

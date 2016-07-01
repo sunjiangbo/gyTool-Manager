@@ -28,6 +28,7 @@
     var ToolName = '<%= ToolName %>';
     var BtnName = '保存'; //按钮名称，根据任务类型调整
     var CurClassID = 0; //当前被选中类的ID
+    var OldSNs = [];
     Date.prototype.pattern = function (fmt) {
         var o = {
             "M+": this.getMonth() + 1, //月份         
@@ -227,13 +228,13 @@
                record.id = $("#drClass").combobox('getValue');
                record.isInit = false;
                ClassChange(record);
-           } else if (Type == 5) {
+           } else if (Type == 5) {//工具入库，打流水号
                var value = [];
                var tv;
                var mTaskID ;
                json = {};
                json.cmd = "StoreTool";
-               json.hitnum = $("#Count").val();
+               json.hitnum = $("#Count").val();//入库数量
                json.type = Type;
                json.classid = ClassID;
                json.toolname = $("#t_ToolName").val();
@@ -241,6 +242,7 @@
                mTaskID = json.taskid ;
                json.coreperson = $("#KeyPerson").val();
                json.taskname = "入库打流水号-" + $("#t_ToolName").val() + "x" + $("#Count").val();
+               json.oldsns= OldSNs;//预置序号
                for (i = 0; i < cks.length; i++) {
                    tv = new Object();
                    PropertyID = $(cks[i]).data('PropertyID');
@@ -398,7 +400,7 @@
 
                     /// if (Type == 5) //如果是独立工具入库
                     {
-                        $(".MyTable").append('<tr class ="tmp" name ="LastRow"> ><td>属性名</td><td><input id = "NewAttr"/></td><td>操作</td><td><a id="AddAttrBtn"  class="easyui-linkbutton" data-options="iconCls:\'icon-add\'" onclick = "AddProperty();">添加属性</a></td></tr>');
+                        $(".MyTable").append('<tr class ="tmp" name ="LastRow"><td>属性名</td><td><input id = "NewAttr"/></td><td>操作</td><td><a id="AddAttrBtn"  class="easyui-linkbutton" data-options="iconCls:\'icon-add\'" onclick = "AddProperty();">添加属性</a></td></tr>');
                         $("#AddAttrBtn").linkbutton();
                     }
                     if (Type == 5) { subs = '1"><span>打号负责人</span></td><td><input ID="KeyPerson" style="text-align:center; font-weight:bolder;"></input></td><td>操作</td><td colspan="1">'; }
@@ -433,7 +435,9 @@
 
 
     $(function() {
-
+        
+        $("#yxsnrow").css('display','none');
+        
         if (Type == 2 || Type == 4 || Type == 3)//添加工具包内工具 或 修改包及包内工具
         {
             if (
@@ -444,7 +448,7 @@
                 document.write('参数不全，无父包ID和父包名称!');
                 return;
             }
-
+            
             $("#pBagName").text(BagName);
             $("#t_ToolName").attr("value", ToolName);
         } else if (Type == 1) {
@@ -456,7 +460,8 @@
         } else if (Type == 5)//独立工具入库
         {
             $(".tjzgj").hide();
-            $("#t_ToolName").attr("disabled", "true");
+            //$("#t_ToolName").attr("disabled", "true");
+             $("#yxsnrow").css('display','');
             BtnName = '打流水号';
         }
         else {
@@ -504,6 +509,78 @@
         });
 
     });
+
+   function AddOldSN()
+   {
+        sn = $("#drOldSN").combobox('getText');
+        if(sn=="")
+        {
+            $.messager.alert('提示', '请输入预置序列号!'); 
+            return;
+        }
+        var i = 0;
+         while(i<OldSNs.length)
+        {
+            if(OldSNs[i].yzsn == sn)
+            {
+                 $.messager.alert('提示', '序列号'+sn+'重复!'); 
+                 return; 
+            }
+            i++;
+        } 
+        
+        cmddat = {};
+        cmddat.cmd = "CheckOldSNExist"; 
+        cmddat.oldsn = sn;         
+        
+        MyAjax(cmddat,function(data,sn){
+            if(data.status != "success")
+            {
+                 $.messager.alert('提示', data.msg); 
+                 return;
+            }
+          //  var sndat = {};
+            //sndat.yzsn= sn;
+            
+            OldSNs.push({yzsn:data.oldsn});
+           
+            $("#drOldSN").combobox({data:OldSNs,valueField:'yzsn',textField:'yzsn'});
+            
+            if($("#Count").val()<OldSNs.length)
+            {
+                $("#Count").val(OldSNs.length);
+            }
+            
+       },null);
+       
+           
+   }
+   
+   function DelOldSN()
+   {
+        sn = $("#drOldSN").combobox('getText');
+        if(sn=="")
+        {
+            $.messager.alert('提示', '请选择要删除的预置序列号!'); 
+            return;
+        }
+        var i = 0;
+         while(i<OldSNs.length)
+        {
+            if(OldSNs[i].yzsn == sn)
+            {
+                 OldSNs.pop(OldSNs[i]);
+                 $.messager.alert('提示', '序列号'+sn+'删除成功,请注意修改工具入库数量!'); 
+                 $("#drOldSN").combobox({data:OldSNs,valueField:'yzsn',textField:'yzsn'});
+                 return; 
+            }
+            i++;
+        } 
+        
+        $.messager.alert('提示', '下拉框中无序列号'+sn+'!'); 
+       
+                 
+   }
    
 
 </script>
@@ -524,6 +601,12 @@
              <td><input id = "t_ToolName" type="text" /></td>
              <td >数量</td>
              <td><input id = "Count" type="text" value ="1"/></td>
+         </tr>
+         <tr id = "yxsnrow">
+         <td>预置序号</td> 
+         <td><select style = "width:150px; "  class="easyui-combobox" id ="drOldSN" /></td>
+         <td>操作</td>
+         <td><a href="#"  class="easyui-linkbutton" style="margin-right:10px;" iconCls="icon-add" onclick = "AddOldSN();">添加</a><a href="#"  class="easyui-linkbutton" iconCls="icon-add" onclick = "DelOldSN();">删除</a></td>
          </tr>
        <tr>
                 <td>

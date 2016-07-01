@@ -180,6 +180,7 @@
     <div title="独立工具入库" style="padding:10px;">
         <iframe  frameborder="no" border="0" style="width:100%;height:100%;" src="ToolContentManage.aspx?Type=5"></iframe>
     </div>
+    <!--
     <div title="工具包入库" data-options="border:false" style="overflow:auto;padding:20px;">
         
          <table class = "MyTable"id="table1" border="0" cellpadding="0" cellspacing="0">
@@ -196,8 +197,9 @@
          <div style="width:100%;height:1200px;">
             <iframe  id = "tgFrm" frameborder="no" border="0" style="width:100%;height:100%;" src=""></iframe>
          </div>
-    </div>
-    
+     </div>
+    -->
+   
             </div>
                 
       </div>

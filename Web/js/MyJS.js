@@ -33,6 +33,11 @@
  document.write(_html);
  }
  */
+   String.prototype.trim = function()  
+        {  
+            return this.replace(/(^\s*)|(\s*$)/g, "");  
+        }  
+ 
 function MyAjax(jsondat, SuccessFun, ErrorFun) {
     $.messager.progress({ title: '提示', msg: '正在处理，请稍候!' });
     $.ajax(

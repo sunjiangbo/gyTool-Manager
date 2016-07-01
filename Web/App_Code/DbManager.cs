@@ -479,14 +479,40 @@ public class MyManager
     {
        return MyManager.ExecSQL("DELETE FROM ToolApp WHERE TaskID =(SELECT TaskID FROM ToolApp WHERE ID=" + AppID + ") AND ParentID=(SELECT ParentID FROM ToolApp WHERE ID=" + AppID + ")");
     }
+    static public Boolean CheckSNExist(String OldSN)//入库时，检查该序列号是否出现过
+    {
+        DataTable dt = MyManager.GetDataSet("select rkid from storedtoolvalue where rkID='" + OldSN + "' union select rkid from storedtool where rkID='" + OldSN + "' union select rkid from coretool where rkID='" + OldSN + "' union select rkid from coretoolvalue where rkID='" + OldSN + "'");
+        if (dt.Rows.Count != 0)
+        {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     static public String GetNextFlowID()
     {
         int i = 300;
+        int bFind = 0 ;
         while (1== Convert.ToInt32(MyManager.GetFiledByInput("SELECT top 1 Busy FROM NextFlowID", "Busy")));
+        String IsBusy;
+        String ID="";
+        do//忙等待
+        {
+          IsBusy = MyManager.GetFiledByInput("SELECT top 1 Busy FROM NextFlowID", "Busy"); 
+        } while (IsBusy != "0");
 
         ExecSQL("UPDATE NextFlowID SET Busy = 1");
-        String ID = MyManager.GetFiledByInput("SELECT NextFlowID FROM NextFlowID", "NextFlowID");
-        ExecSQL("UPDATE NextFlowID SET NextFlowID = NextFlowID +1 ");
+        while (bFind == 0)
+        {
+            ID = MyManager.GetFiledByInput("SELECT NextFlowID FROM NextFlowID", "NextFlowID");
+            if (!MyManager.CheckSNExist(ID))
+            {
+                bFind = 1;
+            }
+            ExecSQL("UPDATE NextFlowID SET NextFlowID = NextFlowID +1 ");
+            
+        }
         ExecSQL("UPDATE NextFlowID SET Busy = 0");
         return ID;
     }
