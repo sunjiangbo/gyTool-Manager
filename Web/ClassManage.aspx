@@ -283,7 +283,7 @@
          $("#oldPName").text($("#property"+PropertyID).text());
          $("#oldPName").attr("name",PropertyID);
          $("#newPName").val("");
-         $("#tWin").window({  width:270,height:115,closed: false });
+         $("#tWin").window({  width:300,height:120,closed: false });
     }
     $(function() {
 
@@ -372,9 +372,9 @@
         	
 
     <div id="tWin" class="easyui-window"  style = "padding:10px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'属性名修改'" style="width:500px;height:120px;" >
-                <div><span >原属性名:</span><span id="oldPName"  style="color:Red; padding:10px;"></span> ==> <input id = "newPName" type="text" style="width:70px; margin-left:10px"/></div>
-                <div style=" text-align:center; margin:10px;">
-                <input id  = "MDPBtn" type ="button" onclick = "ModifyPropertyName();" class="easyui-linkbutton" value="确认"/>
+                <div><span >原属性名:</span><span id="oldPName"  style="color:Red; padding:10px;"></span> ==> <input id = "newPName" type="text" style="width:90px; margin-left:10px"/></div>
+                <div style=" text-align:center; margin-top:10px;">
+                <a id  = "MDPBtn" type ="button" onclick = "ModifyPropertyName();" class="easyui-linkbutton" >确认修改</a>
                 </div>
             </div>
 

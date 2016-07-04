@@ -188,7 +188,7 @@
                 <option value="2">工具包模型</option>
                 </select>
                 <input id = "tClassName" type="text"/>
-                <input id  = "tAddBtn" type ="button" onclick = "tAdd();" class="easyui-linkbutton" value="添加"/>
+                <a id  = "tAddBtn" type ="button" onclick = "tAdd();" class="easyui-linkbutton" >添加</a>
             </div>
 
              <div id="Win1" class="easyui-window"  style = "padding:0px;width:550px;height:450px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'Test Window'" >

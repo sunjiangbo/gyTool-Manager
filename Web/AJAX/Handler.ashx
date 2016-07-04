@@ -1324,7 +1324,7 @@ public String Test(HttpContext ctx)
         String json = "";
         int i, j, k, fw = 0/*范围：0所有 1工具包 2 工具*/;
         String txt, SQL = "", SQL1 = "";
-        String IDdl = "", IDbn = "";//独立 和 包内
+        String IDdl = "", IDbn = "";//独立 和 包内 CoreID
         DataTable dt, dt1, dt2;
         DataRow[] dr, dr1;
 
@@ -1407,7 +1407,9 @@ public String Test(HttpContext ctx)
             }
         }
 
-
+        Dictionary<String,String> PropertyNameDict =  new Dictionary<String,String>();
+        String PropertyName;
+        String ProprtryArrStr="";
         StringWriter sw = new StringWriter();
         JsonWriter jWrite = new JsonTextWriter(sw);
         jWrite.WriteStartArray();
@@ -1445,19 +1447,28 @@ public String Test(HttpContext ctx)
                 jWrite.WriteValue("closed");
                 jWrite.WritePropertyName("type");
                 jWrite.WriteValue("bag");
+                
                 jWrite.WritePropertyName("sx");
                 jWrite.WriteStartArray();
                 dr = dt2.Select(" ParentID = " + dt.Rows[i]["ID"].ToString());
-                for (j = 0; j < dr.Length; j++)
+                for (ProprtryArrStr="",j = 0; j < dr.Length; j++)
                 {
                     jWrite.WriteStartObject();
                     jWrite.WritePropertyName("name");
-                    jWrite.WriteValue(dr[j]["name"].ToString());
+                    PropertyName = dr[j]["name"].ToString().Trim();
+                    
+                    if (!PropertyNameDict.ContainsKey(PropertyName))
+                    {
+                        PropertyNameDict.Add(PropertyName, "");
+                    }
+                    ProprtryArrStr +=  ",\"" + PropertyName + "\":\"" + dr[j]["Value"].ToString() + "\"";
+                    jWrite.WriteValue(PropertyName);
                     jWrite.WritePropertyName("value");
                     jWrite.WriteValue(dr[j]["Value"].ToString());
                     jWrite.WriteEndObject();
                 }
                 jWrite.WriteEndArray();
+                jWrite.WriteRaw(ProprtryArrStr);
                 jWrite.WritePropertyName("children");
                 jWrite.WriteStartArray();
                 dr = dt1.Select(" CoreID = " + dt.Rows[i]["ID"].ToString());
@@ -1481,16 +1492,24 @@ public String Test(HttpContext ctx)
                     jWrite.WritePropertyName("sx");
                     jWrite.WriteStartArray();
                     dr1 = dt2.Select(" ParentID = " + dr[j]["rID"].ToString());
-                    for (k = 0; k < dr1.Length; k++)
+                    for (k = 0, ProprtryArrStr=""; k < dr1.Length; k++)
                     {
                         jWrite.WriteStartObject();
                         jWrite.WritePropertyName("name");
-                        jWrite.WriteValue(dr1[k]["name"].ToString());
+                        jWrite.WriteValue(dr1[k]["name"].ToString().Trim());
+                        PropertyName = dr1[k]["name"].ToString().Trim();
+
+                        if (!PropertyNameDict.ContainsKey(PropertyName))
+                        {
+                            PropertyNameDict.Add(PropertyName, "");
+                        }
+                        ProprtryArrStr += ",\"" + PropertyName + "\":\"" + dr1[k]["Value"].ToString() + "\"";
                         jWrite.WritePropertyName("value");
                         jWrite.WriteValue(dr1[k]["Value"].ToString());
                         jWrite.WriteEndObject();
                     }
                     jWrite.WriteEndArray();
+                    jWrite.WriteRaw(ProprtryArrStr);
                     jWrite.WriteEndObject();
                 }
 
@@ -1527,22 +1546,40 @@ public String Test(HttpContext ctx)
                 jWrite.WritePropertyName("sx");
                 jWrite.WriteStartArray();
                 dr1 = dt2.Select(" CoreID = " + dt1.Rows[i]["ID"].ToString());
-                for (k = 0; k < dr1.Length; k++)
+                for (k = 0, ProprtryArrStr=""; k < dr1.Length; k++)
                 {
                     jWrite.WriteStartObject();
                     jWrite.WritePropertyName("name");
-                    jWrite.WriteValue(dr1[k]["name"].ToString());
+                    PropertyName = dr1[k]["name"].ToString().Trim();
+
+                    if (!PropertyNameDict.ContainsKey(PropertyName))
+                    {
+                        PropertyNameDict.Add(PropertyName, "");
+                    }
+                    ProprtryArrStr += ",\"" + PropertyName + "\":\"" + dr1[k]["Value"].ToString() + "\"";
+                    jWrite.WriteValue(dr1[k]["name"].ToString().Trim());
                     jWrite.WritePropertyName("value");
                     jWrite.WriteValue(dr1[k]["Value"].ToString());
                     jWrite.WriteEndObject();
                 }
                 jWrite.WriteEndArray();
+                jWrite.WriteRaw(ProprtryArrStr);
                 jWrite.WriteEndObject();
             }
 
         }
         jWrite.WriteEndArray();
-        return sw.ToString();
+        String newColumns = "[";
+        foreach (String Key in PropertyNameDict.Keys)
+        {
+            newColumns += (newColumns == "[" ? "" : ",") + "\"" + Key + "\"";
+        }
+        
+      //  Propertys[0] = "[";
+        newColumns += "]";
+
+        return "{\"status\":\"success\",\"data\":" + sw.ToString() + ",\"newcolumns" + "\":" + newColumns + "}"; 
+       //return "{\"status\":\"success\",\"data\":" + sw.ToString() + "}"; 
     }
     public String StoreSearch(JObject JO)
     {
@@ -3250,7 +3287,7 @@ public String Test(HttpContext ctx)
            }
            if (Cmd == "ToolSearch")
            {
-               retJSON = "{\"status\":\"success\",\"data\":" + ToolSearch(JO) + "}";
+               retJSON = ToolSearch(JO) ;
            }
            if (Cmd == "GetStoreBagInfo")
            {

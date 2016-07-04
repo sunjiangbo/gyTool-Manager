@@ -652,7 +652,7 @@
     <div id = "tb" >
         <span style="margin-left:460px;">当前数量:</span>
         <a id = "brCount" style = "cursor:pointer;text-decoration:underline; color:Blue;font-weight:bold; margin-right:20px;margin-left:5px;">(0)</a>
-        <a href="#"  class="easyui-linkbutton" iconCls="icon-add" onclick = "AddToHit();">添加</a>
+        <a href="#"  class="easyui-linkbutton" iconCls="icon-add" onclick = "AddToHit();">添加(独立工具入编)</a>
     </div>
     
           
