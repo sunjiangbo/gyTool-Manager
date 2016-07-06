@@ -15,11 +15,15 @@
 <body>
 <script>
     var Type = '<%= Type %>';
-    /* 任务类型  1:添加工具包 
+    /* 任务类型 1:添加工具包 
                 2:添加包内工具 
                 3:修改工具箱模型 
                 4:修改包内工具模型
                 5:独立工具入库
+                6:修改包内工具(CoreTool)
+                7:修改工具箱本体(CoreTool)
+                8:修改独立工具(CoreTool)
+                
     */
     var BagID = '<%= BagID %>';
     var BagName = '<%= BagName %>';
@@ -62,29 +66,7 @@
         }
         return fmt;
     }  
-   /* function MyAjax(data) {
-        $.messager.progress({ title: '提示', msg: '正在卖力执行中…………' });
-        $.ajax({
-            url: 'AJAX/Handler.ashx',
-            type: "POST",
-            data: JSON.stringify(data),
-            dataType: 'json',
-            success: function (data) {
-                $.messager.progress('close');
-                if (data.status == "success") {
-                    $.messager.alert('提示', '操作成功！');
-                } else {
-                    $.messager.alert('操作失败！', data.msg);
-                }
-
-
-            },
-            error: function (xhr, s, e) {
-                $.messager.progress('close');
-                $.messager.alert('操作失败！', data.msg);
-            }
-        });
-    }*/
+   
     function MyAjax(jsondat, SuccessFun, ErrorFun) {
         $.messager.progress({ title: '提示', msg: '正在处理，请稍候!' });
         $.ajax(
@@ -457,13 +439,31 @@
             $("#t_ToolName").attr("disabled", "true");
             $("#t_ToolName").val(BagName.toString());
             $("#Count").val("不适用。");
-        } else if (Type == 5)//独立工具入库
+        } else if (Type == 5)//独立工具入库CoreTool
         {
             $(".tjzgj").hide();
             //$("#t_ToolName").attr("disabled", "true");
              $("#yxsnrow").css('display','');
             BtnName = '打流水号';
+        } else if (Type == 6)//修改包内工具CoreTool
+        {
+            $("#Count").attr("disabled", "true");
+             $("#t_ToolName").attr("value", ToolName); 
+             $("#pBagName").text(BagName);
+             $("#BagOptName").text("所在包");
+        } else if (Type == 7)//修改工具箱本体CoreTool
+        {
+            $("#Count").attr("disabled", "true");
+             $("#t_ToolName").attr("value", ToolName);
+             $("#pBagName").text(BagName);
+             $("#BagOptName").text("所在包");
         }
+        else if (Type == 8)
+        {
+             $("#Count").attr("disabled", "true");
+             $("#t_ToolName").attr("value", ToolName);
+             //$("#pBagName").text(BagName);
+         }
         else {
             $.messager.alert('提示', '参数不全，无类型!');
             document.write('参数不全，无类型!');
@@ -479,12 +479,13 @@
                 $.messager.progress('close');
                 if (data.status == "success") {
                     $("#drClass").combobox({ editable: false, data: data.data, valueField: "id", textField: "name", onSelect: function(record) { record.isInit = false; ClassChange(record); } });
-                    if (Type == 3 || Type == 4) {
+                    if (Type == 3 || Type == 4 || Type==6 || Type==7 || Type ==8) {
                         record = {};
                         record.id = ClassID;
                         record.type = Type;
                         record.toolid = ToolID;
                         record.isInit = true;
+                        record.name = "load";
                         $("#drClass").combobox('setValue', ClassID);
                         ClassChange(record);
                     }
@@ -587,7 +588,7 @@
     <form id="form1" runat="server">
  <table class = "MyTable"id="table1" border="0" cellpadding="0" cellspacing="0">
          <tr class="tjzgj"><!--父工具包行-->
-            <td>工具包</td>
+            <td><span id="BagOptName">工具包</span></td>
             <td colspan="3" style="text-align:center; color:red;"><span id="pBagName"></span></td>
             
          </tr>

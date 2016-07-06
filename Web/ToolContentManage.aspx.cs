@@ -24,6 +24,7 @@ public partial class ClassManage : System.Web.UI.Page
     public String ToolID = "";
     public String ClassID = "";
     public String ToolName = "";
+    public String rkID = "";
      protected void Page_Load(object sender, EventArgs e)
      {
          if (Session["UserID"] == null)

@@ -304,14 +304,17 @@
                     fitColumns: true,
                     idField: 'id',
                     treeField: 'name',
+                     toolbar: '#tb',
                     remoteSort: false,
                     rownumbers: true,
                     onLoadSuccess: function (row, data) {
-                        for (i = 0; i < data.length; i++) {
+                        for (i = 0; i < data.length; i++) {                            
+                            $("#btn"+data[i].id).linkbutton();
                             if (data[i].children != null && data[i].children.length != 0) {
                                 AddTooltip(data[i].id, 1, 'ToolBag.aspx?Type=1&BagID=' + data[i].id);
                                 for (j = 0; j < data[i].children.length; j++) {
                                     AddTooltip(data[i].children[j].id, 0, data[i].children[j].sx);
+                                    $("#btn"+data[i].children[j].id).linkbutton();
                                 }
                             } else {
                                 AddTooltip(data[i].id, 0, data[i].sx);
@@ -591,6 +594,41 @@
             }, null);
         }
        
+       function ModifyTool()
+       {
+            var row = $('#t1').datagrid('getSelected');
+                  
+            if(row == null || row.tooltype == '5')
+            {
+                $.messager.alert('错误', '请选择要修改的工具!');
+                return;
+            }
+            var Type = row.tooltype;                
+            var ClassID =row.classid;
+            var ToolID = row.toolid;
+            var fakeType ;
+            var BagID="";
+            var BagName="";
+            var ToolName = row.name;
+            var rkID=row.rkid;
+            if(Type == 0){//独立工具，可修改属性，进包
+                fakeType = 8; 
+            }else if(Type ==1)//工具箱本体 可修改属性
+            {
+                fakeType = 7; 
+                BagName = row.bagname;
+                BagID = row.bagid;
+            }else if(Type==3)//包内工具 可修改属性 可独立 可改包
+            {
+                fakeType = 6;   
+                BagName = row.bagname;
+                BagID = row.bagid;
+            }
+            
+             $("#fr1").attr("src","ToolContentManage.aspx?rkID="+rkID+"&Type="+fakeType+"&ToolID="+ToolID+"&ClassID="+ClassID+"&ToolName="+ToolName + "&BagID="+BagID+"&BagName="+BagName);
+             $("#Win1").window({ title: "工具修改", modal: true, closed: false });
+          
+       }
             
 </script>
 </head>
@@ -630,7 +668,15 @@
                 <iframe id ="BorrowHS"  width="97%" height="97%" frameborder="0"></iframe>
             </div>
        
-
+ <div id = "tb" >
+        <span style="margin-left:460px;">操作:</span>
+        <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "ModifyTool();">修改</a>
+        <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "AddToHit();">拆包</a>
+        <a href="#"  class="easyui-linkbutton"  style=" margin-right:5px;" onclick = "AddToHit();">组包</a>
+    </div>
+      <div id="Win1" class="easyui-window"  style = "padding:0px;width:500px;height:600px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'工具管理'" >
+               <iframe id ="fr1"  width="97%" height="97%" frameborder="0"></iframe>
+       </div>
     </form>
 </body>
 </html>

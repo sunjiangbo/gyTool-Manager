@@ -118,10 +118,13 @@ public String Test(HttpContext ctx)
 
     }
 
-    public String GetClassAndProperty(int ClassID, int Type/* 任务类型 1:添加工具包 2:添加包内工具 3:修改工具箱模型 4:修改包内工具模型*/,int ToolID)
+    public String GetClassAndProperty(int ClassID, int Type/* 任务类型 1:添加工具包 2:添加包内工具 3:修改工具箱模型 4:修改包内工具模型
+              * 6:修改包内工具
+                7:修改工具箱本体
+                8:修改独立工具*/,String ToolID)
     {
-        String ValueName = "", PropertyID = "",ValueID="",Num="1";
-        int ValueType = 0;
+        String ValueName = "", PropertyID = "",ValueID="",Num="1",SQL="";
+        int ValueType = 0;//是该工具属性的ValueType
         StringWriter sw = new StringWriter();
         JsonWriter jWrite = new JsonTextWriter(sw);
         DataTable dt1 = null, dt = MyManager.GetDataSet("SELECT  A.ID,A.Name,A.necessary,B.value,B.ID AS vID,A.pType FROM CLassPropertys AS A  left join [PropertyValues] as B on (B.propertyID = A.ID AND B.ValueType = 0 AND (B.ParentID  = 0 or B.ParentID is NULL) ) where A.ParentID=" + ClassID + " order by A.ID");
@@ -131,15 +134,29 @@ public String Test(HttpContext ctx)
         if (Type == 3)//修改工具箱
         {
             ValueType = TOOL_BAG_PROPERTY;
-            dt1 = MyManager.GetDataSet("SELECT  [ID],[PropertyID],[Value],[ValueType],[Num],[ParentID] FROM [PropertyValues] WHERE (ValueType =" + ValueType + " ) AND (ParentID = " + ToolID + " OR ID=" + ToolID + ")");
+            SQL= "SELECT  [ID],[PropertyID],[Value],[ValueType],[Num],[ParentID] FROM [PropertyValues] WHERE (ValueType =" + ValueType + " ) AND (ParentID = " + ToolID + " OR ID=" + ToolID + ")";
         }
         else if (Type == 4)//修改包内工具
         {
             ValueType = TOOL_IN_BAG_PROPERTY ;
-            dt1 = MyManager.GetDataSet("SELECT  [ID],[PropertyID],[Value],[ValueType],[Num],[ParentID] FROM [PropertyValues] WHERE (ValueType =" + TOOL_IN_BAG + " OR ValueType = "+TOOL_IN_BAG_PROPERTY+" ) AND (ParentID = " + ToolID + " OR ID=" + ToolID + ")");
-            
+            SQL = "SELECT  [ID],[PropertyID],[Value],[ValueType],[Num],[ParentID] FROM [PropertyValues] WHERE (ValueType =" + TOOL_IN_BAG + " OR ValueType = "+TOOL_IN_BAG_PROPERTY+" ) AND (ParentID = " + ToolID + " OR ID=" + ToolID + ")";
         }
-        
+        else if (Type == 6)//修改包内工具
+        {
+            ValueType = 4;//CoreToolValue  
+            SQL = "SELECT  [ID],[PropertyID],[Value],[ValueType] FROM CoreToolValue WHERE   ParentID =( SELECT ID FROM CoreToolValue WHERE ValueType = 3 AND ToolID='" + ToolID + "')";
+        }
+        else if (Type == 7)//7:修改工具箱本体
+        {
+            ValueType = 2;//CoreToolValue
+            SQL = "SELECT  [ID],[PropertyID],[Value],[ValueType] FROM CoreToolValue WHERE ParentID =( SELECT ID FROM CoreToolValue WHERE ValueType = 1 AND ToolID='" + ToolID + "')";
+        }
+        else if (Type == 8)//8:修改独立工具
+        {
+            ValueType = 0;//CoreTool.ModelType=0
+            SQL = "SELECT  [ID],[PropertyID],[Value],[ValueType] FROM CoreToolValue WHERE CoreID = (SELECT ID FROM CoreTool WHERE ModelType = 0 AND ToolID='"+ToolID+"')";
+        }
+        dt1 = MyManager.GetDataSet(SQL);
         for (int i = 0; i < dt.Rows.Count; i++)
         {
             if (dt.Rows[i]["ID"].ToString() != PropertyID)
@@ -655,6 +672,7 @@ public String Test(HttpContext ctx)
         int i=0,Type, ClassID,CurBagID=0;
         String ToolName = "", SQL = "", nID = "" ;
         try{
+            
             Type     = Convert.ToInt32(JO["type"].ToString());
             ClassID  = Convert.ToInt32(JO["classid"].ToString());
             
@@ -1321,6 +1339,13 @@ public String Test(HttpContext ctx)
          *                                                                                                                                  { name: PropertyName, pid: PropertyID, val: Value }
          * ] }
          * ] };*/
+
+        /*这里返回的json中ToolType含义                  查询界面中按钮功能 
+         *                  0:独立工具(ModeType)        修改属性、进包        
+         *                  1:工具箱(CoreToolValue)     只能修改其属性 不能出包
+         *                  3:工具箱中的工具            修改属性、独立、改包 
+         *                  5:工具包                    修改其名称、拆包
+         */
         String json = "";
         int i, j, k, fw = 0/*范围：0所有 1工具包 2 工具*/;
         String txt, SQL = "", SQL1 = "";
@@ -1447,7 +1472,10 @@ public String Test(HttpContext ctx)
                 jWrite.WriteValue("closed");
                 jWrite.WritePropertyName("type");
                 jWrite.WriteValue("bag");
-                
+                jWrite.WritePropertyName("tooltype");
+                jWrite.WriteValue("5");
+                jWrite.WritePropertyName("opt");
+                jWrite.WriteValue("查看");
                 jWrite.WritePropertyName("sx");
                 jWrite.WriteStartArray();
                 dr = dt2.Select(" ParentID = " + dt.Rows[i]["ID"].ToString());
@@ -1489,6 +1517,16 @@ public String Test(HttpContext ctx)
                     jWrite.WriteValue("icon-tool");
                     jWrite.WritePropertyName("type");
                     jWrite.WriteValue("bntool");
+                    jWrite.WritePropertyName("tooltype");
+                    jWrite.WriteValue(dr[j]["ValueType"].ToString());
+                    jWrite.WritePropertyName("bagid");
+                    jWrite.WriteValue(dt.Rows[i]["toolid"].ToString());
+                    jWrite.WritePropertyName("bagname");
+                    jWrite.WriteValue(dt.Rows[i]["ToolName"].ToString());
+                    jWrite.WritePropertyName("classid");
+                    jWrite.WriteValue(dr[j]["propertyid"].ToString());
+                    jWrite.WritePropertyName("opt");
+                    jWrite.WriteValue("修改");
                     jWrite.WritePropertyName("sx");
                     jWrite.WriteStartArray();
                     dr1 = dt2.Select(" ParentID = " + dr[j]["rID"].ToString());
@@ -1539,10 +1577,16 @@ public String Test(HttpContext ctx)
                 jWrite.WriteValue(dt1.Rows[i]["toolid"].ToString());
                 jWrite.WritePropertyName("modifytime");
                 jWrite.WriteValue(dt1.Rows[i]["ModifyTime"].ToString());
+                jWrite.WritePropertyName("classid");
+                jWrite.WriteValue(dt1.Rows[i]["ModelID"].ToString());
                 jWrite.WritePropertyName("iconCls");
                 jWrite.WriteValue("icon-tool");
+                jWrite.WritePropertyName("tooltype");
+                jWrite.WriteValue("0");
                 jWrite.WritePropertyName("type");
                 jWrite.WriteValue("tool");
+                jWrite.WritePropertyName("opt");
+                jWrite.WriteValue("修改");
                 jWrite.WritePropertyName("sx");
                 jWrite.WriteStartArray();
                 dr1 = dt2.Select(" CoreID = " + dt1.Rows[i]["ID"].ToString());
@@ -2719,7 +2763,7 @@ public String Test(HttpContext ctx)
             dr = RetDT.Select(" rkID = " + JA[0]["sn"].ToString());
 
             StoredID = dr[0]["StoredID"].ToString();
-            CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(EPC,rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask]) SELECT '" + MyManager.GenerateEPC(ToolID) + "'as EPC,rkID,ModelType," + BagID + " AS ModelID,'"
+            CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(EPC,rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask]) SELECT '" + MyManager.GenerateEPC(ToolID) + "'as EPC,rkID,1," + BagID + " AS ModelID,'"
                                                                             + ToolID + "' AS ToolID,'" + BagName + "' AS ToolName,'" + DateTime.Now.ToString() + "' AS ModifyTime,1,'" + TaskID + "' AS RelatedTask FROM StoredTool WHERE ID = " + StoredID + ";SELECT IDENT_CURRENT('CoreTool') AS CurID", "CurID");
 
             dr = dt.Select("ValueType = 1 ");/*工具箱子编号为 AA 等*/
@@ -3191,7 +3235,7 @@ public String Test(HttpContext ctx)
 
            if (Cmd == "getClassAndProperty")
            {
-               retJSON = "{\"status\":\"success\",\"data\":" + GetClassAndProperty(Convert.ToInt32(JO["classid"].ToString()), Convert.ToInt32(JO["type"].ToString()), JO["toolid"].ToString() == "" ? 0 : Convert.ToInt32(JO["toolid"].ToString())) + "}";
+               retJSON = "{\"status\":\"success\",\"data\":" + GetClassAndProperty(Convert.ToInt32(JO["classid"].ToString()), Convert.ToInt32(JO["type"].ToString()), JO["toolid"].ToString() == "" ? "0" : JO["toolid"].ToString()) + "}";
            }
            
            if (Cmd == "addPropertyValue")
