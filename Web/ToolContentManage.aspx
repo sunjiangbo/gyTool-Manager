@@ -588,13 +588,13 @@
                 $.messager.progress('close');
                 if (data.status == "success") {
                     $("#drClass").combobox({ editable: false, data: data.data, valueField: "id", textField: "name", onSelect: function(record) { record.isInit = false; ClassChange(record); } });
-                    if (Type == 3 || Type == 4 || Type==6 || Type==7 || Type ==8) {
+                    if (Type == 3 || Type == 4 ||Type==6 || Type==7 || Type ==8) {
                         record = {};
                         record.id = ClassID;
                         record.type = Type;
                         record.toolid = ToolID;
                         record.isInit = true;
-                        record.name = "load";
+                        if (Type==6 || Type==7 || Type ==8){record.name = "load";}
                         $("#drClass").combobox('setValue', ClassID);
                         ClassChange(record);
                     }
@@ -696,7 +696,7 @@
 </script>
     <form id="form1" runat="server">
  <table class = "MyTable"id="table1" border="0" cellpadding="0" cellspacing="0">
-           <tr class="BagOptRow" ><!--父工具包行-->
+           <tr class="BagOptRow" style =" display:none;"><!--父工具包行-->
             <td>工具名</td>
             <td style="text-align:center; color:black; font-weight:bolder;"><span id="ToolName"></span></td>
             <td>识别号</td>
@@ -721,7 +721,7 @@
              <td>名称</td>
              <td><input id = "t_ToolName"  style="text-align:center; color:black; font-weight:bolder;" type="text" /></td>
              <td><span id= "lb">数量</span></td>
-             <td><input id = "Count" type="text" value ="1"/><a href="#" id= "BtnAlone" class ="BagOptRow" "class="easyui-linkbutton" style="margin-right:10px;"  onclick = "">变独立工具</a></td>
+             <td><input id = "Count" type="text" value ="1"/><a href="#" id= "BtnAlone" style="display:none;" class ="BagOptRow" "class="easyui-linkbutton" style="margin-right:10px;"  onclick = "">变独立工具</a></td>
          </tr>
          <tr id = "yxsnrow">
          <td>预置序号</td> 

@@ -567,5 +567,33 @@ public class MyManager
 
         return ID;
     }
+    static public String FindNextTooIDInBag(String BagID)//BagID  CoreTool中的ToolID
+    {
+           DataTable  dt = GetDataSet("SELECT ID FROM CoreTool WHERE ToolID = '"  +BagID+ "'");
+           if (dt.Rows.Count == 0)
+           {
+               return "";
+           }
+
+           int i = 0,bFind =0;
+
+           for (i = 1;  i < 1000; i++)
+           {
+               if( Convert.ToInt32(MyManager.GetFiledByInput("SELECT count(ID) as iCount FROM CoreToolValue WHERE ValueType = 3 AND ToolID = '" + BagID + i.ToString("D3") + "'", "iCount"))==0)
+               {
+                   bFind =1;
+                   break;
+               }
+
+           }
+           
+           if (bFind==1)
+           {
+               return BagID + i.ToString("D3");
+           }
+           
+        return "";
+    }
+
     
 }

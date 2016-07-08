@@ -156,7 +156,10 @@ public String Test(HttpContext ctx)
             ValueType = 0;//CoreTool.ModelType=0
             SQL = "SELECT  [ID],[PropertyID],[Value],[ValueType] FROM CoreToolValue WHERE CoreID = (SELECT ID FROM CoreTool WHERE ModelType = 0 AND ToolID='"+ToolID+"')";
         }
-        dt1 = MyManager.GetDataSet(SQL);
+        if (Type != 5)
+        {
+            dt1 = MyManager.GetDataSet(SQL);
+        }
         for (int i = 0; i < dt.Rows.Count; i++)
         {
             if (dt.Rows[i]["ID"].ToString() != PropertyID)
@@ -1993,7 +1996,7 @@ public String Test(HttpContext ctx)
 
                 dr = dt.Select("ValueType = 1 ");/*工具箱子编号为 AA 等*/
                 //在coretoolvalue中插入工具箱本体
-                String nID = MyManager.GetFiledByInput("INSERT INTO CoreToolValue (State,[CoreID],[PropertyID],Value,ValueType,ParentID,ToolID) SELECT 1 AS State," + CoreID + " AS CoreID,PropertyID,Value,ValueType,IDENT_CURRENT('CoreToolValue') AS ParentID,'"
+                String nID = MyManager.GetFiledByInput("INSERT INTO CoreToolValue (State,[CoreID],[PropertyID],Value,ValueType,ParentID,ToolID) SELECT 1 AS State," + CoreID + " AS CoreID,PropertyID,Value,ValueType," + CoreID + ",'"
                                                         + ToolID + "' AS ToolID  FROM StoredToolValue WHERE ID = " + dr[0]["ID"].ToString() + ";SELECT IDENT_CURRENT('CoreToolValue') AS CurID", "CurID");
 
                 MyManager.ExecSQL("INSERT INTO CoreToolValue (State,[CoreID],[PropertyID],Value,ValueType,ParentID) SELECT 1 AS State," + CoreID + " AS CoreID,PropertyID,Value,ValueType," + nID + " AS ParentID"
@@ -2002,7 +2005,7 @@ public String Test(HttpContext ctx)
 
                 dr = dt.Select("ValueType = 3");
                 iToolCount = 1;
-                for (j = 0; j < Rank.Length; j++)
+                for (j = 1; j <= Rank.Length; j++)
                 {
 
                     String mID = MyManager.GetFiledByInput("INSERT INTO CoreToolValue (State,[CoreID],[PropertyID],Value,ValueType,ParentID,ToolID) SELECT 1 AS State," + CoreID + " AS CoreID,PropertyID,Value,ValueType," + nID + " AS ParentID,'"
@@ -3220,8 +3223,8 @@ public String Test(HttpContext ctx)
                 //7:修改工具箱本体(CoreTool)
                 //8:修改独立工具(CoreTool)
 
-        String ToolID = JO["toolid"].ToString().Trim(), newToolID ;
-        String newBagID = JO["bagid"].ToString().Trim(),OldBagID;
+        String ToolID = JO["toolid"].ToString().Trim().ToUpper(), newToolID,CoreID ;
+        String newBagID = JO["bagid"].ToString().Trim().ToUpper(), OldBagID;
         String Type = JO["type"].ToString().Trim();
         String ToolName = JO["toolname"].ToString().Trim();
         String OldBag;
@@ -3251,7 +3254,7 @@ public String Test(HttpContext ctx)
                 if (newBagID == "")//变为独立工具
                 {
                     newToolID = MyManager.GetNextID();
-                    String CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask]) SELECT rkID,0," + ClassID + ",'"
+                    CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask]) SELECT rkID,0," + ClassID + ",'"
                                                                 + newToolID + "' AS ToolID,'" + ToolName + "','" + DateTime.Now.ToString() + "' AS ModifyTime,0,NULL FROM CoreToolValue WHERE ToolID = '" + ToolID + "';SELECT IDENT_CURRENT('CoreTool') AS CurID", "CurID");
                   //删除该包内工具行和其所有属性行
                   MyManager.ExecSQL("DELETE FROM CoreToolValue WHERE ID = '" + dt.Rows[0]["ID"].ToString() + "' OR ParentID = '" + dt.Rows[0]["ID"].ToString() + "'");
@@ -3287,18 +3290,82 @@ public String Test(HttpContext ctx)
                     }
                     else
                     {
+                        CoreID = dt1.Rows[0]["ID"].ToString();
+                        newToolID = MyManager.FindNextTooIDInBag(newBagID);
+                        if (newToolID == "")
+                        {
+                            return "{\"status\":\"failed\",\"msg\":\"获取新工具识别号失败，请联系李光耀!\"}"; 
+                        }
+                        String BagIDOfnewBag /*工具包中工具箱本体的ID(CoreToolValue)*/ = MyManager.GetFiledByInput("SELECT ID FROM CoreToolValue WHERE ValueType = 1 AND CoreID = " +dt1.Rows[0]["ID"].ToString(),"ID");
+                        if(BagIDOfnewBag=="")
+                        {
+                           return "{\"status\":\"failed\",\"msg\":\"获取新工具包中工具箱本体ID失败，请联系李光耀!\"}"; 
+                        }
+                        MyManager.ExecSQL("UPDATE CoreToolValue Set CoreID = "+dt1.Rows[0]["ID"].ToString() +
+                            ",ParentID=" + BagIDOfnewBag + ",PropertyID="+ClassID + ",Value='" +ToolName+"',ModifyTime='" +DateTime.Now.ToString()+ "',ValueType=3,ToolID='" +newToolID+ "' WHERE ID= " +dt.Rows[0]["ID"].ToString());
 
+                        MyManager.ExecSQL("DELETE FROM CoreToolValue WHERE  ParentID = '" + dt.Rows[0]["ID"].ToString() + "'");
+                        //
+
+                        JArray JA = JArray.Parse(JO["values"].ToString());
+                        String SQL = "";
+
+                        foreach (JToken jt in JA)
+                        {
+                            JObject jobj = (JObject)jt;
+                            if (jobj["value"].ToString().IndexOf("'") != -1 || jobj["value"].ToString().IndexOf(" ") != -1) { return "{\"status\":\"failed\",\"msg\":\"属性取值不允许含有分号(')或者空格!\"}"; }
+                            //查看该属性值之前是否存在SELECT ID  
+                            int iRet = Convert.ToInt32(MyManager.GetFiledByInput("SELECT Count(*) AS Count FROM [PropertyValues] where PropertyID =" + jobj["propertyid"].ToString() + " AND Value = '" + jobj["value"].ToString() + "' AND (ParentID is NULL or ParentID=0)", "Count"));
+                            if (iRet == 0)//该属性值之前不存在，现在添加到属性值列表中
+                            {
+                                MyManager.ExecSQL("INSERT INTO PropertyValues (PropertyID,Value,ValueType) VALUES (" + jobj["propertyid"].ToString() + ",'" + jobj["value"].ToString() + "',0)");
+                            }
+                            SQL += "INSERT INTO [CoreToolValue] ([CoreID],[PropertyID],[Value],[ValueType],[ParentID],State) VALUES (" + CoreID + "," + jobj["propertyid"].ToString() + ",'" + jobj["value"].ToString() + "',4," + dt.Rows[0]["ID"].ToString() + ",-1);";
+                        }
+
+                        MyManager.ExecSQL(SQL);
+                        return "{\"status\":\"success\",\"msg\":\"工具修改成功，新识别号为-->" +newToolID+ ".\"}";  
                     }
                 }
             }
             else//不换包
             {
-                
+                MyManager.ExecSQL("UPDATE CoreToolValue Set PropertyID=" + ClassID + ",Value='" + ToolName + "',ModifyTime='" + DateTime.Now.ToString() + "' WHERE ID= " + dt.Rows[0]["ID"].ToString());
+
+                MyManager.ExecSQL("DELETE FROM CoreToolValue WHERE ParentID = '" + dt.Rows[0]["ID"].ToString() + "'");
+                //
+
+                JArray JA = JArray.Parse(JO["values"].ToString());
+                String SQL = "";
+
+                foreach (JToken jt in JA)
+                {
+                    JObject jobj = (JObject)jt;
+                    if (jobj["value"].ToString().IndexOf("'") != -1 || jobj["value"].ToString().IndexOf(" ") != -1) { return "{\"status\":\"failed\",\"msg\":\"属性取值不允许含有分号(')或者空格!\"}"; }
+                    //查看该属性值之前是否存在SELECT ID  
+                    int iRet = Convert.ToInt32(MyManager.GetFiledByInput("SELECT Count(*) AS Count FROM [PropertyValues] where PropertyID =" + jobj["propertyid"].ToString() + " AND Value = '" + jobj["value"].ToString() + "' AND (ParentID is NULL or ParentID=0)", "Count"));
+                    if (iRet == 0)//该属性值之前不存在，现在添加到属性值列表中
+                    {
+                        MyManager.ExecSQL("INSERT INTO PropertyValues (PropertyID,Value,ValueType) VALUES (" + jobj["propertyid"].ToString() + ",'" + jobj["value"].ToString() + "',0)");
+                    }
+                    SQL += "INSERT INTO [CoreToolValue] ([CoreID],[PropertyID],[Value],[ValueType],[ParentID],State) VALUES (" + dt1.Rows[0]["ID"].ToString() + "," + jobj["propertyid"].ToString() + ",'" + jobj["value"].ToString() + "',4," + dt.Rows[0]["ID"].ToString() + ",-1);";
+                }
+
+                MyManager.ExecSQL(SQL);
+                return "{\"status\":\"success\",\"msg\":\"工具修改成功,未换包.\"}";  
             }
-            
+
+        }
+        else if (Type == "7")
+        {
+
+        }
+        else if (Type == "8")
+        {
+
         }
 
-        return "{\"status\":\"success\",\"msg\":\"工具修改成功！\"}";
+        return "{\"status\":\"failed\",\"msg\":\"无此任务类型！\"}";
           
     }
    public void ProcessRequest (HttpContext context) 
