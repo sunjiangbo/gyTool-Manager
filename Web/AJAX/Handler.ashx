@@ -3198,6 +3198,109 @@ public String Test(HttpContext ctx)
         MyManager.ExecSQL("Update ClassPropertys Set Name = '" + JO["newname"].ToString().Trim() + "'" + " WHERE ID =" + Convert.ToInt32(JO["propertyid"].ToString()));
         return "{\"status\":\"success\",\"msg\":\"属性名修改成功!\"}";
     }
+    
+    public String CheckBagIDValid (JObject JO)
+    {
+        String BagID = JO["bagid"].ToString().Trim();// like AA AB AC
+        if (BagID == "" || BagID.IndexOf(" ")!=-1 || BagID.IndexOf("'")!=-1)
+        {
+            return "{\"status\":\"failed\",\"isvalid\":\"false\",\"msg\":\"识别号不能为空,且不可含分号空格!\"}";
+        }
+
+        DataTable dt = MyManager.GetDataSet("SELECT ToolName FROM CoreTool WHERE ToolID = '" + JO["bagid"].ToString() + "' AND ModelType = 1 ");
+        if (dt.Rows.Count == 0)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"工具包"+BagID+"不存在!\"}";    
+        }
+        return "{\"status\":\"success\",\"isvalid\":\"true\",\"msg\":\"ok!\",\"bagname\":\"" + dt.Rows[0]["ToolName"].ToString() + "\"}";  
+    }
+    public String ModifyCoreTool(JObject JO)
+    {
+                //6:修改包内工具(CoreTool)
+                //7:修改工具箱本体(CoreTool)
+                //8:修改独立工具(CoreTool)
+
+        String ToolID = JO["toolid"].ToString().Trim(), newToolID ;
+        String newBagID = JO["bagid"].ToString().Trim(),OldBagID;
+        String Type = JO["type"].ToString().Trim();
+        String ToolName = JO["toolname"].ToString().Trim();
+        String OldBag;
+        int ClassID = Convert.ToInt32(JO["classid"].ToString());
+        if (ToolID == "" || ToolID.IndexOf(" ") != -1 || ToolID.IndexOf("'") != -1 || newBagID.IndexOf(" ") != -1 || newBagID.IndexOf(",") != -1 || ToolName.IndexOf("'") != -1 || ToolName.IndexOf(" ") != -1)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"工具识别号和工具名中不能含有空格和引号!\"}";
+        }
+
+        DataTable dt = MyManager.GetDataSet("SELECT * FROM CoreToolValue Where ToolID = '" +ToolID+ "'");
+        DataTable dt1 = MyManager.GetDataSet("SELECT * FROM CoreTool Where ModelType = 1 AND State = 0 AND ToolID = '" + newBagID + "'");
+        if (dt.Rows.Count==0)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"识别号为"+ToolID+"的工具不存在!\"}";
+        }
+
+        if (Type == "6")//6:修改包内工具(CoreTool)
+        {
+            DataTable tdt = MyManager.GetDataSet("SELECT ToolID FROM CoreTool WHERE State =0 AND ID = " + dt.Rows[0]["CoreID"].ToString());
+            if (tdt.Rows.Count == 0)
+            {
+                return "{\"status\":\"failed\",\"msg\":\"数据错误，包内工具竟然没有所在工具包!\"}";    
+            }
+            OldBagID = tdt.Rows[0]["ToolID"].ToString();
+            if (OldBagID != newBagID)//工具包更改
+            {
+                if (newBagID == "")//变为独立工具
+                {
+                    newToolID = MyManager.GetNextID();
+                    String CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask]) SELECT rkID,0," + ClassID + ",'"
+                                                                + newToolID + "' AS ToolID,'" + ToolName + "','" + DateTime.Now.ToString() + "' AS ModifyTime,0,NULL FROM CoreToolValue WHERE ToolID = '" + ToolID + "';SELECT IDENT_CURRENT('CoreTool') AS CurID", "CurID");
+                  //删除该包内工具行和其所有属性行
+                  MyManager.ExecSQL("DELETE FROM CoreToolValue WHERE ID = '" + dt.Rows[0]["ID"].ToString() + "' OR ParentID = '" + dt.Rows[0]["ID"].ToString() + "'");
+                  //
+
+                  JArray JA = JArray.Parse(JO["values"].ToString());
+                  String SQL = "";
+
+                  foreach (JToken jt in JA)
+                  {
+                      JObject jobj = (JObject)jt;
+                      if (jobj["value"].ToString().IndexOf("'") != -1 || jobj["value"].ToString().IndexOf(" ") != -1) { return "{\"status\":\"failed\",\"msg\":\"属性取值不允许含有分号(')或者空格!\"}"; }
+                      //查看该属性值之前是否存在SELECT ID  
+                      int iRet = Convert.ToInt32(MyManager.GetFiledByInput("SELECT Count(*) AS Count FROM [PropertyValues] where PropertyID =" + jobj["propertyid"].ToString() + " AND Value = '" + jobj["value"].ToString() + "' AND (ParentID is NULL or ParentID=0)", "Count"));
+                      if (iRet == 0)//该属性值之前不存在，现在添加到属性值列表中
+                      {
+                          MyManager.ExecSQL("INSERT INTO PropertyValues (PropertyID,Value,ValueType) VALUES (" + jobj["propertyid"].ToString() + ",'" + jobj["value"].ToString() + "',0)");
+                      }
+                      SQL += "INSERT INTO [CoreToolValue] ([CoreID],[PropertyID],[Value],[ValueType],[ParentID],State) VALUES (" + CoreID + "," + jobj["propertyid"].ToString() + ",'" + jobj["value"].ToString() + "',0," + CoreID + ",-1);";
+                  }
+
+                  MyManager.ExecSQL(SQL);
+
+                  return "{\"status\":\"success\",\"msg\":\"工具修改成功，已变为独立工具-->"+newToolID+".\"}";
+                    
+                }
+                else
+                {
+
+                    if (dt1.Rows.Count == 0)
+                    {
+                        return "{\"status\":\"failed\",\"msg\":\"新工具包不存在啊！\"}";
+                    }
+                    else
+                    {
+
+                    }
+                }
+            }
+            else//不换包
+            {
+                
+            }
+            
+        }
+
+        return "{\"status\":\"success\",\"msg\":\"工具修改成功！\"}";
+          
+    }
    public void ProcessRequest (HttpContext context) 
    {
 
@@ -3469,6 +3572,16 @@ public String Test(HttpContext ctx)
            if (Cmd == "ModifyPropertyName")
            {
                retJSON = ModifyPropertyName(JO);  
+           }
+
+           if (Cmd == "CheckBagIDValid")
+           {
+               retJSON = CheckBagIDValid(JO);
+           }
+
+           if (Cmd == "ModifyCoreTool")
+           {
+               retJSON = ModifyCoreTool(JO); 
            }
            context.Response.Write(retJSON);
            

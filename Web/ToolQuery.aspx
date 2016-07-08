@@ -674,7 +674,7 @@
         <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "AddToHit();">拆包</a>
         <a href="#"  class="easyui-linkbutton"  style=" margin-right:5px;" onclick = "AddToHit();">组包</a>
     </div>
-      <div id="Win1" class="easyui-window"  style = "padding:0px;width:500px;height:600px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'工具管理'" >
+      <div id="Win1" class="easyui-window"  style = "padding:0px;width:550px;height:600px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'工具管理'" >
                <iframe id ="fr1"  width="97%" height="97%" frameborder="0"></iframe>
        </div>
     </form>

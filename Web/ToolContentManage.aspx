@@ -246,8 +246,66 @@
                record.id = $("#drClass").combobox('getValue');
                record.isInit = false;
                ClassChange(record);
-           }
-    
+           }else if (Type == 6)//6:修改包内工具(CoreTool)
+           {
+               var value = [];
+               var sToolName = $("#t_ToolName").val();
+               var sBagID    = $("#BagID").val();
+               var classid = $("#drClass").combobox('getValue');
+               if(sToolName=="" || sToolName==null ) 
+               {
+                    $.messager.alert('提示', '工具名不能为空!');
+                    return;
+               }
+               
+               if (classid=="" || classid==null)
+               {
+                    $.messager.alert('提示', '工具类不能为空!');
+                    return; 
+               }
+               
+               json = {};
+               json.cmd = "ModifyCoreTool";
+               json.toolid = ToolID;
+               json.bagid = sBagID;
+               json.type = Type;
+               json.toolname = sToolName;
+               json.classid = classid;
+               
+               for (i = 0; i < cks.length; i++) {
+                   tv = new Object();
+                   PropertyID = $(cks[i]).data('PropertyID');
+                   if($("#pck" + PropertyID).is(":checked")){
+                       tv.compare = 1;                       
+                   }else{
+                       tv.compare = 0;
+                      // tCount--;
+                   }
+                   tv.propertyid = PropertyID;
+                   tv.value = $.trim($("#sp" + PropertyID + "cm").combo('getText'));
+                   value[i] = tv;
+               }
+               
+               json.valuecount = cks.length;
+               json.values = value;
+               
+               MyAjax(json,function(data){
+                    if(data.status == "success")
+                    {
+                       $.messager.alert('提示', data.msg);   
+                    }else{
+                       $.messager.alert('提示', data.msg); 
+                    }
+               });
+
+               
+           }else if (Type ==7)//7:修改工具箱本体(CoreTool)
+           {
+           
+           }else if (Type ==8) //8:修改独立工具(CoreTool)
+           {
+            
+           }   
     }
     function ckClick(obj) {
         var $ck = $(obj)
@@ -414,7 +472,31 @@
 
     }
 
-
+    function CheckBagIDValid()
+    {
+        var bagid = $("#BagID").val();
+        if(bagid==null || bagid =="")
+        {
+            $.messager.alert('提示', '请输入工具包的识别号!');
+            return ;
+        }
+        oo = {};
+        oo.cmd = "CheckBagIDValid";
+        oo.bagid = bagid;
+        MyAjax(oo,function(data){
+                if(data.status == 'success')
+                {
+                  if(data.isvalid == 'true')
+                  {
+                     $("#pBagName").text(data.bagname);   
+                  }else{
+                     $("#pBagName").text(data.msg);  
+                  }
+                }else{
+                  $("#pBagName").text(data.msg);
+                }
+        },null);
+    }
 
     $(function() {
         
@@ -447,28 +529,55 @@
             BtnName = '打流水号';
         } else if (Type == 6)//修改包内工具CoreTool
         {
-            $("#Count").attr("disabled", "true");
+             $("#Count").attr("disabled", "true");
              $("#t_ToolName").attr("value", ToolName); 
              $("#pBagName").text(BagName);
              $("#BagOptName").text("所在包");
+             $(".BagOptRow").show();
+             $("#BtnAlone").linkbutton();
+             $("#BagID").val(BagID);
+             $("#ToolName").text(ToolName);
+             $("#ToolID").text(ToolID);
+             $("#lb").text("操作");
+             $("#Count").css("display","none");
         } else if (Type == 7)//修改工具箱本体CoreTool
         {
-            $("#Count").attr("disabled", "true");
+             $("#Count").attr("disabled", "true");
              $("#t_ToolName").attr("value", ToolName);
              $("#pBagName").text(BagName);
              $("#BagOptName").text("所在包");
+             $(".BagOptRow").show();
+             $("#BtnAlone").text("不适用");
+             $("#BtnAlone").attr("disabled","true");
+             $("#BtnAlone").linkbutton();
+             $("#BagID").val(BagID);
+             $("#BagID").attr("disabled","true");
+             $("#ToolName").text(ToolName);
+             $("#ToolID").text(ToolID);
+             $("#lb").text("操作");
+             $("#Count").css("display","none");
         }
         else if (Type == 8)
         {
              $("#Count").attr("disabled", "true");
              $("#t_ToolName").attr("value", ToolName);
              //$("#pBagName").text(BagName);
+             $(".BagOptRow").show();
+             $("#BtnAlone").text("进包");
+             $("#BtnAlone").linkbutton();
+             $("#ToolName").text(ToolName);
+             $("#ToolID").text(ToolID);
+             $("#lb").text("操作");
+             $("#Count").css("display","none");
          }
         else {
             $.messager.alert('提示', '参数不全，无类型!');
             document.write('参数不全，无类型!');
             return;
         }
+        
+        $("#BagID").blur(CheckBagIDValid);
+        
         $.messager.progress({ title: '提示', msg: '数据加载中……' });
         $.ajax({
             url: 'AJAX/Handler.ashx',
@@ -587,11 +696,22 @@
 </script>
     <form id="form1" runat="server">
  <table class = "MyTable"id="table1" border="0" cellpadding="0" cellspacing="0">
-         <tr class="tjzgj"><!--父工具包行-->
-            <td><span id="BagOptName">工具包</span></td>
-            <td colspan="3" style="text-align:center; color:red;"><span id="pBagName"></span></td>
-            
+           <tr class="BagOptRow" ><!--父工具包行-->
+            <td>工具名</td>
+            <td style="text-align:center; color:black; font-weight:bolder;"><span id="ToolName"></span></td>
+            <td>识别号</td>
+            <td style="text-align:center; color: Green; font-weight:bolder;"><span id="ToolID"></span></td>
          </tr>
+         <tr class="tjzgj" id= "BagNormal"><!--父工具包行-->
+            <td>所在包</td>
+            <td  style="text-align:center; color:red; font-weight:bold;"><span id="pBagName"></span></td>
+            <td>包识别号</td>
+            <td><input  style="text-align:center; color:blue;  font-weight:bold; " id="BagID"/></td>
+         </tr>
+         
+         
+        
+    
          <tr>
             <td>模板类</td>
             <td colspan="3" style="text-align:left;"><select style = "width:150px; " id ="drClass" ></select></td>
@@ -599,9 +719,9 @@
          </tr>
          <tr>
              <td>名称</td>
-             <td><input id = "t_ToolName" type="text" /></td>
-             <td >数量</td>
-             <td><input id = "Count" type="text" value ="1"/></td>
+             <td><input id = "t_ToolName"  style="text-align:center; color:black; font-weight:bolder;" type="text" /></td>
+             <td><span id= "lb">数量</span></td>
+             <td><input id = "Count" type="text" value ="1"/><a href="#" id= "BtnAlone" class ="BagOptRow" "class="easyui-linkbutton" style="margin-right:10px;"  onclick = "">变独立工具</a></td>
          </tr>
          <tr id = "yxsnrow">
          <td>预置序号</td> 
