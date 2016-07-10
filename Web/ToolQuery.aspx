@@ -133,7 +133,11 @@
                 { field: 'modifytime', title: '最后修改时间', width: 80, sortable: true },
                 { field: 'look', title: '借用记录', width: 80, sortable: true,formatter: formatLook}
             ];
-            
+           
+      
+   
+  
+          
         function PropertyChange(record) {
             if (record.id == -1) {
                 $("#ValueList").combobox('loadData', []);
@@ -585,11 +589,13 @@
             json.toolid = $("#sToolID").val();
             MyAjax(json, function(data) {
              if (data.status == "success") {
-                $.messager.progress('close');
-                AfterSearch(data);                 
-                $("#t1").treegrid({data:data.data});
+                    $.messager.progress('close');
+                    AfterSearch(data);                 
+                    $("#t1").treegrid({data:data.data});
+                    $("#ExcelReport").attr("href",data.url);
+                    //alert(data.url);
                 } else {
-                    $.messager.alert('错误', '属性取值范围加载失败！');
+                    $.messager.alert('错误', data.msg);
                 }
             }, null);
         }
@@ -737,6 +743,7 @@
         <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "ModifyTool();">工具修改</a>
         <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "DePackBag();">拆包</a>
         <a href="#"  class="easyui-linkbutton"  style=" margin-right:5px;" onclick = "AddToolBag();">手工加包</a>
+        <a href="#"  id="ExcelReport">结果导出-->Excel</a>
     </div>
       <div id="Win1" class="easyui-window"  style = "padding:0px;width:550px;height:600px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'工具管理'" >
                <iframe id ="fr1"  width="97%" height="97%" frameborder="0"></iframe>

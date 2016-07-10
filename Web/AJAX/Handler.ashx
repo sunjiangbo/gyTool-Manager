@@ -1352,13 +1352,15 @@ public String Test(HttpContext ctx)
         String json = "";
         int i, j, k, fw = 0/*范围：0所有 1工具包 2 工具*/;
         String txt, SQL = "", SQL1 = "";
-        String IDdl = "", IDbn = "";//独立 和 包内 CoreID
+        String IDdlfw="", IDdl = "", IDbn = "";//独立 和 包内 CoreID
         DataTable dt, dt1, dt2;
         DataRow[] dr, dr1;
 
         JObject Filter = (JObject)JO["Filter"];
         JArray Specific = (JArray)Filter["specific"];
-
+        String rkID = JO["rkid"].ToString().Trim();
+        String ToolID = JO["toolid"].ToString().Trim();
+        String ToolName = JO["name"].ToString().Trim();
         if (Filter["range"].ToString() == "-1")
         {
 
@@ -1381,10 +1383,34 @@ public String Test(HttpContext ctx)
         {
             fw = 1;
         }
+        String NameLike1 = " OR ToolName like'%" + ToolName + "%' ", NameLike2 = " OR (ValueType in(1,3) AND Value like'%" + ToolName + "%') ";
+        if(ToolName=="")
+        {
+            NameLike1 = NameLike2 = "";
+        }
+        String t_SQL = "SELECT distinct ID AS CoreID FROM CoreTool WHERE rkID ='" + rkID + "' OR ToolID ='" + ToolID + "' " + NameLike1 + "UNION SELECT distinct CoreID FROM CoreToolValue WHERE rkID='" + rkID + "' " + NameLike2 + " OR ToolID ='" + ToolID + "'";
+        dt = MyManager.GetDataSet("SELECT distinct ID AS CoreID FROM CoreTool WHERE rkID ='" + rkID + "' OR ToolID ='" + ToolID +"' "+ NameLike1+ "UNION SELECT distinct CoreID FROM CoreToolValue WHERE rkID='" + rkID + "' "+NameLike2+" OR ToolID ='" + ToolID + "'");
+        for (k = 0, IDdl="",IDbn = ""/*每次需将IDbn清空，获取最新集合，然后继续筛选*/; k < dt.Rows.Count; k++)
+        {
+            IDbn += (IDbn == "" ? dt.Rows[k]["CoreID"].ToString() : "," + dt.Rows[k]["CoreID"].ToString());
+            //IDdlfw += (IDdlfw == "" ? dt.Rows[k]["CoreID"].ToString() : "," + dt.Rows[k]["CoreID"].ToString());
+        }
+        
+        if (IDbn != "")
+        {
+            IDdlfw = " AND ID IN(" + IDbn + ") ";
+        }
+        else if (rkID != "" || ToolName != "" || ToolID != "")//搜索条件不全为空，而搜索结果为空，证明根据搜索条件搜到的结果为空
+        {
+            IDdlfw = " AND ID IN('') ";
+            IDbn = "''";
+        }
 
+        
         if (fw == 0 || fw == 1)
         {//所有 或 工具包
-
+          
+            
             for (i = 0; i < Specific.Count; i++)
             {
                 SQL1 = "(SELECT distinct CoreID FROM CoreToolValue WHERE (ValueType = 3 or ValueType = 1) AND PropertyID = " + Specific[i]["tid"].ToString()
@@ -1408,8 +1434,6 @@ public String Test(HttpContext ctx)
                     {
                         IDbn += (IDbn == "" ? dt1.Rows[k]["CoreID"].ToString() : "," + dt1.Rows[k]["CoreID"].ToString());
                     }
-
-
             }
 
         }
@@ -1418,7 +1442,7 @@ public String Test(HttpContext ctx)
         {
             for (i = 0; i < Specific.Count; i++)
             {
-                SQL = "(SELECT distinct ID AS CoreID FROM CoreTool WHERE ModelType = 0 AND ModelID = " + Specific[i]["tid"].ToString() + ")";
+                SQL = "(SELECT distinct ID AS CoreID FROM CoreTool WHERE ModelType = 0 AND ModelID = " + Specific[i]["tid"].ToString() +IDdlfw+" )";
 
                 JArray JV = (JArray)Specific[i]["vals"];
                 for (j = 0; j < JV.Count; j++)
@@ -1426,7 +1450,7 @@ public String Test(HttpContext ctx)
                     SQL += " Intersect (SELECT distinct CoreID FROM [CoreToolValue] WHERE CoreID IN " + "(SELECT distinct ID AS StoredID FROM CoreTool WHERE ModelType = 0 AND ModelID = " + Specific[i]["tid"].ToString() + ")" + " AND ValueType = 0 AND PropertyID = " + JV[j]["pid"].ToString() + (JV[j]["val"].ToString() != "zkgy-1" ? " AND Value = '" + JV[j]["val"].ToString() + "')" : ")");
                 }
 
-                dt1 = MyManager.GetDataSet(SQL); //独立工具，将StoreID集合
+                dt1 = MyManager.GetDataSet(SQL); //独立工具，将CoreID集合
 
                 for (k = 0; k < dt1.Rows.Count; k++)
                 {
@@ -1434,16 +1458,26 @@ public String Test(HttpContext ctx)
                 }
             }
         }
-
-        Dictionary<String,String> PropertyNameDict =  new Dictionary<String,String>();
+        Aspose.Cells.Workbook workbook = new Aspose.Cells.Workbook(gCtx.Server.MapPath("~") + "\\Template\\kb.xls");
+        Aspose.Cells.Worksheet sheet = workbook.Worksheets[0];
+        Aspose.Cells.Cells cells = sheet.Cells;
+        
+        cells[0, 0].PutValue("CoreID");
+        cells[0, 1].PutValue("入库编号");
+        cells[0, 2].PutValue("识别号");
+        cells[0, 3].PutValue("工具名");
+        cells[0, 4].PutValue("子工具名");
+        
+        Dictionary<String,int> PropertyNameDict =  new Dictionary<String,int>();
         String PropertyName;
         String ProprtryArrStr="";
         StringWriter sw = new StringWriter();
         JsonWriter jWrite = new JsonTextWriter(sw);
+        int curRow=1, curCol=5;
         jWrite.WriteStartArray();
         if ((fw == 1 || fw == 0) && IDbn != "")
         {
-            dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ID IN(" + IDbn + ")");//工具包
+            dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType=1 AND  ID IN(" + IDbn + ")");//工具包
             dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + IDbn + ") ORDER BY ToolID ASC");//包内工具集合
             dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + IDbn + ")");//属性集合
             for (i = 0; i < dt.Rows.Count; i++)
@@ -1452,8 +1486,13 @@ public String Test(HttpContext ctx)
                 jWrite.WritePropertyName("id");
                 jWrite.WriteValue(dt.Rows[i]["ID"].ToString());
                 jWrite.WritePropertyName("rkid");
+                cells[curRow, 0].PutValue(dt.Rows[i]["ID"].ToString());
+                cells[curRow, 1].PutValue(dt.Rows[i]["rkID"].ToString());
+                cells[curRow, 2].PutValue(dt.Rows[i]["ToolID"].ToString());
+                cells[curRow, 3].PutValue(dt.Rows[i]["ToolName"].ToString());
+                
                 jWrite.WriteValue(dt.Rows[i]["rkID"].ToString());
-                jWrite.WritePropertyName("toolid");
+                jWrite.WritePropertyName("toolid");                
                 jWrite.WriteValue(dt.Rows[i]["toolid"].ToString());
                 jWrite.WritePropertyName("posx");
                 jWrite.WriteValue(dt.Rows[i]["PosX"].ToString());
@@ -1490,14 +1529,18 @@ public String Test(HttpContext ctx)
                     
                     if (!PropertyNameDict.ContainsKey(PropertyName))
                     {
-                        PropertyNameDict.Add(PropertyName, "");
+                        PropertyNameDict.Add(PropertyName, curCol);
+                        cells[0, curCol].PutValue(PropertyName);
+                        curCol++;
                     }
                     ProprtryArrStr +=  ",\"" + PropertyName + "\":\"" + dr[j]["Value"].ToString() + "\"";
                     jWrite.WriteValue(PropertyName);
                     jWrite.WritePropertyName("value");
                     jWrite.WriteValue(dr[j]["Value"].ToString());
+                    cells[curRow, PropertyNameDict[PropertyName]].PutValue(dr[j]["Value"].ToString());
                     jWrite.WriteEndObject();
                 }
+                curRow++;
                 jWrite.WriteEndArray();
                 jWrite.WriteRaw(ProprtryArrStr);
                 jWrite.WritePropertyName("children");
@@ -1506,6 +1549,14 @@ public String Test(HttpContext ctx)
                 for (j = 0; j < dr.Length; j++)
                 {
                     jWrite.WriteStartObject();
+
+                    cells[curRow, 0].PutValue(dr[j]["CoreID"].ToString());
+                    cells[curRow, 1].PutValue(dr[j]["rkID"].ToString());
+                    cells[curRow, 2].PutValue(dr[j]["ToolID"].ToString());
+                    cells[curRow, 3].PutValue("|-------");
+                    cells[curRow, 4].PutValue(dr[j]["name"].ToString());
+                    
+                    
                     jWrite.WritePropertyName("id");
                     jWrite.WriteValue(dr[j]["ID"].ToString());
                     jWrite.WritePropertyName("rkid");
@@ -1542,13 +1593,17 @@ public String Test(HttpContext ctx)
 
                         if (!PropertyNameDict.ContainsKey(PropertyName))
                         {
-                            PropertyNameDict.Add(PropertyName, "");
+                            PropertyNameDict.Add(PropertyName, curCol);
+                            cells[0, curCol].PutValue(PropertyName);
+                            curCol++;                            
                         }
                         ProprtryArrStr += ",\"" + PropertyName + "\":\"" + dr1[k]["Value"].ToString() + "\"";
                         jWrite.WritePropertyName("value");
                         jWrite.WriteValue(dr1[k]["Value"].ToString());
+                        cells[curRow, PropertyNameDict[PropertyName]].PutValue(dr1[k]["Value"].ToString());
                         jWrite.WriteEndObject();
                     }
+                    curRow++;
                     jWrite.WriteEndArray();
                     jWrite.WriteRaw(ProprtryArrStr);
                     jWrite.WriteEndObject();
@@ -1561,11 +1616,17 @@ public String Test(HttpContext ctx)
 
         if ((fw == 2 || fw == 0) && IDdl != "")
         {
-            dt1 = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ID IN(" + IDdl + ")");
+            dt1 = MyManager.GetDataSet("SELECT A.ID,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType = 0 AND ID IN(" + IDdl + ")");
             dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[CoreID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where ValueType = 0 AND  CoreID IN(" + IDdl + ")");//属性集合
             for (i = 0; i < dt1.Rows.Count; i++)
             {
                 jWrite.WriteStartObject();
+                
+                cells[curRow, 0].PutValue(dt1.Rows[i]["ID"].ToString());
+                cells[curRow, 1].PutValue(dt1.Rows[i]["rkID"].ToString());
+                cells[curRow, 2].PutValue(dt1.Rows[i]["ToolID"].ToString());
+                cells[curRow, 3].PutValue(dt1.Rows[i]["ToolName"].ToString());
+                
                 jWrite.WritePropertyName("id");
                 jWrite.WriteValue(dt1.Rows[i]["ID"].ToString());
                 jWrite.WritePropertyName("name");
@@ -1601,14 +1662,18 @@ public String Test(HttpContext ctx)
 
                     if (!PropertyNameDict.ContainsKey(PropertyName))
                     {
-                        PropertyNameDict.Add(PropertyName, "");
+                        PropertyNameDict.Add(PropertyName, curCol);
+                        cells[0, curCol].PutValue(PropertyName);
+                        curCol++;
                     }
                     ProprtryArrStr += ",\"" + PropertyName + "\":\"" + dr1[k]["Value"].ToString() + "\"";
                     jWrite.WriteValue(dr1[k]["name"].ToString().Trim());
                     jWrite.WritePropertyName("value");
                     jWrite.WriteValue(dr1[k]["Value"].ToString());
+                    cells[curRow, PropertyNameDict[PropertyName]].PutValue(dr1[k]["Value"].ToString());
                     jWrite.WriteEndObject();
                 }
+                curRow++;
                 jWrite.WriteEndArray();
                 jWrite.WriteRaw(ProprtryArrStr);
                 jWrite.WriteEndObject();
@@ -1625,7 +1690,15 @@ public String Test(HttpContext ctx)
       //  Propertys[0] = "[";
         newColumns += "]";
 
-        return "{\"status\":\"success\",\"data\":" + sw.ToString() + ",\"newcolumns" + "\":" + newColumns + "}"; 
+ 
+        XlsSaveOptions saveOptions = new XlsSaveOptions();
+        String ExcelName = DateTime.Now.Ticks + ".xls";
+        String Path = gCtx.Server.MapPath("~") + "\\Report\\" + ExcelName;
+        workbook.Save(Path, saveOptions);
+        String ExcelURL = "http://" + gCtx.Request.Url.Host + ":" + gCtx.Request.Url.Port + gCtx.Request.ApplicationPath + "/Report/" + ExcelName;
+
+
+        return "{\"status\":\"success\",\"url\":\"" + ExcelURL + "\",\"data\":" + sw.ToString() + ",\"newcolumns" + "\":" + newColumns + "}"; 
        //return "{\"status\":\"success\",\"data\":" + sw.ToString() + "}"; 
     }
     public String StoreSearch(JObject JO)
