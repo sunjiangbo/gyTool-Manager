@@ -43,7 +43,7 @@
                 $(p).panel("setTitle", $(a).text());
                 main.window.location = 'Query.aspx';
             }
-            if ($.trim($(a).text()) == '工具查询') {
+            if ($.trim($(a).text()) == '工具管理') {
                 $(p).panel("setTitle", $(a).text());
                 main.window.location = 'ToolQuery.aspx';
             }
@@ -86,7 +86,7 @@
 		<div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search'"  onclick="ItemClick(this);">库存查询</a></div>
         <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'"  onclick="ItemClick(this);">工具入编</a></div>
         <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search'"  onclick="ItemClick(this);">打号任务</a></div>
-        <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search1'"  onclick="ItemClick(this);">工具查询</a></div>
+        <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search1'"  onclick="ItemClick(this);">工具管理</a></div>
         <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'"  onclick="ItemClick(this);">借还历史</a></div>
 		</div>
     </div>      

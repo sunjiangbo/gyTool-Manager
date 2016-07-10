@@ -623,11 +623,75 @@
                 fakeType = 6;   
                 BagName = row.bagname;
                 BagID = row.bagid;
+            }else if(Type==3)//包内工具 可修改属性 可独立 可改包
+            {
+                fakeType = 6;   
+                BagName = row.bagname;
+                BagID = row.bagid;
             }
             
              $("#fr1").attr("src","ToolContentManage.aspx?rkID="+rkID+"&Type="+fakeType+"&ToolID="+ToolID+"&ClassID="+ClassID+"&ToolName="+ToolName + "&BagID="+BagID+"&BagName="+BagName);
-             $("#Win1").window({ title: "工具修改", modal: true, closed: false });
+             $("#Win1").window({ title: "工具修改", modal: true, closed: false, onClose:function(){doSearch(); }});
           
+       }
+       
+       function DePackBag()
+       {
+             var row = $('#t1').datagrid('getSelected');
+                  
+            if(row == null || row.tooltype != '5')
+            {
+                $.messager.alert('错误', '请选择要拆分的工具包!');
+                return;
+            }
+            
+
+            $.messager.confirm('确认对话框', '确定要拆包吗?这样的话，该工具包内所有工具将变成独立工具。', function(r){
+	            if (r){
+	                var ClassID =row.classid;
+                    var fakeType ;
+                    var BagID=row.toolid;
+                    var BagName=row.name;
+                    oo = {};
+                    oo.cmd = "DePackBag";
+                    oo.bagid = BagID;
+                    oo.bagname = BagName;
+                    MyAjax(oo,function(data){
+                       $.messager.alert('提示',data.msg);
+                       doSearch();
+                    });
+	            }
+            });
+
+           
+            
+       }
+       
+       function AddToolBag()//加包按钮
+       {
+              var row = $('#t1').datagrid('getSelected');
+                  
+            if(row == null || row.tooltype != '0')
+            {
+                $.messager.alert('错误', '请选择作为新工具包的工具箱。');
+                return;
+            }
+
+
+            $.messager.prompt('提示信息', '请输入新工具包的名称', function(r){
+	            if (r){
+		            oo = {};
+		            oo.cmd = "ManualAddToolBag";
+		            oo.toolid = row.toolid;//工具箱本体的ID;
+		            oo.bagname = r;
+		            MyAjax(oo,function(data){
+		                 $.messager.alert('提示',data.msg);
+		            });
+		            doSearch();
+	            }
+            });
+
+
        }
             
 </script>
@@ -635,7 +699,7 @@
 <body id = "cc" class="easyui-layout">
 
     <form id="form1" runat="server">
-   <div id= "MContent" title = "查询" region="center"">
+   <div id= "MContent" title = "工具查询与管理" region="center"">
     <div title="库存查询" >
        <div style="min-height:5px;height:auto;" class="btnbartitle" >
            <div style="padding:5px;">范围:&nbsp;&nbsp;<select id ="ToolBagList" class="easyui-combobox" style = "width:150px; " ></select>&nbsp;&nbsp;名称: <input id="sName" style=" width:115px;"/>&nbsp;&nbsp;入库编号: <input id="srkID" style=" width:45px;"/>&nbsp;&nbsp;件号: <input id="sToolID" style=" width:50px;"/>&nbsp;&nbsp;<a id="A2" class="easyui-linkbutton" onclick = "doSearch();">搜索</a></div>
@@ -670,9 +734,9 @@
        
  <div id = "tb" >
         <span style="margin-left:460px;">操作:</span>
-        <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "ModifyTool();">修改</a>
-        <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "AddToHit();">拆包</a>
-        <a href="#"  class="easyui-linkbutton"  style=" margin-right:5px;" onclick = "AddToHit();">组包</a>
+        <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "ModifyTool();">工具修改</a>
+        <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "DePackBag();">拆包</a>
+        <a href="#"  class="easyui-linkbutton"  style=" margin-right:5px;" onclick = "AddToolBag();">手工加包</a>
     </div>
       <div id="Win1" class="easyui-window"  style = "padding:0px;width:550px;height:600px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'工具管理'" >
                <iframe id ="fr1"  width="97%" height="97%" frameborder="0"></iframe>

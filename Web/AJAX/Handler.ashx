@@ -1444,7 +1444,7 @@ public String Test(HttpContext ctx)
         if ((fw == 1 || fw == 0) && IDbn != "")
         {
             dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ID IN(" + IDbn + ")");//工具包
-            dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + IDbn + ")");//包内工具集合
+            dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + IDbn + ") ORDER BY ToolID ASC");//包内工具集合
             dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + IDbn + ")");//属性集合
             for (i = 0; i < dt.Rows.Count; i++)
             {
@@ -3228,6 +3228,7 @@ public String Test(HttpContext ctx)
         String Type = JO["type"].ToString().Trim();
         String ToolName = JO["toolname"].ToString().Trim();
         String OldBag;
+        String SQL = "";
         int ClassID = Convert.ToInt32(JO["classid"].ToString());
         if (ToolID == "" || ToolID.IndexOf(" ") != -1 || ToolID.IndexOf("'") != -1 || newBagID.IndexOf(" ") != -1 || newBagID.IndexOf(",") != -1 || ToolName.IndexOf("'") != -1 || ToolName.IndexOf(" ") != -1)
         {
@@ -3236,7 +3237,7 @@ public String Test(HttpContext ctx)
 
         DataTable dt = MyManager.GetDataSet("SELECT * FROM CoreToolValue Where ToolID = '" +ToolID+ "'");
         DataTable dt1 = MyManager.GetDataSet("SELECT * FROM CoreTool Where ModelType = 1 AND State = 0 AND ToolID = '" + newBagID + "'");
-        if (dt.Rows.Count==0)
+        if (Type!="8" && dt.Rows.Count==0)//这里的dt不适用于独立工具
         {
             return "{\"status\":\"failed\",\"msg\":\"识别号为"+ToolID+"的工具不存在!\"}";
         }
@@ -3261,7 +3262,7 @@ public String Test(HttpContext ctx)
                   //
 
                   JArray JA = JArray.Parse(JO["values"].ToString());
-                  String SQL = "";
+                  SQL = "";
 
                   foreach (JToken jt in JA)
                   {
@@ -3308,7 +3309,7 @@ public String Test(HttpContext ctx)
                         //
 
                         JArray JA = JArray.Parse(JO["values"].ToString());
-                        String SQL = "";
+                        SQL = "";
 
                         foreach (JToken jt in JA)
                         {
@@ -3336,7 +3337,7 @@ public String Test(HttpContext ctx)
                 //
 
                 JArray JA = JArray.Parse(JO["values"].ToString());
-                String SQL = "";
+                SQL = "";
 
                 foreach (JToken jt in JA)
                 {
@@ -3356,18 +3357,170 @@ public String Test(HttpContext ctx)
             }
 
         }
-        else if (Type == "7")
+        else if (Type == "7")//修改工具箱本体
         {
+            if (dt.Rows[0]["ValueType"].ToString() != "1")
+            {
+                return "{\"status\":\"failed\",\"msg\":\"该工具非工具箱本体，与任务类型不匹配.\"}";
+            }
 
+            CoreID = dt.Rows[0]["CoreID"].ToString();
+
+            MyManager.ExecSQL("UPDATE CoreToolValue Set PropertyID=" + ClassID + ",Value='" + ToolName + "',ModifyTime='" + DateTime.Now.ToString() + "',ValueType=1 WHERE ID= " + dt.Rows[0]["ID"].ToString());
+
+            MyManager.ExecSQL("DELETE FROM CoreToolValue WHERE  ValueType = 2 AND ParentID = '" + dt.Rows[0]["ID"].ToString() + "'");
+            //
+
+            JArray JA = JArray.Parse(JO["values"].ToString());
+            SQL = "";
+
+            foreach (JToken jt in JA)
+            {
+                JObject jobj = (JObject)jt;
+                if (jobj["value"].ToString().IndexOf("'") != -1 || jobj["value"].ToString().IndexOf(" ") != -1) { return "{\"status\":\"failed\",\"msg\":\"属性取值不允许含有分号(')或者空格!\"}"; }
+                //查看该属性值之前是否存在SELECT ID  
+                int iRet = Convert.ToInt32(MyManager.GetFiledByInput("SELECT Count(*) AS Count FROM [PropertyValues] where PropertyID =" + jobj["propertyid"].ToString() + " AND Value = '" + jobj["value"].ToString() + "' AND (ParentID is NULL or ParentID=0)", "Count"));
+                if (iRet == 0)//该属性值之前不存在，现在添加到属性值列表中
+                {
+                    MyManager.ExecSQL("INSERT INTO PropertyValues (PropertyID,Value,ValueType) VALUES (" + jobj["propertyid"].ToString() + ",'" + jobj["value"].ToString() + "',0)");
+                }
+                SQL += "INSERT INTO [CoreToolValue] ([CoreID],[PropertyID],[Value],[ValueType],[ParentID],State) VALUES (" + CoreID + "," + jobj["propertyid"].ToString() + ",'" + jobj["value"].ToString() + "',2," + dt.Rows[0]["ID"].ToString() + ",-1);";
+            }
+
+            MyManager.ExecSQL(SQL);
+            return "{\"status\":\"success\",\"msg\":\"工具箱本体修改成功!\"}"; 
+            
         }
-        else if (Type == "8")
+        else if (Type == "8")//修改独立工具
         {
+            
+            dt = MyManager.GetDataSet("SELECT * FROM CoreTool Where ModelType = 0 AND State = 0 AND ToolID = '" + ToolID + "'");
+            if (dt.Rows.Count == 0)
+            {
+                return "{\"status\":\"failed\",\"msg\":\"该独立工具不存在或其不在库!\"}";  
+            }
+            if (dt1.Rows.Count == 0)
+            {
+                return "{\"status\":\"failed\",\"msg\":\"目的工具包不存在 !\"}";   
+            }
+            if (newBagID != "")//独立工具进包
+            {
+               newToolID = MyManager.FindNextTooIDInBag(newBagID);
+               CoreID = dt1.Rows[0]["ID"].ToString();
+               String BagIDOfnewBag /*工具包中工具箱本体的ID(CoreToolValue)*/ = MyManager.GetFiledByInput("SELECT ID FROM CoreToolValue WHERE ValueType = 1 AND CoreID = " + dt1.Rows[0]["ID"].ToString(), "ID");
+               String NewIDInCoreToolValue = MyManager.GetFiledByInput("INSERT INTO [CoreToolValue] (rkID,ToolID,[CoreID],[PropertyID],[Value],[ValueType],[ParentID],State) VALUES (" + dt.Rows[0]["rkID"].ToString() + ",'" + newToolID + "'," + dt1.Rows[0]["ID"].ToString() + "," + ClassID + ",'" + ToolName + "',3," + BagIDOfnewBag + ","+dt.Rows[0]["State"].ToString()+");SELECT IDENT_CURRENT('CoreToolValue') AS CurID", "CurID");
 
+               MyManager.ExecSQL("DELETE FROM CoreTool WHERE ID = '" + dt.Rows[0]["ID"].ToString() + "'");
+               MyManager.ExecSQL("DELETE FROM CoreToolValue WHERE  ParentID = '" + dt.Rows[0]["ID"].ToString() + "'");
+
+               JArray JA = JArray.Parse(JO["values"].ToString());
+               SQL = "";
+
+               foreach (JToken jt in JA)
+               {
+                   JObject jobj = (JObject)jt;
+                   if (jobj["value"].ToString().IndexOf("'") != -1 || jobj["value"].ToString().IndexOf(" ") != -1) { return "{\"status\":\"failed\",\"msg\":\"属性取值不允许含有分号(')或者空格!\"}"; }
+                   //查看该属性值之前是否存在SELECT ID  
+                   int iRet = Convert.ToInt32(MyManager.GetFiledByInput("SELECT Count(*) AS Count FROM [PropertyValues] where PropertyID =" + jobj["propertyid"].ToString() + " AND Value = '" + jobj["value"].ToString() + "' AND (ParentID is NULL or ParentID=0)", "Count"));
+                   if (iRet == 0)//该属性值之前不存在，现在添加到属性值列表中
+                   {
+                       MyManager.ExecSQL("INSERT INTO PropertyValues (PropertyID,Value,ValueType) VALUES (" + jobj["propertyid"].ToString() + ",'" + jobj["value"].ToString() + "',0)");
+                   }
+                   SQL += "INSERT INTO [CoreToolValue] ([CoreID],[PropertyID],[Value],[ValueType],[ParentID],State) VALUES (" + CoreID + "," + jobj["propertyid"].ToString() + ",'" + jobj["value"].ToString() + "',4," + NewIDInCoreToolValue + ",-1);";
+               }
+
+               MyManager.ExecSQL(SQL);
+               return "{\"status\":\"success\",\"newid\":\"" + NewIDInCoreToolValue + "\",\"msg\":\"独立工具入包成功-->" + newToolID + "\"}";  
+            }
+            else { //独立工具修改属性
+                CoreID = dt.Rows[0]["ID"].ToString();
+                MyManager.ExecSQL("UPDATE CoreTool SET  ModelID=" + ClassID + ",ToolName='" + ToolName + "',ModifyTime='" + DateTime.Now.ToString() + "' WHERE ID= " + dt.Rows[0]["ID"].ToString());
+
+                MyManager.ExecSQL("DELETE FROM CoreToolValue WHERE  ParentID = '" + dt.Rows[0]["ID"].ToString() + "'");
+                //
+
+                JArray JA = JArray.Parse(JO["values"].ToString());
+                SQL = "";
+
+                foreach (JToken jt in JA)
+                {
+                    JObject jobj = (JObject)jt;
+                    if (jobj["value"].ToString().IndexOf("'") != -1 || jobj["value"].ToString().IndexOf(" ") != -1) { return "{\"status\":\"failed\",\"msg\":\"属性取值不允许含有分号(')或者空格!\"}"; }
+                    //查看该属性值之前是否存在SELECT ID  
+                    int iRet = Convert.ToInt32(MyManager.GetFiledByInput("SELECT Count(*) AS Count FROM [PropertyValues] where PropertyID =" + jobj["propertyid"].ToString() + " AND Value = '" + jobj["value"].ToString() + "' AND (ParentID is NULL or ParentID=0)", "Count"));
+                    if (iRet == 0)//该属性值之前不存在，现在添加到属性值列表中
+                    {
+                        MyManager.ExecSQL("INSERT INTO PropertyValues (PropertyID,Value,ValueType) VALUES (" + jobj["propertyid"].ToString() + ",'" + jobj["value"].ToString() + "',0)");
+                    }
+                    SQL += "INSERT INTO [CoreToolValue] ([CoreID],[PropertyID],[Value],[ValueType],[ParentID],State) VALUES (" + CoreID + "," + jobj["propertyid"].ToString() + ",'" + jobj["value"].ToString() + "',0," + dt.Rows[0]["ID"].ToString() + ",-1);";
+                }
+
+                MyManager.ExecSQL(SQL);
+            }
+            return "{\"status\":\"success\",\"msg\":\"独立工具修改成功!\"}";  
         }
 
         return "{\"status\":\"failed\",\"msg\":\"无此任务类型！\"}";
           
     }
+    public String DePackBag(JObject JO)
+    {
+        String BagID, BagName;
+        BagID = JO["bagid"].ToString().Trim();
+        BagName = JO["bagname"].ToString();
+        int i;
+        if(BagID.IndexOf(" ")!=-1 || BagID.IndexOf("'")!=-1)
+        {
+           return "{\"status\":\"failed\",\"msg\":\"不可含空格与引号!\"}";
+        }
+        DataTable dt = MyManager.GetDataSet("SELECT * FROM CoreTool Where ModelType = 1 AND  ToolID = '" + BagID + "'");
+        String CoreID = dt.Rows[0]["ID"].ToString();
+        DataTable dt1 = MyManager.GetDataSet("SELECT * FROM CoreToolValue WHERE (ValueType = 1 OR ValueType =3) AND CoreID=" + CoreID);
+        String ToolIDVal = "",newToolID;
+        for (i = 0; i < dt1.Rows.Count; i++)
+        {
+            String ID = dt1.Rows[i]["ID"].ToString();
+            newToolID = MyManager.GetNextID();
+            ToolIDVal += " " + newToolID;
+            CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask]) SELECT rkID,0,PropertyID,'"
+                                                               + newToolID + "' AS ToolID,Value,'" + DateTime.Now.ToString() + "' AS ModifyTime,State,NULL FROM CoreToolValue WHERE ID = '" + dt1.Rows[i]["ID"].ToString() + "';SELECT IDENT_CURRENT('CoreTool') AS CurID", "CurID");
+
+            MyManager.ExecSQL("UPDATE CoreToolValue Set ValueType =0, CoreID = " + CoreID + ",ParentID = " + CoreID + ",ModifyTime='" + DateTime.Now.ToString() + "' WHERE (ValueType = 4 OR ValueType =2) AND ParentID= " + ID);
+
+            MyManager.ExecSQL("DELETE FROM CoreToolValue WHERE ID = " + ID);
+        }
+        MyManager.ExecSQL("DELETE FROM CoreTool WHERE ID = " + dt.Rows[0]["ID"].ToString());
+        return "{\"status\":\"success\",\"msg\":\"拆包成功，识别号范围:"+ToolIDVal+"\"}";
+    }
+
+    public String ManualAddToolBag(JObject JO)
+    {
+        String ToolID/*工具箱本体的识别号*/, BagName, newToolID;
+        ToolID = JO["toolid"].ToString().Trim();
+        BagName = JO["bagname"].ToString().Trim();
+        String newID,CoreID;
+        if(ToolID.IndexOf(" ")!=-1 || ToolID.IndexOf("'")!=-1 || BagName.IndexOf(" ")!=-1 || BagName.IndexOf("'")!=-1)
+        {
+           return "{\"status\":\"failed\",\"msg\":\"不可含空格与引号!\"}"; 
+        }
+        DataTable dt = MyManager.GetDataSet("SELECT * FROM CoreTool WHERE State =0 AND ModelType=0 AND ToolID='" +ToolID+ "'");
+        if (dt.Rows.Count == 0)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"工具箱"+ToolID+"本体不在库或者不存在!\"}";   
+        }
+        newToolID = MyManager.GetNextID();
+        CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask]) SELECT rkID,1,0,'"
+                                                              + newToolID + "' AS ToolID,'" + BagName + "','" + DateTime.Now.ToString() + "' AS ModifyTime,State,NULL FROM CoreTool WHERE ID = '" + dt.Rows[0]["ID"].ToString() + "';SELECT IDENT_CURRENT('CoreTool') AS CurID", "CurID");
+
+
+        newID = MyManager.GetFiledByInput("INSERT INTO CoreToolValue(ParentID,CoreID,rkID,ValueType,ToolID,PropertyID,Value,[ModifyTime],State) SELECT " + CoreID + "," + CoreID + ",rkID,1,'"
+                                                              + newToolID + "' AS ToolID,ModelID,ToolName,'" + DateTime.Now.ToString() + "' AS ModifyTime,State FROM CoreTool WHERE ID = '" + dt.Rows[0]["ID"].ToString() + "';SELECT IDENT_CURRENT('CoreToolValue') AS CurID", "CurID");
+
+        MyManager.ExecSQL("UPDATE CoreToolValue SET CoreID="+CoreID +",ValueType=2,ParentID="+newID +" WHERE ValueType=0 AND  CoreID=" + dt.Rows[0]["ID"].ToString());
+        MyManager.ExecSQL("DELETE FROM CoreTool WHERE ID = " + dt.Rows[0]["ID"].ToString());
+        return "{\"status\":\"success\",\"msg\":\"加包成功，识别号为:"+newToolID+"\"}"; 
+    }
+    
    public void ProcessRequest (HttpContext context) 
    {
 
@@ -3649,6 +3802,16 @@ public String Test(HttpContext ctx)
            if (Cmd == "ModifyCoreTool")
            {
                retJSON = ModifyCoreTool(JO); 
+           }
+
+           if (Cmd == "DePackBag")
+           {
+               retJSON = DePackBag(JO); 
+           }
+
+           if (Cmd == "ManualAddToolBag")
+           {
+               retJSON = ManualAddToolBag(JO); 
            }
            context.Response.Write(retJSON);
            

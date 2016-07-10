@@ -246,7 +246,7 @@
                record.id = $("#drClass").combobox('getValue');
                record.isInit = false;
                ClassChange(record);
-           }else if (Type == 6)//6:修改包内工具(CoreTool)
+           }else if (Type == 6  || Type == 7 ||Type == 8)//6:修改包内工具(CoreTool) 7:修改工具箱本体(CoreTool) 8:修改工具箱本体(CoreTool)
            {
                var value = [];
                var sToolName = $("#t_ToolName").val();
@@ -299,13 +299,7 @@
                });
 
                
-           }else if (Type ==7)//7:修改工具箱本体(CoreTool)
-           {
-           
-           }else if (Type ==8) //8:修改独立工具(CoreTool)
-           {
-            
-           }   
+           }
     }
     function ckClick(obj) {
         var $ck = $(obj)
