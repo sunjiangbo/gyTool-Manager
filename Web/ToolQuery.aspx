@@ -113,7 +113,7 @@
         var IsInitial = true; /*表明修改搜索条件*/
         var initColumnBefore = [{ field: 'ck', checkbox: true },
                          { field: 'rkid', title: '入库编号', width: 20, sortable: true },
-                        { field: 'toolid', title: '件号', width: 20, sortable: true },
+                        { field: 'toolid', title: '识别号', width: 20, sortable: true },
                         { field: 'name', title: '名称', width: 60, sortable: true, tooltip: true, formatter:
                 function (val, row, index) {
                     Str = '<div style="padding:10px 200px"><p><a  href="javascript:void(0)" class="easyui-tooltip" data-options="hideEvent: \'none\',content: function(){return $("<div>' + val + '</div>");},onShow: function(){var t = $(this);t.tooltip(\'tip\').focus().unbind().bind(\'blur\',function(){tooltip(\'hide\');});}">Hover me</a> to display toolbar.</p>	</div>';
@@ -213,13 +213,13 @@
                         success: function(data) {
                             SuccessFun(data);
                             $.messager.progress('close');
-                        },
+                        },timeout:9999999,
                         error: function(xhr, s, e) {
-                            if (ErrorFun == undefined || ErrorFun == null) {
-                                ErrorFun(xhr, s, e);
-                            } else {
-                                $.messager.progress('close');
-                                $.messager.alert('数据加载错误', e);
+                        $.messager.progress('close');
+                            if (ErrorFun == undefined || ErrorFun == null) {                                
+                                $.messager.alert('数据加载错误', e +s);
+                            } else {                               
+                                 ErrorFun(xhr, s, e);
                             }
                         }
                     });
@@ -302,15 +302,17 @@
             {
                $("#t1").treegrid({
                     title: '',
-                    width: fixWidth(0.99),
+                    width: document.body.clientWidth * 2.5,
                     height: 1200,
                     method: "get",
                     fitColumns: true,
                     idField: 'id',
                     treeField: 'name',
                      toolbar: '#tb',
-                    remoteSort: false,
+                     nowrap:true,
+                     striped:true,
                     rownumbers: true,
+                    loadMsg:"正在加载",
                     onLoadSuccess: function (row, data) {
                         for (i = 0; i < data.length; i++) {                            
                             $("#btn"+data[i].id).linkbutton();
@@ -588,16 +590,23 @@
             json.rkid = $("#srkID").val();
             json.toolid = $("#sToolID").val();
             MyAjax(json, function(data) {
+            $.messager.progress('close');
              if (data.status == "success") {
-                    $.messager.progress('close');
-                    AfterSearch(data);                 
+                    
+                    AfterSearch(data);  //增加属性列               
+                   //
+                   //$("#t1").treegrid("loading");
                     $("#t1").treegrid({data:data.data});
+                    // $("#t1").treegrid("load",data);
                     $("#ExcelReport").attr("href",data.url);
                     //alert(data.url);
+                    //$("#t1").treegrid("loaded");
                 } else {
                     $.messager.alert('错误', data.msg);
                 }
-            }, null);
+            }, function Err(xhr,s,e){
+                    alert(xhr.responseText+s+e);
+            });
         }
        
        function ModifyTool()
@@ -708,8 +717,8 @@
    <div id= "MContent" title = "工具查询与管理" region="center"">
     <div title="库存查询" >
        <div style="min-height:5px;height:auto;" class="btnbartitle" >
-           <div style="padding:5px;">范围:&nbsp;&nbsp;<select id ="ToolBagList" class="easyui-combobox" style = "width:150px; " ></select>&nbsp;&nbsp;名称: <input id="sName" style=" width:115px;"/>&nbsp;&nbsp;入库编号: <input id="srkID" style=" width:45px;"/>&nbsp;&nbsp;件号: <input id="sToolID" style=" width:50px;"/>&nbsp;&nbsp;<a id="A2" class="easyui-linkbutton" onclick = "doSearch();">搜索</a></div>
-           <div style="padding:0px 5px 5px 5px;">条件:&nbsp;&nbsp;<select id ="ToolList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="PropertyList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="ValueList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp; <a id="opBtn" class="easyui-linkbutton" onclick = "FilterModify();">增加</a>&nbsp;&nbsp;<a id="A1" class="easyui-linkbutton" onclick = "StoreToolBag();">清空</a>&nbsp;&nbsp;</div>
+           <div style="padding:5px;">范围:&nbsp;&nbsp;<select id ="ToolBagList" class="easyui-combobox" style = "width:150px; " ></select>&nbsp;&nbsp;名称: <input id="sName" style=" width:115px;"/>&nbsp;&nbsp;入库编号: <input id="srkID" style=" width:45px;"/>&nbsp;识别号: <input id="sToolID" style=" width:50px;"/>&nbsp;&nbsp;<a id="A2" class="easyui-linkbutton" onclick = "doSearch();">搜索</a></div>
+           <div style="padding:0px 5px 5px 5px;">条件:&nbsp;&nbsp;<select id ="ToolList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="PropertyList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="ValueList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp; <a id="opBtn" class="easyui-linkbutton" onclick = "FilterModify();">增加</a>&nbsp;&nbsp;<a id="A1" class="easyui-linkbutton" onclick = "">清空</a>&nbsp;&nbsp;</div>
            <div style="padding:0px 5px 5px 5px;">筛选:
                <input name = "rg"  id="Radio1" type="radio" checked= "checked">显示所有</input>
                <input name = "rg"  id="Radio2" type="radio" >工具包</input>
@@ -722,11 +731,11 @@
        
         </div>
 
-      
-        </div>
-        <div>
+      <div>
             <table id="t1"></table>
         </div>
+        </div>
+        
        
         
     </div>
@@ -743,7 +752,7 @@
         <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "ModifyTool();">工具修改</a>
         <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "DePackBag();">拆包</a>
         <a href="#"  class="easyui-linkbutton"  style=" margin-right:5px;" onclick = "AddToolBag();">手工加包</a>
-        <a href="#"  id="ExcelReport">结果导出-->Excel</a>
+        <a href="#"  id="ExcelReport">结果导出(Excel)</a>
     </div>
       <div id="Win1" class="easyui-window"  style = "padding:0px;width:550px;height:600px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'工具管理'" >
                <iframe id ="fr1"  width="97%" height="97%" frameborder="0"></iframe>
