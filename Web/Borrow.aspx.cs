@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-
+using System.Data;
 public partial class Borrow : System.Web.UI.Page
 {
     public String TaskID = "", Type = "0", reBack = "";
@@ -31,14 +31,22 @@ public partial class Borrow : System.Web.UI.Page
             return;
         }
 
-        Count = MyManager.SELCount("SELECT Count(ID) AS ct FROM Tasks Where ID = " + TaskID + " AND CreateUser = " + Session["UserID"].ToString(), "ct");
+        DataTable dt = MyManager.GetDataSet("SELECT * FROM Tasks Where ID = " + TaskID);
 
-        if (Count > 0)
+        if (dt.Rows[0]["State"].ToString() == "10")
+        {
+            Type = "10";//任务已经关闭;
+            return;
+        }
+       
+
+        if (dt.Rows[0]["CreateUser"].ToString() == Session["UserID"].ToString())
         {
             Type = "1";//借用者在提交申请
             return;
         }
+ 
 
-        if (Type == "0") { Response.Write("未授权的访问。。"); Response.End(); return; }
+        if (Type == "0") { Response.Write("任务目前未被分配和领取，无法操作数据，请领取任务或者待领导分配任务后，再访问本页面 ！"); Response.End(); return; }
     }
 }

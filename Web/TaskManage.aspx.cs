@@ -480,6 +480,7 @@ public partial class TaskManage : System.Web.UI.Page
     {
         if (e.Row.RowType != DataControlRowType.Header)
         {
+            e.Row.Cells[2].Text = (e.Row.RowIndex + 1).ToString();
             Button DealBtn = (Button)e.Row.FindControl("DealBtn");
             Button RollBtn = (Button)e.Row.FindControl("RollBackBtn");
             Button OutBtn = (Button)e.Row.FindControl("OutBtn");

@@ -64,18 +64,18 @@
             $("#Win").window({ closed: false });
         }
         function ShowTask(TaskID) {
-            $('#Win1').window({
+           /* $('#Win1').window({
                 width: 600,
                 height: 300,
                 modal: true,
                 shadow:true,
                 inline:false,
-            });
+            });*/
+            window.open('TaskDetails.aspx?TaskID='+TaskID,'newwindow','titlebar=no,toolbar=no,location=no,top=100,left=200');
             
-            
-            $("#TaskFR").attr("src","TaskDetails.aspx?TaskID=" + TaskID);
+            /*$("#TaskFR").attr("src","TaskDetails.aspx?TaskID=" + TaskID);
             $("#Win1").window({ title: "任务查看", closed: false});
-            $("#Win1").window({ closed: false });
+            $("#Win1").window({ closed: false });*/
         }
         function LoadBorrowData()
         {

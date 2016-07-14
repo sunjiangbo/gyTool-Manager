@@ -112,6 +112,33 @@
         var Filter = { range: -1, name: "所有", ret: "all", specific: [] };
         var IsInitial = true; /*表明修改搜索条件*/
         var TaskID = '<%= TaskID %>';
+        var initColumnBefore = [{ field: 'ck', checkbox: true },
+                         { field: 'rkid', title: '入库编号', width: 20, sortable: true },
+                        { field: 'toolid', title: '识别号', width: 20, sortable: true },
+                        { field: 'name', title: '名称', width: 60, sortable: true, tooltip: true, formatter:
+                function (val, row, index) {
+                    Str = '<div style="padding:10px 200px"><p><a  href="javascript:void(0)" class="easyui-tooltip" data-options="hideEvent: \'none\',content: function(){return $("<div>' + val + '</div>");},onShow: function(){var t = $(this);t.tooltip(\'tip\').focus().unbind().bind(\'blur\',function(){tooltip(\'hide\');});}">Hover me</a> to display toolbar.</p>	</div>';
+
+                    // return val;
+                    return '<a  class = "myCell" id="tip' + row.id + '">' + val + '</a>';
+                }
+                        }
+    
+            ];
+             initColumnAfter = [
+                { field: 'toolstate', title: '理论状态', width: 25, sortable: true },
+                { field: 'lastseen', title: '最后发现时间', width: 50, sortable: true },
+                { field: 'posx', title: '所在货架', width: 25, sortable: true },
+                { field: 'posy', title: '所在层', width: 20, sortable: true },
+                { field: 'realtoolstate', title: '实际状态', width: 25, sortable: true },
+                { field: 'modifytime', title: '最后修改时间', width: 80, sortable: true },
+                { field: 'look', title: '借用记录', width: 80, sortable: true,formatter: formatLook}
+            ];
+              function formatLook(val, row, index) {
+            if (row.toolstate != undefined ){
+                return '<a href= "#" onclick="LookBorrowHistory(\''+row.toolid+'\')">查看</a>'; 
+            }                 
+        }
         function AddToBorrow() {
             var row = $('#t1').datagrid('getSelected');
             if (row == null) { $.messager.alert('错误', '没选择工具呢!!'); return; }
@@ -209,7 +236,43 @@
             }, null);
 
         }
+  function GridSet(newColumns)
+            {
+               $("#t1").treegrid({
+                    title: '',
+                    width: document.body.clientWidth * 2.5,
+                    height: 1200,
+                    method: "get",
+                    fitColumns: true,
+                    idField: 'id',
+                    treeField: 'name',
+                     toolbar: '#tb',
+                     nowrap:true,
+                     striped:true,
+                    rownumbers: true,
+                    loadMsg:"正在加载",
+                    onLoadSuccess: function (row, data) {
+                        for (i = 0; i < data.length; i++) {                            
+                            $("#btn"+data[i].id).linkbutton();
+                            if (data[i].children != null && data[i].children.length != 0) {
+                                AddTooltip(data[i].id, 1, 'ToolBag.aspx?Type=1&BagID=' + data[i].id);
+                                for (j = 0; j < data[i].children.length; j++) {
+                                    AddTooltip(data[i].children[j].id, 0, data[i].children[j].sx);
+                                    $("#btn"+data[i].children[j].id).linkbutton();
+                                }
+                            } else {
+                                AddTooltip(data[i].id, 0, data[i].sx);
+                            }
+                        }
 
+                    },
+                    columns: [initColumnBefore.concat(newColumns).concat(initColumnAfter)],
+                    enableHeaderClickMenu: false,
+                    enableHeaderContextMenu: false,
+                    enableRowContextMenu: false
+                });
+            }
+           
         function MyAjax(jsondat, SuccessFun, ErrorFun) {
             $.messager.progress({ title: '提示', msg: '正在处理，请稍候!' });
             $.ajax(
@@ -269,7 +332,7 @@
                 }
             }, null);
 
-
+});
 
 
             function fixWidth(percent) {
@@ -311,6 +374,7 @@
                 location.href = "Borrow.aspx?TaskID=" + TaskID + "&reBack=ToolApp.aspx?TaskID="+TaskID;
             }
             $(function () {
+                var json = {};
                 $("#brCount").bind("click", function () { JumpBorrowInfo(); });
                 json.cmd = "GetWantToBorrowCount";
                 json.taskid = TaskID;
@@ -325,52 +389,9 @@
                     Filter.ret = "all";
                     $("#ToolBagList").combobox("setValue", "-1");
                     ParseFilters();
-                })
-
-                $("#t1").treegrid({
-                    title: '',
-                    width: fixWidth(0.99),
-                    height: 1200,
-                    method: "get",
-                    fitColumns: true,
-                    idField: 'id',
-                    treeField: 'name',
-                    remoteSort: false,
-                    rownumbers: true,
-                    toolbar: '#tb',
-                    onLoadSuccess: function (row, data) {
-                        for (i = 0; i < data.length; i++) {
-                            if (data[i].children != null && data[i].children.length != 0) {
-                                AddTooltip(data[i].id, 1, 'ToolBag.aspx?Type=1&BagID=' + data[i].id);
-                                for (j = 0; j < data[i].children.length; j++) {
-                                    AddTooltip(data[i].children[j].id, 0, data[i].children[j].sx);
-                                }
-                            } else {
-                                AddTooltip(data[i].id, 0, data[i].sx);
-                            }
-                        }
-
-                    },
-                    columns: [
-                        [{ field: 'ck', checkbox: true },
-                        { field: 'toolid', title: '件号', width: 20, sortable: true },
-                        { field: 'name', title: '名称', width: 40, sortable: true, tooltip: true, formatter:
-                function (val, row, index) {
-                    Str = '<div style="padding:10px 200px"><p><a  href="javascript:void(0)" class="easyui-tooltip" data-options="hideEvent: \'none\',content: function(){return $("<div>' + val + '</div>");},onShow: function(){var t = $(this);t.tooltip(\'tip\').focus().unbind().bind(\'blur\',function(){tooltip(\'hide\');});}">Hover me</a> to display toolbar.</p>	</div>';
-
-                    // return val;
-                    return '<a  class = "myCell" id="tip' + row.id + '">' + val + '</a>';
-                }
-                        },
-                { field: 'toolstate', title: '工具状态', width: 20, sortable: true },
-                { field: 'modifytime', title: '最后修改时间', width: 80, sortable: true },
-            ]],
-                    enableHeaderClickMenu: false,
-                    enableHeaderContextMenu: false,
-                    enableRowContextMenu: false
                 });
-            });
 
+                GridSet([]);
         });
         function FiltersParse() {
 
@@ -581,19 +602,44 @@
             //Filter.range = ToolBagClassID;
 
         }
-        function doSearch() {
+          function AfterSearch(data)
+        {
+             
+                    //alert(JSON.stringify(data.data));
+                   var newColumns = data.newcolumns;
+                   oo = [];
+                   ss="";
+                   for(i=0;i<newColumns.length;i++)
+                   {                   
+                     oo.push({field: ""+newColumns[i]+ "", title:"" +newColumns[i]+"", sortable: true});
+                   }        
+                   $("#t1").treegrid({columns: [initColumnBefore.concat(oo).concat(initColumnAfter)]});       
+        }
+         function doSearch() {
             var json = {};
             json.cmd = "ToolSearch";
             json.Filter = Filter;
+            json.name = $("#sName").val();
+            json.rkid = $("#srkID").val();
+            json.toolid = $("#sToolID").val();
             MyAjax(json, function(data) {
-                $.messager.progress('close');
-                if (data.status == "success") {
-                    //alert(JSON.stringify(data.data));
+            $.messager.progress('close');
+             if (data.status == "success") {
+                    
+                    AfterSearch(data);  //增加属性列               
+                   //
+                   //$("#t1").treegrid("loading");
                     $("#t1").treegrid({data:data.data});
+                    // $("#t1").treegrid("load",data);
+                    $("#ExcelReport").attr("href",data.url);
+                    //alert(data.url);
+                    //$("#t1").treegrid("loaded");
                 } else {
-                    $.messager.alert('错误', '属性取值范围加载失败！');
+                    $.messager.alert('错误', data.msg);
                 }
-            }, null);
+            }, function Err(xhr,s,e){
+                    alert(xhr.responseText+s+e);
+            });
         }
 </script>
 </head>
@@ -603,8 +649,8 @@
    <div id= "MContent" title = "查询" region="center"">
     <div title="库存查询" >
        <div style="min-height:5px;height:auto;" class="btnbartitle" >
-           <div style="padding:5px;">范围:&nbsp;&nbsp;<select id ="ToolBagList" class="easyui-combobox" style = "width:150px; " ></select></div>
-           <div style="padding:0px 5px 5px 5px;">包含:&nbsp;&nbsp;<select id ="ToolList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="PropertyList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="ValueList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp; <a id="opBtn" class="easyui-linkbutton" onclick = "FilterModify();">增加</a>&nbsp;&nbsp;<a id="A1" class="easyui-linkbutton" onclick = "StoreToolBag();">清空</a>&nbsp;&nbsp;<a id="A2" class="easyui-linkbutton" onclick = "doSearch();">搜索</a></div>
+            <div style="padding:5px;">范围:&nbsp;&nbsp;<select id ="ToolBagList" class="easyui-combobox" style = "width:150px; " ></select>&nbsp;&nbsp;名称: <input id="sName" style=" width:115px;"/>&nbsp;&nbsp;入库编号: <input id="srkID" style=" width:45px;"/>&nbsp;识别号: <input id="sToolID" style=" width:50px;"/>&nbsp;&nbsp;<a id="A3" class="easyui-linkbutton" onclick = "doSearch();">搜索</a></div>
+            <div style="padding:0px 5px 5px 5px;">包含:&nbsp;&nbsp;<select id ="ToolList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="PropertyList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="ValueList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp; <a id="opBtn" class="easyui-linkbutton" onclick = "FilterModify();">增加</a>&nbsp;&nbsp;</div>
            <div style="padding:0px 5px 5px 5px;">筛选:
                <input name = "rg"  id="Radio1" type="radio" checked= "checked">显示所有</input>
                <input name = "rg"  id="Radio2" type="radio" >工具包</input>

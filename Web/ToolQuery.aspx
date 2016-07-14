@@ -601,6 +601,7 @@
                     $("#ExcelReport").attr("href",data.url);
                     //alert(data.url);
                     //$("#t1").treegrid("loaded");
+
                 } else {
                     $.messager.alert('错误', data.msg);
                 }

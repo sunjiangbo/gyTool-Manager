@@ -204,7 +204,29 @@
             $("#Win").window({ closed: false });
         }
 
-        
+        function CloseTheTask()
+        {
+            
+             $.messager.confirm('确认','您确认想要关闭任务？',function(r){    
+                if (r){    
+                     var json = {};
+                    json.cmd = "CloseTheTask";
+                    json.taskid = TaskID; 
+                    json.content = "手动关闭"; 
+                    MyAjax(json, function (data) {
+                        $.messager.progress('close');
+                        if (data.status == "success") {
+                             $.messager.alert('提示', data.msg);
+                        
+                        } else {
+                             $.messager.alert('错误', data.msg);
+                        }
+                        }, null);
+                }    
+            });  
+                   
+       
+        }
 
         $(function () {
             LoadTable();
@@ -213,6 +235,9 @@
             }
             if (Type == "1") {
                 $("#Table_Type1").css("display", "");
+            }
+            if (Type == "10") {
+                $("#Table_Type1").css("display", "none");
             }
             $("#fr1").attr("src", "preBrowerList.aspx?TaskID="+TaskID);
              $("#Win").window({ closed: true });
@@ -228,6 +253,7 @@
 			<a id = "retBtn"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "GoBack();"><--返回</a>
             领用人:
              <a id = "brwerCount" style = "cursor:pointer;text-decoration:underline; color:Blue;font-weight:bold; margin-right:20px;margin-left:5px;">(0)</a>
+		      &nbsp;&nbsp;&nbsp;<a id = "BtnClose"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "CloseTheTask();">关闭任务</a>
 		</div>
 		<div id = "tBags"data-options="region:'east',iconCls:'icon-reload',split:true" title="工具预览" style="width:700px;">
              <iframe  id = "Frm1" frameborder="no" border="0" style="width:100%;height:100%;" src=""></iframe>

@@ -1476,7 +1476,7 @@ public String Test(HttpContext ctx)
     
         if ((fw == 1 || fw == 0) && IDbn != "")
         {
-            dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType=1 AND  ID IN(" + IDbn + ")");//工具包
+            dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType=1 AND  ID IN(" + IDbn + ") ORDER BY A.ToolName");//工具包
             dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + IDbn + ") ORDER BY ToolID ASC");//包内工具集合
             dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + IDbn + ")");//属性集合
             for (i = 0; i < dt.Rows.Count; i++)
@@ -1553,7 +1553,7 @@ public String Test(HttpContext ctx)
 
         if ((fw == 2 || fw == 0) && IDdl != "")
         {
-            dt1 = MyManager.GetDataSet("SELECT A.ID,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType = 0 AND ID IN(" + IDdl + ")");
+            dt1 = MyManager.GetDataSet("SELECT A.ID,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType = 0 AND ID IN(" + IDdl + ") ORDER BY A.ToolName");
             dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[CoreID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where ValueType = 0 AND  CoreID IN(" + IDdl + ")");//属性集合
             for (i = 0; i < dt1.Rows.Count; i++)
             {
@@ -1730,7 +1730,7 @@ public String Test(HttpContext ctx)
                 IDdl = IDbn;  
             }
         }
-        /*Aspose.Cells.Workbook workbook = new Aspose.Cells.Workbook(gCtx.Server.MapPath("~") + "\\Template\\kb.xls");
+        Aspose.Cells.Workbook workbook = new Aspose.Cells.Workbook(gCtx.Server.MapPath("~") + "\\Template\\kb.xls");
         Aspose.Cells.Worksheet sheet = workbook.Worksheets[0];
         Aspose.Cells.Cells cells = sheet.Cells;
 
@@ -1738,11 +1738,11 @@ public String Test(HttpContext ctx)
         cells[0, 1].PutValue("入库编号");
         cells[0, 2].PutValue("识别号");
         cells[0, 3].PutValue("工具名");
-        cells[0, 4].PutValue("子工具名");*/
+        cells[0, 4].PutValue("子工具名");
 
         Dictionary<String, int> PropertyNameDict = new Dictionary<String, int>();
         String PropertyName;
-        String ProprtryArrStr = "";
+        String ProprtryArrStr = "",Note="";
         StringWriter sw = new StringWriter();
         JsonWriter jWrite = new JsonTextWriter(sw);
         int curRow = 1, curCol = 5;
@@ -1758,12 +1758,12 @@ public String Test(HttpContext ctx)
                 jWrite.WritePropertyName("id");
                 jWrite.WriteValue(dt.Rows[i]["ID"].ToString());
                 jWrite.WritePropertyName("rkid");
-                /*
+                
                 cells[curRow, 0].PutValue(dt.Rows[i]["ID"].ToString());
                 cells[curRow, 1].PutValue(dt.Rows[i]["rkID"].ToString());
                 cells[curRow, 2].PutValue(dt.Rows[i]["ToolID"].ToString());
                 cells[curRow, 3].PutValue(dt.Rows[i]["ToolName"].ToString());
-                */
+                
                 jWrite.WriteValue(dt.Rows[i]["rkID"].ToString());
                 jWrite.WritePropertyName("toolid");
                 jWrite.WriteValue(dt.Rows[i]["toolid"].ToString());
@@ -1794,7 +1794,7 @@ public String Test(HttpContext ctx)
                 jWrite.WritePropertyName("sx");
                 jWrite.WriteStartArray();
                 dr = dt2.Select(" ParentID = " + dt.Rows[i]["ID"].ToString());
-                for (ProprtryArrStr = "", j = 0; j < dr.Length; j++)
+                for (ProprtryArrStr = "",Note="", j = 0; j < dr.Length; j++)
                 {
                     jWrite.WriteStartObject();
                     jWrite.WritePropertyName("name");
@@ -1803,16 +1803,19 @@ public String Test(HttpContext ctx)
                     if (!PropertyNameDict.ContainsKey(PropertyName))
                     {
                         PropertyNameDict.Add(PropertyName, curCol);
-                       // cells[0, curCol].PutValue(PropertyName);
+                        cells[0, curCol].PutValue(PropertyName);
                         curCol++;
                     }
                     ProprtryArrStr += ",\"" + PropertyName + "\":\"" + dr[j]["Value"].ToString() + "\"";
                     jWrite.WriteValue(PropertyName);
                     jWrite.WritePropertyName("value");
                     jWrite.WriteValue(dr[j]["Value"].ToString());
-                    //cells[curRow, PropertyNameDict[PropertyName]].PutValue(dr[j]["Value"].ToString());
+                    cells[curRow, PropertyNameDict[PropertyName]].PutValue(dr[j]["Value"].ToString());
+                    Note += PropertyName + ":" + dr[j]["Value"].ToString().Trim() + "\r\n";
                     jWrite.WriteEndObject();
                 }
+                sheet.Comments.Add(curRow, 3);
+                sheet.Comments[curRow, 3].Note = Note;
                 curRow++;
                 jWrite.WriteEndArray();
                 jWrite.WriteRaw(ProprtryArrStr);
@@ -1823,13 +1826,13 @@ public String Test(HttpContext ctx)
                 {
                     jWrite.WriteStartObject();
 
-                   /*
+                   
                     cells[curRow, 0].PutValue(dr[j]["CoreID"].ToString());
                     cells[curRow, 1].PutValue(dr[j]["rkID"].ToString());
                     cells[curRow, 2].PutValue(dr[j]["ToolID"].ToString());
                     cells[curRow, 3].PutValue("|-------");
                     cells[curRow, 4].PutValue(dr[j]["name"].ToString());
-                    */
+                   
 
                     jWrite.WritePropertyName("id");
                     jWrite.WriteValue(dr[j]["ID"].ToString());
@@ -1858,7 +1861,7 @@ public String Test(HttpContext ctx)
                     jWrite.WritePropertyName("sx");
                     jWrite.WriteStartArray();
                     dr1 = dt2.Select(" ParentID = " + dr[j]["rID"].ToString());
-                    for (k = 0, ProprtryArrStr = ""; k < dr1.Length; k++)
+                    for (k = 0, ProprtryArrStr = "",Note=""; k < dr1.Length; k++)
                     {
                         jWrite.WriteStartObject();
                         jWrite.WritePropertyName("name");
@@ -1868,15 +1871,19 @@ public String Test(HttpContext ctx)
                         if (!PropertyNameDict.ContainsKey(PropertyName))
                         {
                             PropertyNameDict.Add(PropertyName, curCol);
-                           // cells[0, curCol].PutValue(PropertyName);
+                           cells[0, curCol].PutValue(PropertyName);
                             curCol++;
                         }
                         ProprtryArrStr += ",\"" + PropertyName + "\":\"" + dr1[k]["Value"].ToString() + "\"";
                         jWrite.WritePropertyName("value");
                         jWrite.WriteValue(dr1[k]["Value"].ToString());
-                       // cells[curRow, PropertyNameDict[PropertyName]].PutValue(dr1[k]["Value"].ToString());
+                       cells[curRow, PropertyNameDict[PropertyName]].PutValue(dr1[k]["Value"].ToString());
                         jWrite.WriteEndObject();
+                         Note += PropertyName + ":" + dr1[k]["Value"].ToString().Trim() + "\r\n";
+
                     }
+                   sheet.Comments.Add(curRow, 3);
+                   sheet.Comments[curRow, 3].Note = Note;
                     curRow++;
                     jWrite.WriteEndArray();
                     jWrite.WriteRaw(ProprtryArrStr);
@@ -1896,12 +1903,12 @@ public String Test(HttpContext ctx)
             {
                 jWrite.WriteStartObject();
                 
-                /*
+                
                 cells[curRow, 0].PutValue(dt1.Rows[i]["ID"].ToString());
                 cells[curRow, 1].PutValue(dt1.Rows[i]["rkID"].ToString());
                 cells[curRow, 2].PutValue(dt1.Rows[i]["ToolID"].ToString());
                 cells[curRow, 3].PutValue(dt1.Rows[i]["ToolName"].ToString());
-                */
+                
                 
                 jWrite.WritePropertyName("id");
                 jWrite.WriteValue(dt1.Rows[i]["ID"].ToString());
@@ -1930,7 +1937,7 @@ public String Test(HttpContext ctx)
                 jWrite.WritePropertyName("sx");
                 jWrite.WriteStartArray();
                 dr1 = dt2.Select(" CoreID = " + dt1.Rows[i]["ID"].ToString());
-                for (k = 0, ProprtryArrStr = ""; k < dr1.Length; k++)
+                for (k = 0, ProprtryArrStr = "",Note=""; k < dr1.Length; k++)
                 {
                     jWrite.WriteStartObject();
                     jWrite.WritePropertyName("name");
@@ -1939,16 +1946,20 @@ public String Test(HttpContext ctx)
                     if (!PropertyNameDict.ContainsKey(PropertyName))
                     {
                         PropertyNameDict.Add(PropertyName, curCol);
-                        //cells[0, curCol].PutValue(PropertyName);
+                        cells[0, curCol].PutValue(PropertyName);
                         curCol++;
                     }
                     ProprtryArrStr += ",\"" + PropertyName + "\":\"" + dr1[k]["Value"].ToString() + "\"";
                     jWrite.WriteValue(dr1[k]["name"].ToString().Trim());
                     jWrite.WritePropertyName("value");
                     jWrite.WriteValue(dr1[k]["Value"].ToString());
-                    //cells[curRow, PropertyNameDict[PropertyName]].PutValue(dr1[k]["Value"].ToString());
+                    cells[curRow, PropertyNameDict[PropertyName]].PutValue(dr1[k]["Value"].ToString());
                     jWrite.WriteEndObject();
+                    Note += PropertyName + ":" + dr1[k]["Value"].ToString().Trim() + "\r\n";
+
                 }
+                sheet.Comments.Add(curRow, 3);
+                sheet.Comments[curRow, 3].Note = Note;
                 curRow++;
                 jWrite.WriteEndArray();
                 jWrite.WriteRaw(ProprtryArrStr);
@@ -1966,14 +1977,14 @@ public String Test(HttpContext ctx)
         newColumns += "]";
 
 
-       /* XlsSaveOptions saveOptions = new XlsSaveOptions();
+        XlsSaveOptions saveOptions = new XlsSaveOptions();
         String ExcelName = DateTime.Now.Ticks + ".xls";
         String Path = gCtx.Server.MapPath("~") + "\\Report\\" + ExcelName;
         workbook.Save(Path, saveOptions);
         String ExcelURL = "http://" + gCtx.Request.Url.Host + ":" + gCtx.Request.Url.Port + gCtx.Request.ApplicationPath + "/Report/" + ExcelName;
-*/
 
-        return "{\"status\":\"success\",\"IDbn\":\""+IDbn+"\",\"data\":" + sw.ToString() + ",\"newcolumns" + "\":" + newColumns + "}";
+
+        return "{\"status\":\"success\",\"url\":\"" + ExcelURL + "\",\"data\":" + sw.ToString() + ",\"newcolumns" + "\":" + newColumns + "}";
         //return "{\"status\":\"success\",\"data\":" + sw.ToString() + "}"; 
     }
     public String StoreSearch(JObject JO)
@@ -2511,7 +2522,7 @@ public String Test(HttpContext ctx)
                     }
                 }
                 // 其属性id相同，且value相同
-                dr2 = dt.Select(" ValueType = 2 OR ValueType =4 OR ValueType = 6");
+                dr2 = dt.Select(" ValueType = 2 OR ValueType =4 OR ValueType = 0");
                 for (j = 0; bContinue==1 && j < dr2.Length; j++)
                 {
                     DataRow[] tdr = dt3.Select(" PropertyID = " + dr2[j]["PropertyID"].ToString() + "AND  ValueType = " + dr2[j]["ValueType"].ToString() + " AND  Value = '" + dr2[j]["Value"].ToString() + "'");
@@ -2700,12 +2711,15 @@ public String Test(HttpContext ctx)
 
         String Msg = "工具借用成功！";
         String ToolID = JO["toolid"].ToString();
-        String BorrowerName = JO["borrowername"].ToString();
+        String BorrowerName = JO["borrowername"].ToString().Trim();
         String TaskID = JO["taskid"].ToString();
         String CurState = "";
         String AppID = JO["appid"].ToString();
         String CoreID = "",nID,CurToolName;
-        
+        if (BorrowerName == "" || BorrowerName.IndexOf(" ") != -1 || BorrowerName.IndexOf("'") != -1)
+        {
+            return "借用者名称不可为空，且不可含空格，引号!";
+        }
         ///检查是否是该任务的处理人是否是该人  TaskProcess 中 recvuser 且state = 2
         if (0 == MyManager.SELCount("SELECT count(ID) as tCount FROM TaskProcess WHERE State = 2 AND TaskID = " + TaskID + " AND RecvUser = " + gCtx.Session["UserID"].ToString(), "tCount"))
         {
@@ -2757,6 +2771,12 @@ public String Test(HttpContext ctx)
         {
             return "该申请未借出!";
         }
+
+        if (JO["refundername"].ToString().Trim() == "" || JO["refundername"].ToString().Trim().IndexOf(" ") != -1 || JO["refundername"].ToString().Trim().IndexOf("'") != -1)
+        {
+            return "借用者名称不可为空，且不可含空格，引号!";
+        }
+        
         if ("2" != MyManager.GetFiledByInput("SELECT [State] FROM CoreTool Where ToolID  = '" + ToolID + "'", "State"))
         {
             return "该工具没被借出，不可归还!";
@@ -2772,8 +2792,26 @@ public String Test(HttpContext ctx)
        ,[RefundAdminID]
        ,[RefundAdminName]
          */
-        MyManager.ExecSQL("UPDATE ToolApp Set [State] = 2,RefundAdminID=" + gCtx.Session["UserID"].ToString() + ",RefundAdminName='" + gCtx.Session["Name"].ToString() + "',RefunderName='" + JO["refundername"].ToString() + "',RefundTime='" + DateTime.Now.ToString() + "' Where ID =" + AppId);
-        return "工具归还成功";
+        MyManager.ExecSQL("UPDATE ToolApp Set [State] = 2,RefundAdminID=" + gCtx.Session["UserID"].ToString() + ",RefundAdminName='" + gCtx.Session["Name"].ToString() + "',RefunderName='" + JO["refundername"].ToString().Trim() + "',RefundTime='" + DateTime.Now.ToString() + "' Where ID =" + AppId);
+        /*
+         * 当所有工具都归还完毕之后任务自动关闭
+         */
+        String TaskID =MyManager.GetFiledByInput("SELECT TaskID FROM ToolApp Where ID  = '" + AppId + "'", "TaskID");
+
+        DataTable dt = MyManager.GetDataSet("SELECT * FROM ToolApp WHERE TaskID = " + TaskID + " AND State IN (0,1)");
+        String SubStr = "";
+        if (dt.Rows.Count == 0)
+        {
+            SubStr = ",任务已经自动关闭!";
+            MyManager.ExecSQL("UPDATE Tasks SET State = 10 WHERE ID =" + TaskID);
+            MyManager.ExecSQL("DELETE FROM TaskProcess WHERE TaskID =" + TaskID);
+            //  Session["UserID"] = dt.Rows[0]["ID"];
+            //  Session["Name"] = dt.Rows[0]["Name"];
+            MyManager.ExecSQL("INSERT INTO TaskLog (TaskID,CreateUserID,CreateUserName,Title,Content,DateTime) Values (" + TaskID + "," + gCtx.Session["UserID"].ToString() + ",'" + gCtx.Session["Name"].ToString() + "','关闭任务','任务自动关闭','" + DateTime.Now.ToString() + "')");
+  
+        }
+
+        return "工具归还成功" + SubStr;
     }
     public String AddToTmpHitTool(JObject JO)
     {
@@ -3870,7 +3908,26 @@ public String Test(HttpContext ctx)
         MyManager.ExecSQL("DELETE FROM CoreTool WHERE ID = " + dt.Rows[0]["ID"].ToString());
         return "{\"status\":\"success\",\"msg\":\"加包成功，识别号为:"+newToolID+"\"}"; 
     }
-    
+    public String CloseTheTask(JObject JO)
+    {
+        int TaskID = Convert.ToInt32(JO["taskid"].ToString());
+        DataTable dt = MyManager.GetDataSet("SELECT ID FROM Tasks WHERE ID=" + TaskID);
+        if (dt.Rows.Count == 0)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"该任务不存在!\"}"; 
+        }
+        dt = MyManager.GetDataSet("SELECT ID FROM ToolApp WHERE State = 1 AND TaskID = " + TaskID);
+        if (dt.Rows.Count != 0)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"该任务中有借出未还的工具，不允许关闭!\"}";  
+        }
+        MyManager.ExecSQL("UPDATE Tasks SET State = 10 WHERE ID =" + TaskID);
+        MyManager.ExecSQL("DELETE FROM TaskProcess WHERE TaskID =" + TaskID);
+        //  Session["UserID"] = dt.Rows[0]["ID"];
+        //  Session["Name"] = dt.Rows[0]["Name"];
+        MyManager.ExecSQL("INSERT INTO TaskLog (TaskID,CreateUserID,CreateUserName,Title,Content,DateTime) Values (" + TaskID + "," + gCtx.Session["UserID"].ToString() + ",'" + gCtx.Session["Name"].ToString() + "','关闭任务','" + JO["content"].ToString() + "','"+DateTime.Now.ToString()+"')");
+        return "{\"status\":\"success\",\"msg\":\"任务关闭成功!\"}"; 
+    }
    public void ProcessRequest (HttpContext context) 
    {
 
@@ -4169,6 +4226,10 @@ public String Test(HttpContext ctx)
                retJSON = ToolSearchToExcel(JO); 
            }
 
+           if (Cmd == "CloseTheTask")
+           {
+               retJSON = CloseTheTask(JO); 
+           }
 
            context.Response.Write(retJSON);
         }

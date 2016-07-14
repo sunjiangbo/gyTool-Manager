@@ -99,7 +99,7 @@ public partial class LoadToolFromExcel : System.Web.UI.Page
 
 
         String ToolName = "", ToolID = "" ;
-        int rkIDOV;//用户提供的入库编号已经存在
+        int rkIDOV;//用户提供的入库编号已经存在  2:无预制序列号 1：重复 0：不重复
         String rkID = "",CoreID="";
         int rkIDCol = 9;
         for (curRow = 2; cells[curRow, 1].StringValue.Trim() != ""; curRow++)
@@ -107,31 +107,25 @@ public partial class LoadToolFromExcel : System.Web.UI.Page
             ToolName = cells[curRow, 1].StringValue.Trim();
 
             rkID = cells[curRow, rkIDCol].StringValue.Trim();
-            rkIDOV=0;
+            rkIDOV=2;
             if (rkID == "")
             {
-
                 rkID = MyManager.GetNextFlowID();
             }
             else
             {
+                rkIDOV = 0;
                 if (MyManager.CheckSNExist(rkID))
                 {
                     rkID = MyManager.GetNextFlowID();
+                    rkIDOV = 1;
                 }
             }
             ToolID = MyManager.GetNextID();
             CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(EPC,rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask]) Values( '" + MyManager.GenerateEPC(ToolID) + "','"+rkID+"',0," + CID.Text + ",'"
                                                                         + ToolID + "','" + ToolName + "','" + DateTime.Now.ToString() + "',0,'Excel导入');SELECT IDENT_CURRENT('CoreTool') AS CurID", "CurID");
             cells[curRow, 0].PutValue(ToolID);
-            if (rkIDOV == 0)
-            {
-                cells[curCol, rkIDCol].PutValue(rkID);
-            }
-            else
-            {
-                cells[curCol, rkIDCol].PutValue("新号为:"+rkID+"原号重复!");
-            }
+           
             for (curCol = 2; curCol < ColCount; curCol++)
             {
                 String Val = cells[curRow, curCol].StringValue.Trim();
@@ -141,6 +135,18 @@ public partial class LoadToolFromExcel : System.Web.UI.Page
                     MyManager.ExecSQL("INSERT INTO CoreToolValue(CoreID,State,PropertyID,Value,ValueType,ParentID) Values(" +CoreID+",-1,"+ColDict[curCol]+",'" +Val+"',0,"+CoreID+")");
                 }
          
+            }
+            if (rkIDOV == 0 )
+            {
+                //
+            }
+            else if(rkIDOV == 1)
+            {
+                cells[curCol, rkIDCol].PutValue("新号为:" + rkID + ",原号重复!");
+            }
+            else if (rkIDOV == 2)
+            {
+                cells[curCol, rkIDCol].PutValue("新号:"+rkID);
             }
         }
 
