@@ -156,7 +156,7 @@ public String Test(HttpContext ctx)
             ValueType = 0;//CoreTool.ModelType=0
             SQL = "SELECT  [ID],[PropertyID],[Value],[ValueType] FROM CoreToolValue WHERE CoreID = (SELECT ID FROM CoreTool WHERE ModelType = 0 AND ToolID='"+ToolID+"')";
         }
-        if (Type != 5)
+        if (Type != 5 && Type != 1 &&Type != 2) 
         {
             dt1 = MyManager.GetDataSet(SQL);
         }
@@ -1749,7 +1749,7 @@ public String Test(HttpContext ctx)
         jWrite.WriteStartArray();
         if ((fw == 1 || fw == 0) && IDbn != "")
         {
-            dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType=1 AND  ID IN(" + IDbn + ")");//工具包
+            dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType=1 AND  ID IN(" + IDbn + ") ORDER BY ToolName");//工具包
             dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + IDbn + ") ORDER BY ToolID ASC");//包内工具集合
             dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + IDbn + ")");//属性集合
             for (i = 0; i < dt.Rows.Count; i++)
@@ -1897,7 +1897,7 @@ public String Test(HttpContext ctx)
 
         if ((fw == 2 || fw == 0) && IDdl != "")
         {
-            dt1 = MyManager.GetDataSet("SELECT A.ID,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType = 0 AND ID IN(" + IDdl + ")");
+            dt1 = MyManager.GetDataSet("SELECT A.ID,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType = 0 AND ID IN(" + IDdl + ") ORDER BY ToolName");
             dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[CoreID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where ValueType = 0 AND  CoreID IN(" + IDdl + ")");//属性集合
             for (i = 0; i < dt1.Rows.Count; i++)
             {
@@ -3915,6 +3915,10 @@ public String Test(HttpContext ctx)
         if (dt.Rows.Count == 0)
         {
             return "{\"status\":\"failed\",\"msg\":\"该任务不存在!\"}"; 
+        }
+        if (dt.Rows[0]["State"].ToString() == "10")
+        {
+            return "{\"status\":\"failed\",\"msg\":\"该任务已经关闭\"}";   
         }
         dt = MyManager.GetDataSet("SELECT ID FROM ToolApp WHERE State = 1 AND TaskID = " + TaskID);
         if (dt.Rows.Count != 0)

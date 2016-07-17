@@ -109,6 +109,11 @@
         }
     </style>
     <script type="text/javascript">
+    var IsManager = '<%= IsManager %>';
+    $(function(){
+      // if(IsManager =="0")
+        //$(".MClass").remove();
+    });
         var Filter = { range: -1, name: "所有", ret: "all", specific: [] };
         var IsInitial = true; /*表明修改搜索条件*/
         var initColumnBefore = [{ field: 'ck', checkbox: true },
@@ -748,9 +753,12 @@
                 <iframe id ="BorrowHS"  width="97%" height="97%" frameborder="0"></iframe>
             </div>
        
- <div id = "tb" >
+ <div id = "tb"     >
+ 
+ 
         <span style="margin-left:460px;">操作:</span>
-        <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "ModifyTool();">工具修改</a>
+       
+        <a href="#"   class="easyui-linkbutton" style=" margin-right:5px;" onclick = "ModifyTool();">工具修改</a>
         <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "DePackBag();">拆包</a>
         <a href="#"  class="easyui-linkbutton"  style=" margin-right:5px;" onclick = "AddToolBag();">手工加包</a>
         <a href="#"  id="ExcelReport">结果导出(Excel)</a>

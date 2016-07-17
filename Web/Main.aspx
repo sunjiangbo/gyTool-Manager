@@ -11,6 +11,21 @@
 	    <script type="text/javascript" src="jquery.easyui.min.js"></script>
     <script type="text/javascript" src="JS/MyJS.js"></script>
     <script>
+    var IsManager = '<%= IsManager %>';
+    $(function(){
+      // if(IsManager =="0")
+        //$(".MClass").remove();
+        
+         var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+        
+        if (userAgent.indexOf("Chrome") == -1){
+                  main.window.location = 'Tip.aspx';
+     }else{
+                 main.window.location = 'TaskManage.aspx';
+     }
+       
+          // 
+    });
         function ItemClick(a) {
             var c = $("#cc");
             var p = c.layout('panel', 'center');
@@ -81,11 +96,11 @@
     </div>   
     <div title="  工具管理" data-options="" style="padding:10px;">   
         <div style="width:100%;">
-		<div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-model'"  onclick="ItemClick(this);">模型管理</a></div>
-		<div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'"  onclick="ItemClick(this);">工具入库</a></div>
-		<div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search'"  onclick="ItemClick(this);">库存查询</a></div>
-        <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'"  onclick="ItemClick(this);">工具入编</a></div>
-        <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search'"  onclick="ItemClick(this);">打号任务</a></div>
+		<div class = "panelItem" ><a  href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-model'"  onclick="ItemClick(this);">模型管理</a></div>
+		<div class = "panelItem" ><a  href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'"  onclick="ItemClick(this);">工具入库</a></div>
+		<div class = "panelItem" ><a  href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search'"  onclick="ItemClick(this);">库存查询</a></div>
+        <div class = "panelItem" ><a  href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'"  onclick="ItemClick(this);">工具入编</a></div>
+        <div class = "panelItem" ><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search'"  onclick="ItemClick(this);">打号任务</a></div>
         <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search1'"  onclick="ItemClick(this);">工具管理</a></div>
         <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'"  onclick="ItemClick(this);">借还历史</a></div>
 		</div>
