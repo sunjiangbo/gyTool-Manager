@@ -36,7 +36,7 @@
             }
             if ($.trim($(a).text()) == '创建任务') {
                 $(p).panel("setTitle", $(a).text());
-                main.window.location = 'CreateTask.aspx';
+                main.window.location = 'CreateTask1.aspx';
             }
             if ($.trim($(a).text()) == '工具入库') {
                 $(p).panel("setTitle", $(a).text());
