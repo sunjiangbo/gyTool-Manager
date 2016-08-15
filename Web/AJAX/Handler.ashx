@@ -3911,7 +3911,7 @@ public String Test(HttpContext ctx)
     public String CloseTheTask(JObject JO)
     {
         int TaskID = Convert.ToInt32(JO["taskid"].ToString());
-        DataTable dt = MyManager.GetDataSet("SELECT ID FROM Tasks WHERE ID=" + TaskID);
+        DataTable dt = MyManager.GetDataSet("SELECT ID,State FROM Tasks WHERE ID=" + TaskID);
         if (dt.Rows.Count == 0)
         {
             return "{\"status\":\"failed\",\"msg\":\"该任务不存在!\"}"; 

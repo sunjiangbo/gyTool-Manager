@@ -131,7 +131,7 @@
             ];
              initColumnAfter = [
                 { field: 'toolstate', title: '理论状态', width: 25, sortable: true },
-                { field: 'lastseen', title: '最后发现时间', width: 50, sortable: true },
+                { field: 'lastseen', title: '最后发现时间', width: 50 },
                 { field: 'posx', title: '所在货架', width: 25, sortable: true },
                 { field: 'posy', title: '所在层', width: 20, sortable: true },
                 { field: 'realtoolstate', title: '实际状态', width: 25, sortable: true },
