@@ -85,7 +85,7 @@
     <form id="form1" runat="server">
     <div>
     
-        <cc1:TabContainer ID="TabContainer1" runat="server" ActiveTabIndex="0" 
+        <cc1:TabContainer ID="TabContainer1" runat="server" ActiveTabIndex="3" 
              Height="1100px"  Width="100%" Font-Size="Large" AutoPostBack="True" 
             onactivetabchanged="TabContainer1_ActiveTabChanged">
             <ajax:TabPanel runat="server" HeaderText="任务信息" ID="TabPanel1">

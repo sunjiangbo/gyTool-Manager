@@ -217,7 +217,14 @@ public class MyManager
             if (dr.HasRows)
             {
                 dr.Read();
-                sRet = dr[Concern].ToString();
+                if (dr[Concern] is DBNull)
+                {
+                    sRet = "";
+                }
+                else
+                {
+                    sRet = dr[Concern].ToString();
+                }
             }
             
             dr.Close();

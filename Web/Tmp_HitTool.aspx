@@ -13,7 +13,8 @@
     <script>
         var TaskID = '<%= TaskID %>';
         var Type = '<%= Type %>';
-        var reBack = '<%= reBack %>';
+        var reBack = '<%= reBack %>'
+        var CurrkID= "";
         function GoBack() {
             location.href = reBack;
         }
@@ -42,7 +43,16 @@
             var rowDat = $('#tb').datagrid('getSelected');
             if (rowDat == null) return;
             $("#Frm1").attr("src", "ToolBag.aspx?Type=1&BagID="+rowDat.id);
-
+            
+            json = {};
+            json.cmd = "GetToolPosID";
+            json.rkid = rowDat.rkid;
+            CurrkID = rowDat.rkid;
+            MyAjax(json, function(dat) {
+                if (dat.status == "success") {
+                     $("#POSID").val(dat.posid);
+                 }
+            });
         }
         function LoadTable() {
             json = {};
@@ -74,7 +84,7 @@
             });
 
         }
-        function tijiao() {
+        function tijiao() {//工具入编
             if ($("#KeyPerson").val() == "") {
                 $.messager.alert("提示", "请输入打号负责人!");
                 return;
@@ -88,9 +98,9 @@
                 if (dat.status == "success") {
                     TaskID = "";
                     LoadTable();
-                    reBack = "Query.aspx";
-                    $.messager.alert("提示", dat.msg);
+                    reBack = "Query.aspx";                    
                 }
+                $.messager.alert("提示", dat.msg);
             });
         }
         $(function() {
@@ -102,6 +112,32 @@
             if (Type == "1") {
                 $("#Table_Type1").css("display", "");
             }
+            $("#POSID").focusout(function()
+            {
+                    if(CurrkID=="")
+                    {
+                        return;
+                    }
+                    
+                    if($("#POSID").val()=="")
+                    {
+                        $.messager.alert("提示", "师傅，货位编号不能为空哦！否则后面货物盘点功能咋个用呢？");
+                        return;
+                    }
+                   
+                    json = {};
+                    json.cmd = "SetToolPosID";
+                    json.rkid = CurrkID;
+                    json.posid = $("#POSID").val();
+                    MyAjax(json, function(dat) {
+                        if (dat.status != "success") {
+                             $.messager.alert("提示", "货位编号设定失败!请重试，如果还不行，联系李光耀!");
+                         }else{
+                             CurrkID = "";
+                             LoadTable();
+                         }
+                    }); 
+            });
         });
     </script>
 </head>
@@ -110,6 +146,8 @@
 		<div data-options="region:'north'" style=" float:left; overflow:hidden;padding:10px">
 			<a id = "retBtn"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "GoBack();"><--返回</a>
 			任务编号:<span id ="tID" style = "color:Blue; font-weight:bolder;"></span>
+			打号负责人<input id = "KeyPerson" style = " text-align:center; font-weight:bolder; width:100px;"/>
+			<a id = "tijiao"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "tijiao();">提交</a>
 		</div>
 		<div id = "tBags"data-options="region:'east',iconCls:'icon-reload',split:true" title="工具预览" style="width:700px;">
              <iframe  id = "Frm1" frameborder="no" border="0" style="width:100%;height:100%;" src=""></iframe>
@@ -123,7 +161,8 @@
 					<tr>
 						<th data-options="field:'xh'" width="30">序号</th>
                         <th data-options="field:'rkid'" width="50">工具号</th>
-						<th data-options="field:'toolname'" width="100">工具名称</th>
+						<th data-options="field:'toolname'" width="200">工具名称</th>
+						<th data-options="field:'posid'" width="150">货位编码</th>
 					</tr>
 				</thead>
 			</table>
@@ -136,27 +175,17 @@
                     操作
                 </td>
                 <td>
-                <a id = "DelBtn"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "DelBorrowApp();">删除</a>
+                <a id = "DelBtn"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "DelBorrowApp();">删除条目</a>
                 </td>
                 </tr>
-                <tr>
-                <td>
-                    打号负责人
+            <tr>   
+               <td>
+                    货位编号
                 </td>
                 <td>
-                    <input id = "KeyPerson" style = " text-align:center; font-weight:bolder;"/>
+                <input id = "POSID" style = " text-align:center; font-weight:bolder; width:100px;"/>
                 </td>
-                </tr>
-                </tr>
-                <tr>
-                <td>
-                    操作
-                </td>
-                <td>
-                <a id = "tijiao"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "tijiao();">提交</a>
-                </td>
-                </tr>
-               
+                </tr>   
             </table>
             
             </div>

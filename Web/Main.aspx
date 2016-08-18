@@ -34,7 +34,7 @@
                 $(p).panel("setTitle", $(a).text());
                 main.window.location = 'ModelManage.aspx';
             }
-            if ($.trim($(a).text()) == '创建任务') {
+            if ($.trim($(a).text()) == '借用工具') {
                 $(p).panel("setTitle", $(a).text());
                 main.window.location = 'CreateTask1.aspx';
             }
@@ -61,6 +61,10 @@
             if ($.trim($(a).text()) == '工具管理') {
                 $(p).panel("setTitle", $(a).text());
                 main.window.location = 'ToolQuery.aspx';
+            }
+             if ($.trim($(a).text()) == '工具盘点') {
+                $(p).panel("setTitle", $(a).text());
+                main.window.location = 'ToolCheck.aspx';
             }
              if ($.trim($(a).text()) == '借还历史') {
                 $(p).panel("setTitle", $(a).text());
@@ -89,7 +93,7 @@
 <div id="accordion" class="easyui-accordion" data-options="fit:true"> 
      <div title="任务管理" data-options="selected:true" style="overflow:auto;">   
         <div style="width:100%;">
-		<div class = "panelItem"><a href="#" style="width:80%"class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search'" onclick="ItemClick(this);">创建任务</a></div>
+		<div class = "panelItem"><a href="#" style="width:80%"class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search'" onclick="ItemClick(this);">借用工具</a></div>
 		<div class = "panelItem"><a href="#" style="width:80%"class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'" onclick="ItemClick(this);">当前任务</a></div>
 		<div class = "panelItem"><a href="#" style="width:80%"class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search'" onclick="ItemClick(this);">历史任务</a></div>
 		</div>
@@ -102,6 +106,7 @@
         <div class = "panelItem" ><a  href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'"  onclick="ItemClick(this);">工具入编</a></div>
         <div class = "panelItem" ><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search'"  onclick="ItemClick(this);">打号任务</a></div>
         <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-search1'"  onclick="ItemClick(this);">工具管理</a></div>
+        <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-edit'"  onclick="ItemClick(this);">工具盘点</a></div>
         <div class = "panelItem"><a href="#" style="width:80%" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'"  onclick="ItemClick(this);">借还历史</a></div>
 		</div>
     </div>      

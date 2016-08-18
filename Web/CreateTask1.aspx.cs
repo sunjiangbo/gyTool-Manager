@@ -39,6 +39,7 @@ public partial class CreateTask : System.Web.UI.Page
         Label1.Text = TaskCode;
        // MyManager.FillList(DropDownList1, "SELECT TypeName,(Convert(varchar(4),TypeID) + '|' + TypeCode) AS Value FROM [TaskTypes]", "TypeName", "Value", true);
         Button4.Enabled = false;
+        newURL = "";
     }
     protected void Button2_Click(object sender, EventArgs e)
     {

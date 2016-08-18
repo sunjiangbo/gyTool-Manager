@@ -1987,6 +1987,393 @@ public String Test(HttpContext ctx)
         return "{\"status\":\"success\",\"url\":\"" + ExcelURL + "\",\"data\":" + sw.ToString() + ",\"newcolumns" + "\":" + newColumns + "}";
         //return "{\"status\":\"success\",\"data\":" + sw.ToString() + "}"; 
     }
+
+    public String ToolSearchForCheck(JObject JO)/*对coretable中的工具进行查询，已经编号的*/
+    {
+        /*{ range: -1, name: "所有", ret:返回范围 "all"所有 "tool"工具 "bag"工具包, specific:[
+         *                                                                              { tid: ToolClassID, name: ToolClassName, vals: [
+         *                                                                                                                                  { name: PropertyName, pid: PropertyID, val: Value }
+         * ] }
+         * ] };*/
+
+        /*这里返回的json中ToolType含义                  查询界面中按钮功能 
+         *                  0:独立工具(ModeType)        修改属性、进包        
+         *                  1:工具箱(CoreToolValue)     只能修改其属性 不能出包
+         *                  3:工具箱中的工具            修改属性、独立、改包 
+         *                  5:工具包                    修改其名称、拆包
+         */
+        String json = "";
+        int i, j, k, fw = 0/*范围：0所有 1工具包 2 工具*/;
+        String txt, SQL = "", SQL1 = "";
+        String IDdlfw = "", IDdl = "", IDbn = "";//独立 和 包内 CoreID
+        DataTable dt, dt1, dt2;
+        DataRow[] dr, dr1;
+
+        JObject Filter = (JObject)JO["Filter"];
+        JArray Specific = (JArray)Filter["specific"];
+        String rkID = JO["rkid"].ToString().Trim();
+        String ToolID = JO["toolid"].ToString().Trim();
+        String ToolName = JO["name"].ToString().Trim();
+        if (Filter["range"].ToString() == "-1")
+        {
+
+            txt = Filter["ret"].ToString();
+            if (txt == "all")
+            {
+                fw = 0;
+            }
+            else if (txt == "tool")
+            {
+                fw = 2;
+            }
+            else if (txt == "bag")
+            {
+                fw = 1;
+            }
+
+        }
+        else
+        {
+            fw = 1;
+        }
+        String NameLike1 = " OR ToolName like'%" + ToolName + "%' ", NameLike2 = " OR (ValueType in(1,3) AND Value like'%" + ToolName + "%') ";
+        if (ToolName == "" && (rkID != "" || ToolID != ""))
+        {
+            NameLike1 = NameLike2 = "";
+        }
+        String t_SQL = "SELECT distinct ID AS CoreID FROM CoreTool WHERE rkID ='" + rkID + "' OR ToolID ='" + ToolID + "' " + NameLike1 + "UNION SELECT distinct CoreID FROM CoreToolValue WHERE rkID='" + rkID + "' " + NameLike2 + " OR ToolID ='" + ToolID + "'";
+        dt = MyManager.GetDataSet("SELECT distinct ID AS CoreID FROM CoreTool WHERE rkID ='" + rkID + "' OR ToolID ='" + ToolID + "' " + NameLike1 + "UNION SELECT distinct CoreID FROM CoreToolValue WHERE rkID='" + rkID + "' " + NameLike2 + " OR ToolID ='" + ToolID + "'");
+        for (k = 0, IDdl = "", IDbn = ""/*每次需将IDbn清空，获取最新集合，然后继续筛选*/; k < dt.Rows.Count; k++)
+        {
+            IDbn += (IDbn == "" ? dt.Rows[k]["CoreID"].ToString() : "," + dt.Rows[k]["CoreID"].ToString());
+            //IDdlfw += (IDdlfw == "" ? dt.Rows[k]["CoreID"].ToString() : "," + dt.Rows[k]["CoreID"].ToString());
+        }
+
+        if (IDbn != "")
+        {
+            IDdlfw = " AND ID IN(" + IDbn + ") ";
+        }
+        else if (rkID != "" || ToolName != "" || ToolID != "")//搜索条件不全为空，而搜索结果为空，证明根据搜索条件搜到的结果为空
+        {
+            IDdlfw = " AND ID IN('') ";
+            IDbn = "''";
+        }
+
+
+        if (fw == 0 || fw == 1)
+        {//所有 或 工具包
+
+
+            for (i = 0; i < Specific.Count; i++)
+            {
+                SQL1 = "(SELECT distinct CoreID FROM CoreToolValue WHERE (ValueType = 3 or ValueType = 1) AND PropertyID = " + Specific[i]["tid"].ToString()
+                        + (IDbn == "" ? "" : " AND CoreID IN(" + IDbn + ")") + ")";
+
+                JArray JV = (JArray)Specific[i]["vals"];
+                for (j = 0; j < JV.Count; j++)
+                {
+                    SQL1 += " Intersect ( SELECT CoreID FROM CoreToolValue WHERE ParentID IN(" + " SELECT ID FROM CoreToolValue WHERE (ValueType = 3 or ValueType = 1) AND PropertyID = " + Specific[i]["tid"].ToString() + (IDbn == "" ? "" : " AND CoreID IN(" + IDbn + ")") + ")" + " AND (ValueType = 4 OR ValueType = 2) AND PropertyID = " + JV[j]["pid"].ToString() + (JV[j]["val"].ToString() != "zkgy-1" ? " AND Value = '" + JV[j]["val"].ToString() + "')" : ")");
+                }
+
+                dt1 = MyManager.GetDataSet(SQL1);//工具包，将StoreID集合
+
+                if (dt1.Rows.Count == 0)//count = 0 说明到这已经没有符合要求的工具包啦！！！直接退出循环.
+                {
+                    IDbn = "";
+                    break;
+                }
+
+                for (k = 0, IDbn = ""/*每次需将IDbn清空，获取最新集合，然后继续筛选*/; k < dt1.Rows.Count; k++)
+                {
+                    IDbn += (IDbn == "" ? dt1.Rows[k]["CoreID"].ToString() : "," + dt1.Rows[k]["CoreID"].ToString());
+                }
+            }
+
+
+        }
+
+        if (fw == 2 || fw == 0)//独立工具或所有
+        {
+            for (i = 0; i < Specific.Count; i++)
+            {
+                SQL = "(SELECT distinct ID AS CoreID FROM CoreTool WHERE ModelType = 0 AND ModelID = " + Specific[i]["tid"].ToString() + IDdlfw + " )";
+
+                JArray JV = (JArray)Specific[i]["vals"];
+                for (j = 0; j < JV.Count; j++)
+                {
+                    SQL += " Intersect (SELECT distinct CoreID FROM [CoreToolValue] WHERE CoreID IN " + "(SELECT distinct ID AS StoredID FROM CoreTool WHERE ModelType = 0 AND ModelID = " + Specific[i]["tid"].ToString() + ")" + " AND ValueType = 0 AND PropertyID = " + JV[j]["pid"].ToString() + (JV[j]["val"].ToString() != "zkgy-1" ? " AND Value = '" + JV[j]["val"].ToString() + "')" : ")");
+                }
+
+                dt1 = MyManager.GetDataSet(SQL); //独立工具，将CoreID集合
+
+                for (k = 0; k < dt1.Rows.Count; k++)
+                {
+                    IDdl += (IDdl == "" ? dt1.Rows[k]["CoreID"].ToString() : "," + dt1.Rows[k]["CoreID"].ToString());
+                }
+            }
+            if (Specific.Count == 0)
+            {
+                IDdl = IDbn;
+            }
+        }
+        Aspose.Cells.Workbook workbook = new Aspose.Cells.Workbook(gCtx.Server.MapPath("~") + "\\Template\\kb.xls");
+        Aspose.Cells.Worksheet sheet = workbook.Worksheets[0];
+        Aspose.Cells.Cells cells = sheet.Cells;
+
+        cells[0, 0].PutValue("CoreID");
+        cells[0, 1].PutValue("入库编号");
+        cells[0, 2].PutValue("识别号");
+        cells[0, 3].PutValue("工具名");
+        cells[0, 4].PutValue("子工具名");
+
+        Dictionary<String, int> PropertyNameDict = new Dictionary<String, int>();
+        String PropertyName;
+        String ProprtryArrStr = "", Note = "";
+        StringWriter sw = new StringWriter();
+        JsonWriter jWrite = new JsonTextWriter(sw);
+        int curRow = 1, curCol = 5;
+        jWrite.WriteStartArray();
+        if ((fw == 1 || fw == 0) && IDbn != "")
+        {
+            dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType=1 AND  ID IN(" + IDbn + ") ORDER BY ToolName");//工具包
+            dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + IDbn + ") ORDER BY ToolID ASC");//包内工具集合
+            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + IDbn + ")");//属性集合
+            for (i = 0; i < dt.Rows.Count; i++)
+            {
+                jWrite.WriteStartObject();
+                jWrite.WritePropertyName("id");
+                jWrite.WriteValue(dt.Rows[i]["ID"].ToString());
+                jWrite.WritePropertyName("rkid");
+
+                cells[curRow, 0].PutValue(dt.Rows[i]["ID"].ToString());
+                cells[curRow, 1].PutValue(dt.Rows[i]["rkID"].ToString());
+                cells[curRow, 2].PutValue(dt.Rows[i]["ToolID"].ToString());
+                cells[curRow, 3].PutValue(dt.Rows[i]["ToolName"].ToString());
+
+                jWrite.WriteValue(dt.Rows[i]["rkID"].ToString());
+                jWrite.WritePropertyName("toolid");
+                jWrite.WriteValue(dt.Rows[i]["toolid"].ToString());
+                jWrite.WritePropertyName("posx");
+                jWrite.WriteValue(dt.Rows[i]["PosX"].ToString());
+                jWrite.WritePropertyName("posy");
+                jWrite.WriteValue(dt.Rows[i]["PosY"].ToString());
+                jWrite.WritePropertyName("lastseen");
+                jWrite.WriteValue(dt.Rows[i]["LastSeen"].ToString());
+                jWrite.WritePropertyName("toolstate");
+                jWrite.WriteValue(dt.Rows[i]["StateName"].ToString());
+                jWrite.WritePropertyName("realtoolstate");
+                jWrite.WriteValue(dt.Rows[i]["RStateName"].ToString());
+                jWrite.WritePropertyName("name");
+                jWrite.WriteValue(dt.Rows[i]["ToolName"].ToString());
+                jWrite.WritePropertyName("modifytime");
+                jWrite.WriteValue(dt.Rows[i]["ModifyTime"].ToString());
+                jWrite.WritePropertyName("iconCls");
+                jWrite.WriteValue("icon-toolbag");
+                jWrite.WritePropertyName("state");
+                jWrite.WriteValue("closed");
+                jWrite.WritePropertyName("type");
+                jWrite.WriteValue("bag");
+                jWrite.WritePropertyName("tooltype");
+                jWrite.WriteValue("5");
+                jWrite.WritePropertyName("opt");
+                jWrite.WriteValue("查看");
+                jWrite.WritePropertyName("sx");
+                jWrite.WriteStartArray();
+                dr = dt2.Select(" ParentID = " + dt.Rows[i]["ID"].ToString());
+                for (ProprtryArrStr = "", Note = "", j = 0; j < dr.Length; j++)
+                {
+                    jWrite.WriteStartObject();
+                    jWrite.WritePropertyName("name");
+                    PropertyName = dr[j]["name"].ToString().Trim();
+
+                    if (!PropertyNameDict.ContainsKey(PropertyName))
+                    {
+                        PropertyNameDict.Add(PropertyName, curCol);
+                        cells[0, curCol].PutValue(PropertyName);
+                        curCol++;
+                    }
+                    ProprtryArrStr += ",\"" + PropertyName + "\":\"" + dr[j]["Value"].ToString() + "\"";
+                    jWrite.WriteValue(PropertyName);
+                    jWrite.WritePropertyName("value");
+                    jWrite.WriteValue(dr[j]["Value"].ToString());
+                    cells[curRow, PropertyNameDict[PropertyName]].PutValue(dr[j]["Value"].ToString());
+                    Note += PropertyName + ":" + dr[j]["Value"].ToString().Trim() + "\r\n";
+                    jWrite.WriteEndObject();
+                }
+                sheet.Comments.Add(curRow, 3);
+                sheet.Comments[curRow, 3].Note = Note;
+                curRow++;
+                jWrite.WriteEndArray();
+                jWrite.WriteRaw(ProprtryArrStr);
+                jWrite.WritePropertyName("children");
+                jWrite.WriteStartArray();
+                dr = dt1.Select(" CoreID = " + dt.Rows[i]["ID"].ToString());
+                for (j = 0; j < dr.Length; j++)
+                {
+                    jWrite.WriteStartObject();
+
+
+                    cells[curRow, 0].PutValue(dr[j]["CoreID"].ToString());
+                    cells[curRow, 1].PutValue(dr[j]["rkID"].ToString());
+                    cells[curRow, 2].PutValue(dr[j]["ToolID"].ToString());
+                    cells[curRow, 3].PutValue("|-------");
+                    cells[curRow, 4].PutValue(dr[j]["name"].ToString());
+
+
+                    jWrite.WritePropertyName("id");
+                    jWrite.WriteValue(dr[j]["ID"].ToString());
+                    jWrite.WritePropertyName("rkid");
+                    jWrite.WriteValue(dr[j]["rkID"].ToString());
+                    jWrite.WritePropertyName("toolid");
+                    jWrite.WriteValue(dr[j]["toolid"].ToString());
+                    //jWrite.WritePropertyName("toolstate");
+                    //jWrite.WriteValue(dr[j]["StateName"].ToString());
+                    jWrite.WritePropertyName("name");
+                    jWrite.WriteValue(dr[j]["name"].ToString());
+                    jWrite.WritePropertyName("iconCls");
+                    jWrite.WriteValue("icon-tool");
+                    jWrite.WritePropertyName("type");
+                    jWrite.WriteValue("bntool");
+                    jWrite.WritePropertyName("tooltype");
+                    jWrite.WriteValue(dr[j]["ValueType"].ToString());
+                    jWrite.WritePropertyName("bagid");
+                    jWrite.WriteValue(dt.Rows[i]["toolid"].ToString());
+                    jWrite.WritePropertyName("bagname");
+                    jWrite.WriteValue(dt.Rows[i]["ToolName"].ToString());
+                    jWrite.WritePropertyName("classid");
+                    jWrite.WriteValue(dr[j]["propertyid"].ToString());
+                    jWrite.WritePropertyName("opt");
+                    jWrite.WriteValue("修改");
+                    jWrite.WritePropertyName("sx");
+                    jWrite.WriteStartArray();
+                    dr1 = dt2.Select(" ParentID = " + dr[j]["rID"].ToString());
+                    for (k = 0, ProprtryArrStr = "", Note = ""; k < dr1.Length; k++)
+                    {
+                        jWrite.WriteStartObject();
+                        jWrite.WritePropertyName("name");
+                        jWrite.WriteValue(dr1[k]["name"].ToString().Trim());
+                        PropertyName = dr1[k]["name"].ToString().Trim();
+
+                        if (!PropertyNameDict.ContainsKey(PropertyName))
+                        {
+                            PropertyNameDict.Add(PropertyName, curCol);
+                            cells[0, curCol].PutValue(PropertyName);
+                            curCol++;
+                        }
+                        ProprtryArrStr += ",\"" + PropertyName + "\":\"" + dr1[k]["Value"].ToString() + "\"";
+                        jWrite.WritePropertyName("value");
+                        jWrite.WriteValue(dr1[k]["Value"].ToString());
+                        cells[curRow, PropertyNameDict[PropertyName]].PutValue(dr1[k]["Value"].ToString());
+                        jWrite.WriteEndObject();
+                        Note += PropertyName + ":" + dr1[k]["Value"].ToString().Trim() + "\r\n";
+
+                    }
+                    sheet.Comments.Add(curRow, 3);
+                    sheet.Comments[curRow, 3].Note = Note;
+                    curRow++;
+                    jWrite.WriteEndArray();
+                    jWrite.WriteRaw(ProprtryArrStr);
+                    jWrite.WriteEndObject();
+                }
+
+                jWrite.WriteEndArray();
+                jWrite.WriteEndObject();
+            }
+        }
+
+        if ((fw == 2 || fw == 0) && IDdl != "")
+        {
+            dt1 = MyManager.GetDataSet("SELECT A.ID,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType = 0 AND ID IN(" + IDdl + ") ORDER BY ToolName");//独立工具
+            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[CoreID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where ValueType = 0 AND  CoreID IN(" + IDdl + ")");//属性集合
+            for (i = 0; i < dt1.Rows.Count; i++)
+            {
+                jWrite.WriteStartObject();
+
+
+                cells[curRow, 0].PutValue(dt1.Rows[i]["ID"].ToString());
+                cells[curRow, 1].PutValue(dt1.Rows[i]["rkID"].ToString());
+                cells[curRow, 2].PutValue(dt1.Rows[i]["ToolID"].ToString());
+                cells[curRow, 3].PutValue(dt1.Rows[i]["ToolName"].ToString());
+
+
+                jWrite.WritePropertyName("id");
+                jWrite.WriteValue(dt1.Rows[i]["ID"].ToString());
+                jWrite.WritePropertyName("name");
+                jWrite.WriteValue(dt1.Rows[i]["ToolName"].ToString());
+                jWrite.WritePropertyName("rkid");
+                jWrite.WriteValue(dt1.Rows[i]["rkID"].ToString());
+                jWrite.WritePropertyName("toolstate");
+                jWrite.WriteValue(dt1.Rows[i]["statename"].ToString());
+                jWrite.WritePropertyName("realtoolstate");
+                jWrite.WriteValue(dt1.Rows[i]["RStateName"].ToString());
+                jWrite.WritePropertyName("toolid");
+                jWrite.WriteValue(dt1.Rows[i]["toolid"].ToString());
+                jWrite.WritePropertyName("modifytime");
+                jWrite.WriteValue(dt1.Rows[i]["ModifyTime"].ToString());
+                jWrite.WritePropertyName("classid");
+                jWrite.WriteValue(dt1.Rows[i]["ModelID"].ToString());
+                jWrite.WritePropertyName("iconCls");
+                jWrite.WriteValue("icon-tool");
+                jWrite.WritePropertyName("tooltype");
+                jWrite.WriteValue("0");
+                jWrite.WritePropertyName("type");
+                jWrite.WriteValue("tool");
+                jWrite.WritePropertyName("opt");
+                jWrite.WriteValue("修改");
+                jWrite.WritePropertyName("sx");
+                jWrite.WriteStartArray();
+                dr1 = dt2.Select(" CoreID = " + dt1.Rows[i]["ID"].ToString());
+                for (k = 0, ProprtryArrStr = "", Note = ""; k < dr1.Length; k++)
+                {
+                    jWrite.WriteStartObject();
+                    jWrite.WritePropertyName("name");
+                    PropertyName = dr1[k]["name"].ToString().Trim();
+
+                    if (!PropertyNameDict.ContainsKey(PropertyName))
+                    {
+                        PropertyNameDict.Add(PropertyName, curCol);
+                        cells[0, curCol].PutValue(PropertyName);
+                        curCol++;
+                    }
+                    ProprtryArrStr += ",\"" + PropertyName + "\":\"" + dr1[k]["Value"].ToString() + "\"";
+                    jWrite.WriteValue(dr1[k]["name"].ToString().Trim());
+                    jWrite.WritePropertyName("value");
+                    jWrite.WriteValue(dr1[k]["Value"].ToString());
+                    cells[curRow, PropertyNameDict[PropertyName]].PutValue(dr1[k]["Value"].ToString());
+                    jWrite.WriteEndObject();
+                    Note += PropertyName + ":" + dr1[k]["Value"].ToString().Trim() + "\r\n";
+
+                }
+                sheet.Comments.Add(curRow, 3);
+                sheet.Comments[curRow, 3].Note = Note;
+                curRow++;
+                jWrite.WriteEndArray();
+                jWrite.WriteRaw(ProprtryArrStr);
+                jWrite.WriteEndObject();
+            }
+
+        }
+        jWrite.WriteEndArray();
+        String newColumns = "[";
+        foreach (String Key in PropertyNameDict.Keys)
+        {
+            newColumns += (newColumns == "[" ? "" : ",") + "\"" + Key + "\"";
+        }
+
+        newColumns += "]";
+
+
+        XlsSaveOptions saveOptions = new XlsSaveOptions();
+        String ExcelName = DateTime.Now.Ticks + ".xls";
+        String Path = gCtx.Server.MapPath("~") + "\\Report\\" + ExcelName;
+        workbook.Save(Path, saveOptions);
+        String ExcelURL = "http://" + gCtx.Request.Url.Host + ":" + gCtx.Request.Url.Port + gCtx.Request.ApplicationPath + "/Report/" + ExcelName;
+
+
+        return "{\"status\":\"success\",\"url\":\"" + ExcelURL + "\",\"data\":" + sw.ToString() + ",\"newcolumns" + "\":" + newColumns + "}";
+        //return "{\"status\":\"success\",\"data\":" + sw.ToString() + "}"; 
+    }
+    
     public String StoreSearch(JObject JO)
     {
         /*{ range: -1, name: "所有", ret: "all", specific:[
@@ -2837,7 +3224,7 @@ public String Test(HttpContext ctx)
     {
         StringWriter sw = new StringWriter();
         JsonWriter jWrite = new JsonTextWriter(sw);
-        DataTable dt = MyManager.GetDataSet("SELECT ID,rkID,StoredName,StoreTime FROM StoredTool WHERE RelatedTask  ='" + JO["taskid"].ToString() + "' Order by rkID ");
+        DataTable dt = MyManager.GetDataSet("SELECT ID,rkID,StoredName,StoreTime,PosID FROM StoredTool WHERE RelatedTask  ='" + JO["taskid"].ToString() + "' Order by rkID ");
         jWrite.WriteStartArray();
         for (int i = 0; i < dt.Rows.Count; i++)
         {
@@ -2852,6 +3239,8 @@ public String Test(HttpContext ctx)
             jWrite.WriteValue(dt.Rows[i]["StoredName"].ToString());
             jWrite.WritePropertyName("storetime");
             jWrite.WriteValue(dt.Rows[i]["StoreTime"].ToString());
+            jWrite.WritePropertyName("posid");
+            jWrite.WriteValue(dt.Rows[i]["posid"].ToString());
             jWrite.WriteEndObject();
         }
         jWrite.WriteEndArray();
@@ -2872,7 +3261,14 @@ public String Test(HttpContext ctx)
         String CoreID, StoredID, ToolID, ModelType,newRank;/*GetNextID中已经确保CoreTool中ID不会重复*/
         String[] Rank;
         DataRow[] dr, dr1;
-
+        //首先,查看该任务中所有工具是否都具备了货位编码
+        if(0!=Convert.ToInt32( MyManager.GetFiledByInput("SELECT Count(*) as iCount FROM StoredTool WHERE (PosID is null OR PosID like '% %') AND  RelatedTask='" + TaskID + "'", "iCount")))
+        {
+            //有的工具没有货位编码
+            return "{\"status\":\"failed\",\"msg\":\"师傅，所有工具必须都具有货位编码。\"}"; 
+        }
+        
+                   
         /***************开始对工具编号**************/
         DataTable gdt = MyManager.GetDataSet("SELECT * FROM StoredTool Where  RelatedTask = '" + JO["taskid"].ToString() + "'");
         for (i = 0; i < gdt.Rows.Count; i++)
@@ -2890,8 +3286,8 @@ public String Test(HttpContext ctx)
                     ToolID = MyManager.GetNextID();
                 }
                 //在coretool中插入工具包行
-                CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(EPC,rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask]) SELECT '"+MyManager.GenerateEPC(ToolID)+"' AS EPC,rkID,ModelType,ModelID,'"
-                                                                                + ToolID + "' AS ToolID,StoredName AS ToolName,'" + DateTime.Now.ToString() + "' AS ModifyTime,1,'" + JO["taskid"].ToString() + "' AS RelatedTask FROM StoredTool WHERE ID = " + StoredID + ";SELECT IDENT_CURRENT('CoreTool') AS CurID", "CurID");
+                CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(EPC,rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask],PosID) SELECT '"+MyManager.GenerateEPC(ToolID)+"' AS EPC,rkID,ModelType,ModelID,'"
+                                                                                + ToolID + "' AS ToolID,StoredName AS ToolName,'" + DateTime.Now.ToString() + "' AS ModifyTime,1,'" + JO["taskid"].ToString() + "' AS RelatedTask FROM StoredTool,PosID WHERE ID = " + StoredID + ";SELECT IDENT_CURRENT('CoreTool') AS CurID", "CurID");
 
                 dr = dt.Select("ValueType = 1 ");/*工具箱子编号为 AA 等*/
                 //在coretoolvalue中插入工具箱本体
@@ -2930,8 +3326,8 @@ public String Test(HttpContext ctx)
                     ToolID = MyManager.GetNextID();
                 }
 
-                CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(EPC,rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask],Rank) SELECT '"+MyManager.GenerateEPC(ToolID)+"',rkID,ModelType,ModelID,'"
-                                                        + ToolID + "' AS ToolID,StoredName AS ToolName,'" + DateTime.Now.ToString() + "' AS ModifyTime,1,'" + JO["taskid"].ToString() + "' AS RelatedTask,Rank FROM StoredTool WHERE ID = " + StoredID + ";SELECT IDENT_CURRENT('CoreTool') AS CurID", "CurID");
+                CoreID = MyManager.GetFiledByInput("INSERT INTO CoreTool(EPC,rkID,ModelType,ModelID,ToolID,ToolName,[ModifyTime],State,[RelatedTask],Rank,PosID) SELECT '" + MyManager.GenerateEPC(ToolID) + "',rkID,ModelType,ModelID,'"
+                                                        + ToolID + "' AS ToolID,StoredName AS ToolName,'" + DateTime.Now.ToString() + "' AS ModifyTime,1,'" + JO["taskid"].ToString() + "' AS RelatedTask,Rank,PosID FROM StoredTool WHERE ID = " + StoredID + ";SELECT IDENT_CURRENT('CoreTool') AS CurID", "CurID");
 
                 dr = dt.Select("ValueType = 0 ");/*选取工具属性*/
                 //在coretoolvalue中插入工具的属性
@@ -2949,7 +3345,8 @@ public String Test(HttpContext ctx)
         MyManager.ExecSQL("INSERT INTO HitTool(TaskID,Type,TaskName,CorePerson,State) VALUES ('"+
                            TaskID + "',2,'打号任务','" + CorePerson + "',1)" );
         
-        return "任务提交成功，请记住任务编号:" +TaskID; 
+         return "{\"status\":\"failed\",\"msg\":\""+"任务提交成功，请记住任务编号:" +TaskID+"\"}"; 
+     
     }
 
     public String CreateBagExcel(JObject JO)
@@ -3932,6 +4329,22 @@ public String Test(HttpContext ctx)
         MyManager.ExecSQL("INSERT INTO TaskLog (TaskID,CreateUserID,CreateUserName,Title,Content,DateTime) Values (" + TaskID + "," + gCtx.Session["UserID"].ToString() + ",'" + gCtx.Session["Name"].ToString() + "','关闭任务','" + JO["content"].ToString() + "','"+DateTime.Now.ToString()+"')");
         return "{\"status\":\"success\",\"msg\":\"任务关闭成功!\"}"; 
     }
+
+    public String GetToolPosID(JObject JO)
+    {
+        String rkID = JO["rkid"].ToString();
+        String PosID = MyManager.GetFiledByInput("SELECT PosID FROM StoredTool WHERE rkID='" + rkID + "'", "PosID");
+        
+        return "{\"status\":\"success\",\"msg\":\"获取成功!\",\"posid\":\""+PosID+"\"}"; 
+    }
+
+    public String SetToolPosID(JObject JO)
+    {
+        String rkID = JO["rkid"].ToString();
+        MyManager.ExecSQL("UPDATE StoredTool Set PosID = '" + JO["posid"].ToString() + "' WHERE rkID = '" + rkID + "'");
+        return "{\"status\":\"success\",\"msg\":\"设置成功!\"}";
+    }
+    
    public void ProcessRequest (HttpContext context) 
    {
 
@@ -4133,7 +4546,7 @@ public String Test(HttpContext ctx)
            }
            if (Cmd == "tijiao")
            {
-               retJSON = "{\"status\":\"success\",\"msg\":\"" + tijiao(JO) + "\"}"; 
+               retJSON = tijiao(JO);
            }
            if (Cmd == "CreateBagExcel")
            {
@@ -4233,6 +4646,18 @@ public String Test(HttpContext ctx)
            if (Cmd == "CloseTheTask")
            {
                retJSON = CloseTheTask(JO); 
+           }
+           if (Cmd == "GetToolPosID")//获取货位编码
+           {
+               retJSON = GetToolPosID(JO);
+           }
+           if (Cmd == "SetToolPosID")//设置货位编码
+           {
+               retJSON = SetToolPosID(JO);
+           }
+           if (Cmd == "CreateCheckJob")//创建盘点任务
+           {
+               //retJSON = CreateCheckJob(JO);
            }
 
            context.Response.Write(retJSON);

@@ -139,7 +139,7 @@ public partial class TaskDetail : System.Web.UI.Page
           //  ImageButton1.Visible = false;
         }
 
-        
+        Page.ClientScript.RegisterStartupScript(Page.GetType(), "message", "<script language='JavaScript'>Jump('" + MyManager.GetDealPage(Convert.ToInt32(TaskType), TaskID) + "','TaskDATA')</script>");
 
        
         
