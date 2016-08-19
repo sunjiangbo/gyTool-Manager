@@ -1988,7 +1988,7 @@ public String Test(HttpContext ctx)
         //return "{\"status\":\"success\",\"data\":" + sw.ToString() + "}"; 
     }
 
-    public String ToolSearchForCheck(JObject JO)/*对coretable中的工具进行查询，已经编号的*/
+    public String ToolSearchForCheck(JObject JO)/*对coretable中的工具进行查询,顺便设定盘库标示*/
     {
         /*{ range: -1, name: "所有", ret:返回范围 "all"所有 "tool"工具 "bag"工具包, specific:[
          *                                                                              { tid: ToolClassID, name: ToolClassName, vals: [
@@ -2014,108 +2014,130 @@ public String Test(HttpContext ctx)
         String rkID = JO["rkid"].ToString().Trim();
         String ToolID = JO["toolid"].ToString().Trim();
         String ToolName = JO["name"].ToString().Trim();
-        if (Filter["range"].ToString() == "-1")
-        {
+        String CheckCode = JO["curcheckcode"].ToString().Trim();
+        String CheckType = JO["querytype"].ToString().Trim();
 
-            txt = Filter["ret"].ToString();
-            if (txt == "all")
+        if (CheckType != "1")
+        {
+            if (Filter["range"].ToString() == "-1")
             {
-                fw = 0;
+
+                txt = Filter["ret"].ToString();
+                if (txt == "all")
+                {
+                    fw = 0;
+                }
+                else if (txt == "tool")
+                {
+                    fw = 2;
+                }
+                else if (txt == "bag")
+                {
+                    fw = 1;
+                }
+
             }
-            else if (txt == "tool")
-            {
-                fw = 2;
-            }
-            else if (txt == "bag")
+            else
             {
                 fw = 1;
             }
+            String NameLike1 = " OR ToolName like'%" + ToolName + "%' ", NameLike2 = " OR (ValueType in(1,3) AND Value like'%" + ToolName + "%') ";
+            if (ToolName == "" && (rkID != "" || ToolID != ""))
+            {
+                NameLike1 = NameLike2 = "";
+            }
+            String t_SQL = "SELECT distinct ID AS CoreID FROM CoreTool WHERE rkID ='" + rkID + "' OR ToolID ='" + ToolID + "' " + NameLike1 + "UNION SELECT distinct CoreID FROM CoreToolValue WHERE rkID='" + rkID + "' " + NameLike2 + " OR ToolID ='" + ToolID + "'";
+            dt = MyManager.GetDataSet("SELECT distinct ID AS CoreID FROM CoreTool WHERE rkID ='" + rkID + "' OR ToolID ='" + ToolID + "' " + NameLike1 + "UNION SELECT distinct CoreID FROM CoreToolValue WHERE rkID='" + rkID + "' " + NameLike2 + " OR ToolID ='" + ToolID + "'");
+            for (k = 0, IDdl = "", IDbn = ""/*每次需将IDbn清空，获取最新集合，然后继续筛选*/; k < dt.Rows.Count; k++)
+            {
+                IDbn += (IDbn == "" ? dt.Rows[k]["CoreID"].ToString() : "," + dt.Rows[k]["CoreID"].ToString());
+                //IDdlfw += (IDdlfw == "" ? dt.Rows[k]["CoreID"].ToString() : "," + dt.Rows[k]["CoreID"].ToString());
+            }
 
+            if (IDbn != "")
+            {
+                IDdlfw = " AND ID IN(" + IDbn + ") ";
+            }
+            else if (rkID != "" || ToolName != "" || ToolID != "")//搜索条件不全为空，而搜索结果为空，证明根据搜索条件搜到的结果为空
+            {
+                IDdlfw = " AND ID IN('') ";
+                IDbn = "''";
+            }
+
+
+            if (fw == 0 || fw == 1)
+            {//所有 或 工具包
+
+
+                for (i = 0; i < Specific.Count; i++)
+                {
+                    SQL1 = "(SELECT distinct CoreID FROM CoreToolValue WHERE (ValueType = 3 or ValueType = 1) AND PropertyID = " + Specific[i]["tid"].ToString()
+                            + (IDbn == "" ? "" : " AND CoreID IN(" + IDbn + ")") + ")";
+
+                    JArray JV = (JArray)Specific[i]["vals"];
+                    for (j = 0; j < JV.Count; j++)
+                    {
+                        SQL1 += " Intersect ( SELECT CoreID FROM CoreToolValue WHERE ParentID IN(" + " SELECT ID FROM CoreToolValue WHERE (ValueType = 3 or ValueType = 1) AND PropertyID = " + Specific[i]["tid"].ToString() + (IDbn == "" ? "" : " AND CoreID IN(" + IDbn + ")") + ")" + " AND (ValueType = 4 OR ValueType = 2) AND PropertyID = " + JV[j]["pid"].ToString() + (JV[j]["val"].ToString() != "zkgy-1" ? " AND Value = '" + JV[j]["val"].ToString() + "')" : ")");
+                    }
+
+                    dt1 = MyManager.GetDataSet(SQL1);//工具包，将StoreID集合
+
+                    if (dt1.Rows.Count == 0)//count = 0 说明到这已经没有符合要求的工具包啦！！！直接退出循环.
+                    {
+                        IDbn = "";
+                        break;
+                    }
+
+                    for (k = 0, IDbn = ""/*每次需将IDbn清空，获取最新集合，然后继续筛选*/; k < dt1.Rows.Count; k++)
+                    {
+                        IDbn += (IDbn == "" ? dt1.Rows[k]["CoreID"].ToString() : "," + dt1.Rows[k]["CoreID"].ToString());
+                    }
+                }
+
+
+            }
+
+            if (fw == 2 || fw == 0)//独立工具或所有
+            {
+                for (i = 0; i < Specific.Count; i++)
+                {
+                    SQL = "(SELECT distinct ID AS CoreID FROM CoreTool WHERE ModelType = 0 AND ModelID = " + Specific[i]["tid"].ToString() + IDdlfw + " )";
+
+                    JArray JV = (JArray)Specific[i]["vals"];
+                    for (j = 0; j < JV.Count; j++)
+                    {
+                        SQL += " Intersect (SELECT distinct CoreID FROM [CoreToolValue] WHERE CoreID IN " + "(SELECT distinct ID AS StoredID FROM CoreTool WHERE ModelType = 0 AND ModelID = " + Specific[i]["tid"].ToString() + ")" + " AND ValueType = 0 AND PropertyID = " + JV[j]["pid"].ToString() + (JV[j]["val"].ToString() != "zkgy-1" ? " AND Value = '" + JV[j]["val"].ToString() + "')" : ")");
+                    }
+
+                    dt1 = MyManager.GetDataSet(SQL); //独立工具，将CoreID集合
+
+                    for (k = 0; k < dt1.Rows.Count; k++)
+                    {
+                        IDdl += (IDdl == "" ? dt1.Rows[k]["CoreID"].ToString() : "," + dt1.Rows[k]["CoreID"].ToString());
+                    }
+                }
+                if (Specific.Count == 0)
+                {
+                    IDdl = IDbn;
+                }
+            }
+
+            if (IDdl == "") {
+                IDdl = "''";
+            }
+            if (IDbn == "")
+            {
+                IDbn = "''"; 
+            }
+             
+            //所有筛选出来的工具CoreID都在IDdl与IDbn中,现在要把他们中status为0的标记上CheckCode
+
+            MyManager.ExecSQL("UPDATE CoreTool SET CheckCode ='" + CheckCode + "' WHERE (ID IN(" + IDbn + ") OR ID IN(" + IDdl + ")) AND (CheckStatus = 0 OR CheckStatus is NULL)");
         }
         else
         {
-            fw = 1;
-        }
-        String NameLike1 = " OR ToolName like'%" + ToolName + "%' ", NameLike2 = " OR (ValueType in(1,3) AND Value like'%" + ToolName + "%') ";
-        if (ToolName == "" && (rkID != "" || ToolID != ""))
-        {
-            NameLike1 = NameLike2 = "";
-        }
-        String t_SQL = "SELECT distinct ID AS CoreID FROM CoreTool WHERE rkID ='" + rkID + "' OR ToolID ='" + ToolID + "' " + NameLike1 + "UNION SELECT distinct CoreID FROM CoreToolValue WHERE rkID='" + rkID + "' " + NameLike2 + " OR ToolID ='" + ToolID + "'";
-        dt = MyManager.GetDataSet("SELECT distinct ID AS CoreID FROM CoreTool WHERE rkID ='" + rkID + "' OR ToolID ='" + ToolID + "' " + NameLike1 + "UNION SELECT distinct CoreID FROM CoreToolValue WHERE rkID='" + rkID + "' " + NameLike2 + " OR ToolID ='" + ToolID + "'");
-        for (k = 0, IDdl = "", IDbn = ""/*每次需将IDbn清空，获取最新集合，然后继续筛选*/; k < dt.Rows.Count; k++)
-        {
-            IDbn += (IDbn == "" ? dt.Rows[k]["CoreID"].ToString() : "," + dt.Rows[k]["CoreID"].ToString());
-            //IDdlfw += (IDdlfw == "" ? dt.Rows[k]["CoreID"].ToString() : "," + dt.Rows[k]["CoreID"].ToString());
-        }
-
-        if (IDbn != "")
-        {
-            IDdlfw = " AND ID IN(" + IDbn + ") ";
-        }
-        else if (rkID != "" || ToolName != "" || ToolID != "")//搜索条件不全为空，而搜索结果为空，证明根据搜索条件搜到的结果为空
-        {
-            IDdlfw = " AND ID IN('') ";
-            IDbn = "''";
-        }
-
-
-        if (fw == 0 || fw == 1)
-        {//所有 或 工具包
-
-
-            for (i = 0; i < Specific.Count; i++)
-            {
-                SQL1 = "(SELECT distinct CoreID FROM CoreToolValue WHERE (ValueType = 3 or ValueType = 1) AND PropertyID = " + Specific[i]["tid"].ToString()
-                        + (IDbn == "" ? "" : " AND CoreID IN(" + IDbn + ")") + ")";
-
-                JArray JV = (JArray)Specific[i]["vals"];
-                for (j = 0; j < JV.Count; j++)
-                {
-                    SQL1 += " Intersect ( SELECT CoreID FROM CoreToolValue WHERE ParentID IN(" + " SELECT ID FROM CoreToolValue WHERE (ValueType = 3 or ValueType = 1) AND PropertyID = " + Specific[i]["tid"].ToString() + (IDbn == "" ? "" : " AND CoreID IN(" + IDbn + ")") + ")" + " AND (ValueType = 4 OR ValueType = 2) AND PropertyID = " + JV[j]["pid"].ToString() + (JV[j]["val"].ToString() != "zkgy-1" ? " AND Value = '" + JV[j]["val"].ToString() + "')" : ")");
-                }
-
-                dt1 = MyManager.GetDataSet(SQL1);//工具包，将StoreID集合
-
-                if (dt1.Rows.Count == 0)//count = 0 说明到这已经没有符合要求的工具包啦！！！直接退出循环.
-                {
-                    IDbn = "";
-                    break;
-                }
-
-                for (k = 0, IDbn = ""/*每次需将IDbn清空，获取最新集合，然后继续筛选*/; k < dt1.Rows.Count; k++)
-                {
-                    IDbn += (IDbn == "" ? dt1.Rows[k]["CoreID"].ToString() : "," + dt1.Rows[k]["CoreID"].ToString());
-                }
-            }
-
-
-        }
-
-        if (fw == 2 || fw == 0)//独立工具或所有
-        {
-            for (i = 0; i < Specific.Count; i++)
-            {
-                SQL = "(SELECT distinct ID AS CoreID FROM CoreTool WHERE ModelType = 0 AND ModelID = " + Specific[i]["tid"].ToString() + IDdlfw + " )";
-
-                JArray JV = (JArray)Specific[i]["vals"];
-                for (j = 0; j < JV.Count; j++)
-                {
-                    SQL += " Intersect (SELECT distinct CoreID FROM [CoreToolValue] WHERE CoreID IN " + "(SELECT distinct ID AS StoredID FROM CoreTool WHERE ModelType = 0 AND ModelID = " + Specific[i]["tid"].ToString() + ")" + " AND ValueType = 0 AND PropertyID = " + JV[j]["pid"].ToString() + (JV[j]["val"].ToString() != "zkgy-1" ? " AND Value = '" + JV[j]["val"].ToString() + "')" : ")");
-                }
-
-                dt1 = MyManager.GetDataSet(SQL); //独立工具，将CoreID集合
-
-                for (k = 0; k < dt1.Rows.Count; k++)
-                {
-                    IDdl += (IDdl == "" ? dt1.Rows[k]["CoreID"].ToString() : "," + dt1.Rows[k]["CoreID"].ToString());
-                }
-            }
-            if (Specific.Count == 0)
-            {
-                IDdl = IDbn;
-            }
-        }
+            fw = 0;
+        }     
         Aspose.Cells.Workbook workbook = new Aspose.Cells.Workbook(gCtx.Server.MapPath("~") + "\\Template\\kb.xls");
         Aspose.Cells.Worksheet sheet = workbook.Worksheets[0];
         Aspose.Cells.Cells cells = sheet.Cells;
@@ -2135,9 +2157,9 @@ public String Test(HttpContext ctx)
         jWrite.WriteStartArray();
         if ((fw == 1 || fw == 0) && IDbn != "")
         {
-            dt = MyManager.GetDataSet("SELECT rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType=1 AND  ID IN(" + IDbn + ") ORDER BY ToolName");//工具包
-            dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + IDbn + ") ORDER BY ToolID ASC");//包内工具集合
-            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + IDbn + ")");//属性集合
+            dt = MyManager.GetDataSet("SELECT CheckInfo,PosID,CheckStatus,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType=1 AND  ID IN("  + (CheckType!="1"?IDbn:" SELECT ID FROM CoreTool WHERE CheckCode='" +CheckCode+"'") + ") ORDER BY ToolName");//工具包
+            dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + (CheckType != "1" ? IDbn : " SELECT ID FROM CoreTool WHERE CheckCode='" + CheckCode + "'" )+ ") ORDER BY ToolID ASC");//包内工具集合
+            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + (CheckType != "1" ? IDbn : " SELECT ID FROM CoreTool WHERE CheckCode='" + CheckCode + "'" )+ ")");//属性集合
             for (i = 0; i < dt.Rows.Count; i++)
             {
                 jWrite.WriteStartObject();
@@ -2167,6 +2189,8 @@ public String Test(HttpContext ctx)
                 jWrite.WriteValue(dt.Rows[i]["ToolName"].ToString());
                 jWrite.WritePropertyName("modifytime");
                 jWrite.WriteValue(dt.Rows[i]["ModifyTime"].ToString());
+                jWrite.WritePropertyName("posid");
+                jWrite.WriteValue(dt.Rows[i]["PosID"].ToString());
                 jWrite.WritePropertyName("iconCls");
                 jWrite.WriteValue("icon-toolbag");
                 jWrite.WritePropertyName("state");
@@ -2283,8 +2307,8 @@ public String Test(HttpContext ctx)
 
         if ((fw == 2 || fw == 0) && IDdl != "")
         {
-            dt1 = MyManager.GetDataSet("SELECT A.ID,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType = 0 AND ID IN(" + IDdl + ") ORDER BY ToolName");//独立工具
-            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[CoreID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where ValueType = 0 AND  CoreID IN(" + IDdl + ")");//属性集合
+            dt1 = MyManager.GetDataSet("SELECT CheckInfo,PosID,CheckStatus,A.ID,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType = 0 AND ID IN(" + (CheckType != "1" ? IDdl : " SELECT ID FROM CoreTool WHERE CheckCode='" + CheckCode + "'" )+ ") ORDER BY ToolName");//独立工具
+            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[CoreID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where ValueType = 0 AND  CoreID IN(" + (CheckType != "1" ? IDdl : " SELECT ID FROM CoreTool WHERE CheckCode='" + CheckCode + "'") + ")");//属性集合
             for (i = 0; i < dt1.Rows.Count; i++)
             {
                 jWrite.WriteStartObject();
@@ -2310,8 +2334,25 @@ public String Test(HttpContext ctx)
                 jWrite.WriteValue(dt1.Rows[i]["toolid"].ToString());
                 jWrite.WritePropertyName("modifytime");
                 jWrite.WriteValue(dt1.Rows[i]["ModifyTime"].ToString());
+                jWrite.WritePropertyName("posid");
+                jWrite.WriteValue(dt1.Rows[i]["PosID"].ToString());
                 jWrite.WritePropertyName("classid");
                 jWrite.WriteValue(dt1.Rows[i]["ModelID"].ToString());
+
+                jWrite.WritePropertyName("checkinfo");
+                jWrite.WriteValue(dt1.Rows[i]["CheckInfo"].ToString());
+
+                jWrite.WritePropertyName("checkstatus");
+
+                if (dt1.Rows[i]["CheckStatus"].ToString() == "1")
+                {
+                    jWrite.WriteValue("盘点中...");
+                }
+                else
+                {
+                    jWrite.WriteValue("待盘点");
+                }
+                
                 jWrite.WritePropertyName("iconCls");
                 jWrite.WriteValue("icon-tool");
                 jWrite.WritePropertyName("tooltype");
@@ -4329,6 +4370,30 @@ public String Test(HttpContext ctx)
         MyManager.ExecSQL("INSERT INTO TaskLog (TaskID,CreateUserID,CreateUserName,Title,Content,DateTime) Values (" + TaskID + "," + gCtx.Session["UserID"].ToString() + ",'" + gCtx.Session["Name"].ToString() + "','关闭任务','" + JO["content"].ToString() + "','"+DateTime.Now.ToString()+"')");
         return "{\"status\":\"success\",\"msg\":\"任务关闭成功!\"}"; 
     }
+    
+    public String GetCheckList(JObject JO)
+    {
+        String UserID = gCtx.Session["UserID"].ToString();
+        StringWriter sw = new StringWriter();
+        JsonWriter jWrite = new JsonTextWriter(sw);
+        DataTable dt = MyManager.GetDataSet("SELECT * FROM CheckList WHERE UserID = '"  +UserID+ "'");
+
+        jWrite.WriteStartArray();       
+        
+        for (int i = 0; i < dt.Rows.Count; i++)
+        {
+            jWrite.WriteStartObject();
+            jWrite.WritePropertyName("id");
+            jWrite.WriteValue(dt.Rows[i]["CheckCode"].ToString());
+            jWrite.WritePropertyName("name");
+            jWrite.WriteValue(dt.Rows[i]["CheckName"].ToString());
+            jWrite.WriteEndObject();    
+        }        
+        
+        jWrite.WriteEndArray();
+
+        return "{\"status\":\"success\",\"msg\":\"获取成功!\",\"data\":" + sw.ToString() +"}";  
+    }
 
     public String GetToolPosID(JObject JO)
     {
@@ -4344,7 +4409,37 @@ public String Test(HttpContext ctx)
         MyManager.ExecSQL("UPDATE StoredTool Set PosID = '" + JO["posid"].ToString() + "' WHERE rkID = '" + rkID + "'");
         return "{\"status\":\"success\",\"msg\":\"设置成功!\"}";
     }
-    
+
+    public String StartCheck(JObject JO)//创建盘点任务或者切换盘点任务
+    {
+        String CheckCode = JO["checkcode"].ToString().Trim();
+        String CheckName = JO["checkname"].ToString().Trim();
+        DataTable dt = MyManager.GetDataSet("SELECT * FROM CheckList WHERE CheckCode = '" +CheckCode+ "' OR CheckName = '" +CheckName+"'");
+        if (dt.Rows.Count > 0)//切换盘点任务
+        {
+            return "{\"status\":\"success\",\"msg\":\"该任务正在盘点中...\"}";     
+                
+        }else{
+
+                DataTable dt1 =  MyManager.GetDataSet("SELECT ID FROM CoreTool WHERE CheckCode = '" + CheckCode + "' AND CheckStatus = 0");
+                
+                if (dt1.Rows.Count ==0)
+                {
+                    return "{\"status\":\"failed\",\"msg\":\"该任务正在盘点中...\"}";  
+                }
+
+                if (dt1.Rows.Count == 0)
+                {
+                    return "{\"status\":\"failed\",\"msg\":\"该盘点任务中没有任何工具需要盘点!\"}";  
+                }
+                
+                MyManager.ExecSQL("INSERT INTO CheckList (CheckCode,CheckName,UserID,Name,StartTime) VALUES ('" +CheckCode + "','"+CheckName + "','"+gCtx.Session["UserID"].ToString()+"','"+gCtx.Session["Name"].ToString()+"','"+DateTime.Now.ToString()+"')");
+                MyManager.ExecSQL("INSERT INTO CheckReleation (CoreID,CheckCode) SELECT ID,CheckCode FROM CoreTool WHERE CheckCode = '" +CheckCode+"'");
+                MyManager.ExecSQL("UPDATE CoreTool SET CheckStatus = 1 WHERE CheckCode = '" +CheckCode+"'");
+                return "{\"status\":\"success\",\"msg\":\"创建盘点成功!!\"}";  
+        }
+        //
+    }
    public void ProcessRequest (HttpContext context) 
    {
 
@@ -4655,11 +4750,22 @@ public String Test(HttpContext ctx)
            {
                retJSON = SetToolPosID(JO);
            }
-           if (Cmd == "CreateCheckJob")//创建盘点任务
+           if (Cmd == "ToolSearchForCheck")//创建盘点任务
            {
-               //retJSON = CreateCheckJob(JO);
+               retJSON = ToolSearchForCheck(JO);
            }
 
+           if (Cmd == "GetCheckList")
+           {
+               retJSON = GetCheckList(JO); 
+           }
+
+           if (Cmd == "StartCheck")
+           {
+               retJSON = StartCheck(JO);
+           }
+           
+           
            context.Response.Write(retJSON);
         }
         catch (Exception ee)

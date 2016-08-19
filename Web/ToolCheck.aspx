@@ -11,6 +11,7 @@
 	<script type="text/javascript" src="jquery.easyui.min.js"></script>
     <link href="Css/MyCSS.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="JS/MyJS.js"></script>
+     <script type="text/javascript" src="JS/datagrid-cellediting.js"></script>
     <title></title>
     <style>
         .myfwSpan
@@ -110,17 +111,38 @@
     </style>
     <script type="text/javascript">
     var IsManager = '<%= IsManager %>';
-    var curCheckCode = "";
+    var curCheckCode = "",CheckIng = false;
     $(function(){
       // if(IsManager =="0")
         //$(".MClass").remove();
     });
+    
+    $.extend($.fn.datagrid.defaults.editors, {
+		numberspinner: {
+			init: function(container, options){
+				var input = $('<input type="text">').appendTo(container);
+				return input.numberspinner(options);
+			},
+			destroy: function(target){
+				$(target).numberspinner('destroy');
+			},
+			getValue: function(target){
+				return $(target).numberspinner('getValue');
+			},
+			setValue: function(target, value){
+				$(target).numberspinner('setValue',value);
+			},
+			resize: function(target, width){
+				$(target).numberspinner('resize',width);
+			}
+		}
+	});
         var Filter = { range: -1, name: "所有", ret: "all", specific: [] };
         var IsInitial = true; /*表明修改搜索条件*/
         var initColumnBefore = [{ field: 'ck', checkbox: true },
                          { field: 'rkid', title: '入库编号', width: 20, sortable: true },
                         { field: 'toolid', title: '识别号', width: 20, sortable: true },
-                        { field: 'name', title: '名称', width: 60, sortable: true, tooltip: true, formatter:
+                        { field: 'name', title: '名称', width: 40, sortable: true, tooltip: true, formatter:
                 function (val, row, index) {
                     Str = '<div style="padding:10px 200px"><p><a  href="javascript:void(0)" class="easyui-tooltip" data-options="hideEvent: \'none\',content: function(){return $("<div>' + val + '</div>");},onShow: function(){var t = $(this);t.tooltip(\'tip\').focus().unbind().bind(\'blur\',function(){tooltip(\'hide\');});}">Hover me</a> to display toolbar.</p>	</div>';
 
@@ -128,6 +150,9 @@
                     return '<a  class = "myCell" id="tip' + row.id + '">' + val + '</a>';
                 }
                         }
+                        ,{ field: 'checkstatus', title: '盘点状态', width: 30, sortable: true }
+                        ,{ field: 'posid', title: '位置编码', width: 30, sortable: true ,editor:{type:'text'}}
+                        ,{ field: 'checkinfo', title: '异常情况', width: 50, editor:{type:'text'}}
     
             ];
              initColumnAfter = [
@@ -137,7 +162,7 @@
                 { field: 'posy', title: '所在层', width: 20, sortable: true },
                 { field: 'realtoolstate', title: '实际状态', width: 25, sortable: true },
                 { field: 'modifytime', title: '最后修改时间', width: 80, sortable: true },
-                { field: 'look', title: '借用记录', width: 80, sortable: true,formatter: formatLook}
+                { field: 'look', title: '借用记录', width: 80, formatter: formatLook}
             ];
            
       
@@ -271,6 +296,23 @@
                 Filter.ret = "all";
             }
         }
+        function OnCheckListSelect (record)
+        {
+            //alert(record.id);    
+        }
+        function GetCheckList(){
+            var json = {};
+            json.cmd = "GetCheckList";
+            MyAjax(json, function (data) {
+                if (data.status == "success") {
+                        $("#CheckList").combobox({ editable: true, data: data.data, valueField: "id", textField: "name", onSelect: function (record) {   OnCheckListSelect(record);}});
+                    }
+                   else {
+                    $.messager.alert('错误', '盘点列表加载失败！');
+                }
+            }, null);
+        }
+        
         $(function () {
 
             var json = {};
@@ -286,6 +328,8 @@
                     $.messager.alert('错误', '工具包列表加载失败！');
                 }
             }, null);
+            
+            GetCheckList();
 
             json.cmd = "GetClassList";
 
@@ -335,7 +379,7 @@
                 });
 
             }
-            
+           var editID = ""; 
          function GridSet(newColumns)
             {
                $("#t1").treegrid({
@@ -350,16 +394,28 @@
                      nowrap:true,
                      striped:true,
                      multiSort:true,
-                    rownumbers: true,
-                    singleSelect:false,
-                    checkOnSelect:true,
-                    selectOnCheck:true,
+                     rownumbers: true,
+               
+                    //singleSelect:false,
+                    //checkOnSelect:true,
+                    //selectOnCheck:true,
                     loadMsg:"正在加载",
                     onCheck:function (row,index){
-                        alert(row.rkid);
+                        //alert(row.rkid);
+                           $('#t1').treegrid('endEdit', editID); 
+                           editID = row.id;
+                         $('#t1').treegrid('beginEdit', editID);
+                    },
+                    onEndEdit:function(index,row,changes)
+                    {
+                       
                     },
                     onUncheck:function(row,index){
-                            alert(row.rkid);
+                            //alert(row.rkid);
+                    },
+                    onClickCell:function(index,field,value)
+                    {
+                       
                     },
                     onCheckAll:function(rows)
                     {
@@ -638,7 +694,7 @@
                    $("#t1").treegrid({columns: [initColumnBefore.concat(oo).concat(initColumnAfter)]});       
         }
         
-        function doSearchForCheck() {
+        function doSearchForCheck(type) {
             var json = {};
             json.cmd = "ToolSearchForCheck";
             json.Filter = Filter;
@@ -648,6 +704,7 @@
             var date = new Date();
             curCheckCode = "CK-" + date.pattern("yyyyMMddhhmmss");
             json.curcheckcode= curCheckCode;
+            json.querytype = type;//0:按条件查询并标记，1:直接按标记checkcode查询
             MyAjax(json, function(data) {
             $.messager.progress('close');
              if (data.status == "success") {
@@ -742,6 +799,8 @@
             
        }
        
+       
+       
        function AddToolBag()//加包按钮
        {
               var row = $('#t1').datagrid('getSelected');
@@ -768,6 +827,45 @@
 
 
        }
+       
+       function doCheck()
+       {
+            var Name = $("#CheckList").combobox('getText');
+            var CheckCode = $("#CheckList").combobox('getValue');
+            ///alert(CheckCode + Name);
+            
+            if(CheckIng == true)
+            {
+                $.messager.alert('提示',"请先结束当前盘点!");
+                return;
+            }
+            
+            if (CheckCode!="")
+            {
+                curCheckCode = CheckCode;
+            }else{//新建盘点任务
+                if(Name =="")
+                {
+                    $.messager.alert('提示',"请输入或者选择盘点任务名!");
+                    return;
+                }
+            }
+             //if(CheckCode )
+             oo = {};
+		     oo.cmd = "StartCheck";
+		     oo.checkcode = curCheckCode;//工具箱本体的ID;
+		     oo.checkname = Name;
+		     MyAjax(oo,function(data){
+		        if(data.status == "success")
+		        {
+		            $("#A2").attr("disable","true");
+		            doSearchForCheck('1');
+		        }else{
+		            $.messager.alert('提示',data.msg);
+		        }
+		     });
+            
+       }
             
 </script>
 </head>
@@ -777,7 +875,7 @@
    <div id= "MContent" title = "工具盘点" region="center"">
     <div title="库存查询" >
        <div style="min-height:5px;height:auto;" class="btnbartitle" >
-           <div style="padding:5px;">范围:&nbsp;&nbsp;<select id ="ToolBagList" class="easyui-combobox" style = "width:150px; " ></select>&nbsp;&nbsp;名称: <input id="sName" style=" width:115px;"/>&nbsp;&nbsp;入库编号: <input id="srkID" style=" width:45px;"/>&nbsp;识别号: <input id="sToolID" style=" width:50px;"/>&nbsp;&nbsp;<a id="A2" class="easyui-linkbutton" onclick = "doSearchForCheck();">搜索</a></div>
+           <div style="padding:5px;">范围:&nbsp;&nbsp;<select id ="ToolBagList" class="easyui-combobox" style = "width:150px; " ></select>&nbsp;&nbsp;名称: <input id="sName" style=" width:115px;"/>&nbsp;&nbsp;入库编号: <input id="srkID" style=" width:45px;"/>&nbsp;识别号: <input id="sToolID" style=" width:50px;"/>&nbsp;&nbsp;<a id="A2" class="easyui-linkbutton" onclick = "doSearchForCheck('0');">搜索</a></div>
            <div style="padding:0px 5px 5px 5px;">条件:&nbsp;&nbsp;<select id ="ToolList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="PropertyList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="ValueList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp; <a id="opBtn" class="easyui-linkbutton" onclick = "FilterModify();">增加</a>&nbsp;&nbsp;<a id="A1" class="easyui-linkbutton" onclick = "">清空</a>&nbsp;&nbsp;</div>
            <div style="padding:0px 5px 5px 5px;">筛选:
                <input name = "rg"  id="Radio1" type="radio" checked= "checked">显示所有</input>
@@ -795,9 +893,7 @@
              <div>
 <br />
 <br />
-盘点任务列表：<select id ="CheckList" class="easyui-combobox" style = "width:150px; margin-top:10px; " ></select>
-<span id= "CheckInfo" style="margin-right: 5px;margin-left: 5px;"></span>
-<a id="Check" class="easyui-linkbutton" onclick = "doCheck();">创建盘点任务</a>
+
 </div>
             <table id="t1"></table>
         </div>
@@ -816,8 +912,11 @@
        
  <div id = "tb"     >
  
- 
-        <span style="margin-left:460px;">操作:</span>
+        当前盘点：<select id ="CheckList" class="easyui-combobox" style = "width:150px; margin-top:10px; " ></select>
+<span id= "CheckInfo" style="margin-right: 5px;margin-left: 5px;"></span>
+<a id="Check" class="easyui-linkbutton" onclick = "doCheck();">开始盘点</a>
+<a id="StopCheck" class="easyui-linkbutton" onclick = "StopCheck();">停止盘点</a>
+        <span style="margin-left:360px;">操作:</span>
        
         <a href="#"   class="easyui-linkbutton" style=" margin-right:5px;" onclick = "ModifyTool();">工具修改</a>
         <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "DePackBag();">拆包</a>
