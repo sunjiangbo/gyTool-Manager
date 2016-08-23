@@ -111,7 +111,8 @@
     </style>
     <script type="text/javascript">
     var IsManager = '<%= IsManager %>';
-    var curCheckCode = "",CheckIng = false;
+    var CheckIng = false,TmpCkCode="";
+      var curCheckCode = '<%= curCheckCode %>'
     $(function(){
       // if(IsManager =="0")
         //$(".MClass").remove();
@@ -298,7 +299,11 @@
         }
         function OnCheckListSelect (record)
         {
-            //alert(record.id);    
+            //curCheckCode =  record.id;
+            //$("#A2").attr("disabled","disabled");
+		    //$("#CheckList").attr("disabled","disabled");
+		    //$("#ExitCheck").attr("disabled","");
+            //doSearchForCheck('1');
         }
         function GetCheckList(){
             var json = {};
@@ -330,9 +335,12 @@
             }, null);
             
             GetCheckList();
-
-            json.cmd = "GetClassList";
-
+            $("#CheckList").combobox('setValue', curCheckCode);
+            $("#StopCheck").linkbutton({disabled:true});             
+             $("#ExitCheck").linkbutton({disabled:true});
+           if(curCheckCode!="") doCheck();
+          
+             json.cmd = "GetClassList";
             MyAjax(json, function (data) {
                 if (data.status == "success") {
                     data.data.push({ "name": "所有", "id": "-1" });
@@ -396,19 +404,25 @@
                      multiSort:true,
                      rownumbers: true,
                
-                    //singleSelect:false,
-                    //checkOnSelect:true,
+                     singleSelect:false,
+                    checkOnSelect:true,
                     //selectOnCheck:true,
                     loadMsg:"正在加载",
                     onCheck:function (row,index){
-                        //alert(row.rkid);
+                    alert(row.tooltype);
+                      if(CheckIng ==true){  
                            $('#t1').treegrid('endEdit', editID); 
                            editID = row.id;
-                         $('#t1').treegrid('beginEdit', editID);
+                           $('#t1').treegrid('beginEdit', editID);
+                         //  alert(editID);
+                       }
                     },
                     onEndEdit:function(index,row,changes)
                     {
-                       
+                       if(CheckIng ==true && curCheckCode != ""){  
+                             var drow = $("#t1").datagrid('selectRecord',editID);
+                            // alert(JSON.stringify(drow));                           
+                       }
                     },
                     onUncheck:function(row,index){
                             //alert(row.rkid);
@@ -702,8 +716,13 @@
             json.rkid = $("#srkID").val();
             json.toolid = $("#sToolID").val();
             var date = new Date();
-            curCheckCode = "CK-" + date.pattern("yyyyMMddhhmmss");
-            json.curcheckcode= curCheckCode;
+            if (type !="1"){//按条件生成查询结果，并更新查询码
+               TmpCkCode = "CK-" + date.pattern("yyyyMMddhhmmss");
+               json.curcheckcode= TmpCkCode; 
+            }else{
+               json.curcheckcode= curCheckCode;  
+            }
+            
             json.querytype = type;//0:按条件查询并标记，1:直接按标记checkcode查询
             MyAjax(json, function(data) {
             $.messager.progress('close');
@@ -831,19 +850,20 @@
        function doCheck()
        {
             var Name = $("#CheckList").combobox('getText');
-            var CheckCode = $("#CheckList").combobox('getValue');
-            ///alert(CheckCode + Name);
-            
+            var tCheckCode = $("#CheckList").combobox('getValue');
+            //alert(tCheckCode);   
+           // return;            
             if(CheckIng == true)
             {
                 $.messager.alert('提示',"请先结束当前盘点!");
                 return;
             }
             
-            if (CheckCode!="")
+            if (tCheckCode!="" && tCheckCode != Name )
             {
-                curCheckCode = CheckCode;
+                curCheckCode = tCheckCode;
             }else{//新建盘点任务
+                curCheckCode = TmpCkCode;
                 if(Name =="")
                 {
                     $.messager.alert('提示',"请输入或者选择盘点任务名!");
@@ -858,14 +878,93 @@
 		     MyAjax(oo,function(data){
 		        if(data.status == "success")
 		        {
-		            $("#A2").attr("disable","true");
+		            CheckIng =true;
+		            $("#A2").linkbutton({disabled:true});
+		            $("#ExitCheck").linkbutton({disabled:false});
+		            $("#Check").linkbutton({disabled:true});		         
 		            doSearchForCheck('1');
+		           
+		            $("#StopCheck").linkbutton({disabled:false});
+		            
+		           
+		            $("#CheckList").combobox({disabled:true});
+		            $("#CheckList").combobox('setValue', curCheckCode);
+		            
+		         
+
 		        }else{
 		            $.messager.alert('提示',data.msg);
 		        }
 		     });
             
        }
+       
+       function ExitCheck()
+       {
+         
+            
+            
+		     GetCheckList();
+		     oo = {};
+		     oo.cmd = "ExitCheck";
+		     oo.checkcode = curCheckCode;//工具箱本体的ID;
+		     MyAjax(oo,function(data){
+		        if(data.status == "success")
+		        {
+		            $("#A2").linkbutton({disabled:false});
+		            $("#ExitCheck").linkbutton({disabled:true});
+                    $("#Check").linkbutton({disabled:false});		         
+		            $("#CheckList").combobox({disabled:false});
+		            $("#StopCheck").linkbutton({disabled:true});
+		            $("#t1").treegrid({data:[]});
+		            CheckIng =false;
+                    $("#t1").treegrid({
+                    onCheck:function (row,index){
+                     
+                    }});
+		        }else{
+		            $.messager.alert('提示',data.msg);
+		        }
+		     });
+		    
+       }
+       
+       function StopCheck()
+       {
+            
+           
+           
+            //if(CheckCode )
+             oo = {};
+		     oo.cmd = "StopCheck";
+		     oo.checkcode = curCheckCode;//工具箱本体的ID;
+		     MyAjax(oo,function(data){
+		        if(data.status == "success")
+		        {
+		            CheckIng = false; 
+		            $("#A2").linkbutton({disabled:false});
+		            $("#ExitCheck").linkbutton({disabled:false});
+		            $("#Check").linkbutton({disabled:false});		         
+		             $("#t1").treegrid({data:[]});
+		           
+		            $("#StopCheck").linkbutton({disabled:true});	            
+		           
+		            $("#CheckList").combobox({disabled:false});
+		            $("#CheckList").combobox('setValue', curCheckCode);
+		            $("#t1").treegrid({
+		               
+                        onCheck:function (row,index){
+                         
+                        }});
+
+		        }else{
+		            $.messager.alert('提示',data.msg);
+		        }
+		     });
+       }   
+          
+            
+            
             
 </script>
 </head>
@@ -915,7 +1014,8 @@
         当前盘点：<select id ="CheckList" class="easyui-combobox" style = "width:150px; margin-top:10px; " ></select>
 <span id= "CheckInfo" style="margin-right: 5px;margin-left: 5px;"></span>
 <a id="Check" class="easyui-linkbutton" onclick = "doCheck();">开始盘点</a>
-<a id="StopCheck" class="easyui-linkbutton" onclick = "StopCheck();">停止盘点</a>
+<a id="ExitCheck" class="easyui-linkbutton" onclick = "ExitCheck();"  >退出盘点</a>
+<a id="StopCheck" class="easyui-linkbutton" onclick = "StopCheck();"  >停止盘点</a>
         <span style="margin-left:360px;">操作:</span>
        
         <a href="#"   class="easyui-linkbutton" style=" margin-right:5px;" onclick = "ModifyTool();">工具修改</a>

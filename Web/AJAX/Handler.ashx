@@ -2015,9 +2015,9 @@ public String Test(HttpContext ctx)
         String ToolID = JO["toolid"].ToString().Trim();
         String ToolName = JO["name"].ToString().Trim();
         String CheckCode = JO["curcheckcode"].ToString().Trim();
-        String CheckType = JO["querytype"].ToString().Trim();
+        String CheckType = JO["querytype"].ToString().Trim();//0:普通查询 1:按查询标记查询
 
-        if (CheckType != "1")
+        if (CheckType == "0")
         {
             if (Filter["range"].ToString() == "-1")
             {
@@ -2132,11 +2132,13 @@ public String Test(HttpContext ctx)
              
             //所有筛选出来的工具CoreID都在IDdl与IDbn中,现在要把他们中status为0的标记上CheckCode
 
-            MyManager.ExecSQL("UPDATE CoreTool SET CheckCode ='" + CheckCode + "' WHERE (ID IN(" + IDbn + ") OR ID IN(" + IDdl + ")) AND (CheckStatus = 0 OR CheckStatus is NULL)");
+            MyManager.ExecSQL("UPDATE CoreTool SET TmpCheckCode ='" + CheckCode + "' WHERE (ID IN(" + IDbn + ") OR ID IN(" + IDdl + "))");
         }
         else
         {
             fw = 0;
+            IDbn = " ";//
+            IDdl = " ";//很重要，否则无法输出
         }     
         Aspose.Cells.Workbook workbook = new Aspose.Cells.Workbook(gCtx.Server.MapPath("~") + "\\Template\\kb.xls");
         Aspose.Cells.Worksheet sheet = workbook.Worksheets[0];
@@ -2155,11 +2157,14 @@ public String Test(HttpContext ctx)
         JsonWriter jWrite = new JsonTextWriter(sw);
         int curRow = 1, curCol = 5;
         jWrite.WriteStartArray();
+
+        
         if ((fw == 1 || fw == 0) && IDbn != "")
         {
-            dt = MyManager.GetDataSet("SELECT CheckInfo,PosID,CheckStatus,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType=1 AND  ID IN("  + (CheckType!="1"?IDbn:" SELECT ID FROM CoreTool WHERE CheckCode='" +CheckCode+"'") + ") ORDER BY ToolName");//工具包
-            dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + (CheckType != "1" ? IDbn : " SELECT ID FROM CoreTool WHERE CheckCode='" + CheckCode + "'" )+ ") ORDER BY ToolID ASC");//包内工具集合
-            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + (CheckType != "1" ? IDbn : " SELECT ID FROM CoreTool WHERE CheckCode='" + CheckCode + "'" )+ ")");//属性集合
+            dt = MyManager.GetDataSet("SELECT CheckInfo,PosID,CheckStatus,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType=1 AND  ID IN(" + (CheckType == "0" ? IDbn : " SELECT CoreID AS ID FROM CheckRelation WHERE CheckCode='" + CheckCode + "'") + ") ORDER BY ToolName");//工具包
+            dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + (CheckType == "0" ? IDbn : " SELECT CoreID  FROM CheckRelation WHERE CheckCode='" + CheckCode + "'") + ") ORDER BY ToolID ASC");//包内工具集合
+            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + (CheckType == "0" ? IDbn : " SELECT CoreID   FROM CheckRelation WHERE CheckCode='" + CheckCode + "'") + ")");//属性集合
+            
             for (i = 0; i < dt.Rows.Count; i++)
             {
                 jWrite.WriteStartObject();
@@ -2307,8 +2312,9 @@ public String Test(HttpContext ctx)
 
         if ((fw == 2 || fw == 0) && IDdl != "")
         {
-            dt1 = MyManager.GetDataSet("SELECT CheckInfo,PosID,CheckStatus,A.ID,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType = 0 AND ID IN(" + (CheckType != "1" ? IDdl : " SELECT ID FROM CoreTool WHERE CheckCode='" + CheckCode + "'" )+ ") ORDER BY ToolName");//独立工具
-            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[CoreID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where ValueType = 0 AND  CoreID IN(" + (CheckType != "1" ? IDdl : " SELECT ID FROM CoreTool WHERE CheckCode='" + CheckCode + "'") + ")");//属性集合
+            dt1 = MyManager.GetDataSet("SELECT CheckInfo,PosID,CheckStatus,A.ID,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType = 0 AND ID IN(" + (CheckType == "0" ? IDdl : " SELECT CoreID AS ID  FROM CheckRelation WHERE CheckCode='" + CheckCode + "'") + ") ORDER BY ToolName");//独立工具
+            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[CoreID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where ValueType = 0 AND  CoreID IN(" + (CheckType == "0" ? IDdl : " SELECT CoreID   FROM CheckRelation WHERE CheckCode='" + CheckCode + "'") + ")");//属性集合
+           
             for (i = 0; i < dt1.Rows.Count; i++)
             {
                 jWrite.WriteStartObject();
@@ -4417,28 +4423,71 @@ public String Test(HttpContext ctx)
         DataTable dt = MyManager.GetDataSet("SELECT * FROM CheckList WHERE CheckCode = '" +CheckCode+ "' OR CheckName = '" +CheckName+"'");
         if (dt.Rows.Count > 0)//切换盘点任务
         {
-            return "{\"status\":\"success\",\"msg\":\"该任务正在盘点中...\"}";     
-                
-        }else{
-
-                DataTable dt1 =  MyManager.GetDataSet("SELECT ID FROM CoreTool WHERE CheckCode = '" + CheckCode + "' AND CheckStatus = 0");
-                
-                if (dt1.Rows.Count ==0)
+            DataTable dt1 = MyManager.GetDataSet("SELECT distinct  CoreTool.CheckCode,CheckName FROM CoreTool,CheckList WHERE CoreTool.CheckCode = CheckList.CheckCode AND  CoreTool.CheckCode <> '" + CheckCode + "' AND CheckStatus = 1 AND CoreTool.ID IN (SELECT CoreID FROM CheckRelation WHERE CheckCode = '" + CheckCode + "')");
+            if (dt1.Rows.Count == 0)//跟其他盘点任务没有交叉
+            {
+                MyManager.ExecSQL("UPDATE CoreTool SET CheckStatus = '1',CheckCode='" + CheckCode + "' WHERE ID IN (SELECT CoreID FROM CheckRelation WHERE CheckCode = '" + CheckCode + "')");
+                return "{\"status\":\"success\",\"msg\":\"进入盘点成功!\"}";    
+            }
+            else//可能是该任务正在盘点中或者跟其他任务的盘点工具有交叉;
+            {
+                String str="";
+                for (int i = 0; i < dt1.Rows.Count; i++)
                 {
-                    return "{\"status\":\"failed\",\"msg\":\"该任务正在盘点中...\"}";  
+                    str += " " + dt1.Rows[i]["CheckName"].ToString();
                 }
 
-                if (dt1.Rows.Count == 0)
+                return  "{\"status\":\"failed\",\"msg\":\"该任务跟"+str +"有交叉工具，不可重复盘点!\"}";    
+            
+            }  
+                
+        }else{//创建盘点任务
+
+            dt = MyManager.GetDataSet("SELECT ID FROM CoreTool WHERE TmpCheckCode='" + CheckCode+ "'");
+            if (dt.Rows.Count == 0)
+            {
+                return "{\"status\":\"failed\",\"msg\":\"师傅，请先进行查询后再创建盘点！\"}";  
+            }
+            
+            DataTable dt1 = MyManager.GetDataSet("SELECT distinct  CoreTool.CheckCode,CheckName FROM CoreTool,CheckList WHERE CoreTool.CheckCode = CheckList.CheckCode AND  TmpCheckCode = '" + CheckCode + "' AND CheckStatus<>0 ");
+                
+                if (dt1.Rows.Count !=0)
                 {
-                    return "{\"status\":\"failed\",\"msg\":\"该盘点任务中没有任何工具需要盘点!\"}";  
+                    String str = "";
+                    for (int i = 0; i < dt1.Rows.Count; i++)
+                    {
+                        str += " " + dt1.Rows[i]["CheckName"].ToString();
+                    }
+                    
+                    return "{\"status\":\"failed\",\"msg\":\"您箱创建的盘点跟其他任务("+str+")有重叠工具,且该任务正在盘点中，无法创建当前盘点!\"}";  
                 }
+               
                 
                 MyManager.ExecSQL("INSERT INTO CheckList (CheckCode,CheckName,UserID,Name,StartTime) VALUES ('" +CheckCode + "','"+CheckName + "','"+gCtx.Session["UserID"].ToString()+"','"+gCtx.Session["Name"].ToString()+"','"+DateTime.Now.ToString()+"')");
-                MyManager.ExecSQL("INSERT INTO CheckReleation (CoreID,CheckCode) SELECT ID,CheckCode FROM CoreTool WHERE CheckCode = '" +CheckCode+"'");
-                MyManager.ExecSQL("UPDATE CoreTool SET CheckStatus = 1 WHERE CheckCode = '" +CheckCode+"'");
+                MyManager.ExecSQL("INSERT INTO CheckRelation (IDType,CoreID,CheckCode) SELECT '0',ID,'"+CheckCode+"' FROM CoreTool WHERE TmpCheckCode = '" +CheckCode+"'");
+                MyManager.ExecSQL("INSERT INTO CheckRelation (IDType,CoreID,CheckCode) SELECT '1',ID,'" + CheckCode + "' FROM CoreToolValue WHERE CoreID IN(SELECT ID FROM CoreTool WHERE ModelType = '1' AND TmpCheckCode = '" + CheckCode + "'" +") AND ValueType = '3' )");
+ 
+            MyManager.ExecSQL("UPDATE CoreTool SET CheckStatus = 1,CheckCode='" + CheckCode + "' WHERE TmpCheckCode = '" + CheckCode + "'");
                 return "{\"status\":\"success\",\"msg\":\"创建盘点成功!!\"}";  
         }
         //
+    }
+
+    public String StopCheck(JObject JO) 
+    {
+        String CheckCode = JO["checkcode"].ToString().Trim();
+        MyManager.ExecSQL("UPDATE CoreTool SET CheckStatus = '0' WHERE CheckCode='" + CheckCode + "'");
+      
+         return "{\"status\":\"success\",\"msg\":\"该盘点结束成功!\"}";  
+          
+    }
+
+    public String ExitCheck(JObject JO)
+    {
+        String CheckCode = JO["checkcode"].ToString().Trim();
+        MyManager.ExecSQL("UPDATE CoreTool SET CheckStatus = '0' WHERE CheckCode='" + CheckCode + "'");
+
+        return "{\"status\":\"success\",\"msg\":\"该盘点结束成功!\"}";  
     }
    public void ProcessRequest (HttpContext context) 
    {
@@ -4764,6 +4813,17 @@ public String Test(HttpContext ctx)
            {
                retJSON = StartCheck(JO);
            }
+
+           if (Cmd == "StopCheck")
+           {
+               retJSON = StopCheck(JO);
+           }
+           
+           if (Cmd == "ExitCheck")
+           {
+               retJSON = ExitCheck(JO);
+           }
+           
            
            
            context.Response.Write(retJSON);

@@ -89,7 +89,7 @@
     <div style="margin:30px 0px 10px 150px;padding:0"><img style="height:50px;" src="Img/logo.png"/></div></div>
 
 
-<div region="west"  title="综合任务管理系统" split="true" style="width:160px;" >
+<div region="west"  title="工具管理系统v1.0" split="true" style="width:160px;" >
 <div id="accordion" class="easyui-accordion" data-options="fit:true"> 
      <div title="任务管理" data-options="selected:true" style="overflow:auto;">   
         <div style="width:100%;">
