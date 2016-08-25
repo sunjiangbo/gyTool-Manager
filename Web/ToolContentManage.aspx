@@ -33,6 +33,7 @@
     var BtnName = '保存'; //按钮名称，根据任务类型调整
     var CurClassID = 0; //当前被选中类的ID
     var OldSNs = [];
+    var NoMove = '<%= NoMove %>';
     Date.prototype.pattern = function (fmt) {
         var o = {
             "M+": this.getMonth() + 1, //月份         
@@ -271,7 +272,10 @@
                json.type = Type;
                json.toolname = sToolName;
                json.classid = classid;
-               
+               if(NoMove=="true")
+               {
+                $("#BagID").attr("disabled","true");
+               }
                for (i = 0; i < cks.length; i++) {
                    tv = new Object();
                    PropertyID = $(cks[i]).data('PropertyID');

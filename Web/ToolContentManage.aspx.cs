@@ -25,6 +25,7 @@ public partial class ClassManage : System.Web.UI.Page
     public String ClassID = "";
     public String ToolName = "";
     public String rkID = "";
+    public String NoMove = "";//禁止改包
      protected void Page_Load(object sender, EventArgs e)
      {
          if (Session["UserID"] == null)
@@ -44,6 +45,7 @@ public partial class ClassManage : System.Web.UI.Page
          if (Request["ToolID"] != null) { ToolID = Request["ToolID"].ToString(); }
          if (Request["ClassID"] != null) { ClassID = Request["ClassID"].ToString(); }
          if (Request["ToolName"] != null) { ToolName = Request["ToolName"].ToString(); }
+         if (Request["NoMove"] != null) { NoMove = "true"; }
                  try
                  {
                     

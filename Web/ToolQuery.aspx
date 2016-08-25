@@ -688,6 +688,33 @@
             
        }
        
+       function CreateBagContentExcel()
+       {
+             var row = $('#t1').datagrid('getSelected');
+                  
+            if(row == null || row.tooltype != '5')
+            {
+                $.messager.alert('错误', '请选择工具包!');
+                return;
+            }
+            
+
+
+                    var BagID=row.id;
+
+                    oo = {};
+                    oo.cmd = "CreateBagContentExcel";
+                    oo.coreid = BagID;
+                    MyAjax(oo,function(data){
+                        $.messager.alert('提示',data.msg);
+                        $("#BagContent").attr("href",data.url);
+                    });
+	        
+        
+
+           
+       }
+       
        function AddToolBag()//加包按钮
        {
               var row = $('#t1').datagrid('getSelected');
@@ -761,7 +788,10 @@
         <a href="#"   class="easyui-linkbutton" style=" margin-right:5px;" onclick = "ModifyTool();">工具修改</a>
         <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "DePackBag();">拆包</a>
         <a href="#"  class="easyui-linkbutton"  style=" margin-right:5px;" onclick = "AddToolBag();">手工加包</a>
+        <a href="#"  class="easyui-linkbutton"  style=" margin-right:5px;" onclick = "CreateBagContentExcel();">生成包内清单</a>
         <a href="#"  id="ExcelReport">结果导出(Excel)</a>
+        &nbsp
+        <a href="#"  id="BagContent">包内清单</a>
     </div>
       <div id="Win1" class="easyui-window"  style = "padding:0px;width:550px;height:600px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'工具管理'" >
                <iframe id ="fr1"  width="97%" height="97%" frameborder="0"></iframe>

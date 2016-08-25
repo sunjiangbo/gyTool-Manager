@@ -112,7 +112,9 @@
     <script type="text/javascript">
     var IsManager = '<%= IsManager %>';
     var CheckIng = false,TmpCkCode="";
-      var curCheckCode = '<%= curCheckCode %>'
+      var curCheckCode = '<%= curCheckCode %>';
+      var date = new Date();
+      var ckinit =false;
     $(function(){
       // if(IsManager =="0")
         //$(".MClass").remove();
@@ -140,7 +142,7 @@
 	});
         var Filter = { range: -1, name: "所有", ret: "all", specific: [] };
         var IsInitial = true; /*表明修改搜索条件*/
-        var initColumnBefore = [{ field: 'ck', checkbox: true },
+        var initColumnBefore = [{ field: 'ck',checkbox:true },
                          { field: 'rkid', title: '入库编号', width: 20, sortable: true },
                         { field: 'toolid', title: '识别号', width: 20, sortable: true },
                         { field: 'name', title: '名称', width: 40, sortable: true, tooltip: true, formatter:
@@ -317,9 +319,46 @@
                 }
             }, null);
         }
-        
+      function GetCheckCount(ckCode)
+      {
+      if(ckCode =="")return;
+            var json = {};
+           json.cmd = "GetCheckCount";
+           json.ckcode= ckCode;
+            MyAjax(json, function (data) {
+                if (data.status == "success") {
+                      $("#ckCount").text(data.count);
+                      
+                   }
+                   else {
+                    $.messager.alert('错误', '获取当前盘点中工具失败!');
+                }
+            }, null); 
+      }
+      
+      function GetAllState ()
+       {
+            var json = {};
+            json.cmd = "GetAllState";
+            MyAjax(json, function (data) {
+                if (data.status == "success") {
+                        $("#ToolState").combobox({ editable: false, data: data.data, valueField: "id", textField: "name"});
+                    }
+                   else {
+                    $.messager.alert('错误', '盘点列表加载失败！');
+                }
+            }, null);
+       } 
+      
+      function ChangeckCode()
+      {
+             TmpCkCode = "CK-" + date.pattern("yyyyMMddhhmmss");
+      }
+      
         $(function () {
-
+            
+           ChangeckCode();
+            $("#ckCount").bind("click", function () { doSearchForCheck('2'); });    
             var json = {};
             json.cmd = "GetToolBagList";
 
@@ -333,7 +372,7 @@
                     $.messager.alert('错误', '工具包列表加载失败！');
                 }
             }, null);
-            
+           GetAllState();
             GetCheckList();
             $("#CheckList").combobox('setValue', curCheckCode);
             $("#StopCheck").linkbutton({disabled:true});             
@@ -387,7 +426,7 @@
                 });
 
             }
-           var editID = ""; 
+           var editID = "",curToolType = "",curID="";
          function GridSet(newColumns)
             {
                $("#t1").treegrid({
@@ -406,26 +445,77 @@
                
                      singleSelect:false,
                     checkOnSelect:true,
+                    selectOnCheck:false,
                     //selectOnCheck:true,
                     loadMsg:"正在加载",
                     onCheck:function (row,index){
-                    alert(row.tooltype);
-                      if(CheckIng ==true){  
-                           $('#t1').treegrid('endEdit', editID); 
-                           editID = row.id;
-                           $('#t1').treegrid('beginEdit', editID);
-                         //  alert(editID);
-                       }
+                   
+                 
+                            if(CheckIng ==true){  
+                               
+                               var json={};
+                               json.cmd = "SetToolChecked";
+                               json.ckcode = curCheckCode;
+                               json.id = row.id;
+                               json.checked = "1";
+                               MyAjax(json, function (data) {
+                                    if (data.status == "success") {
+                                        
+                                    } else {
+                                        $.messager.alert('错误', '已盘点标志设置失败!');
+                                    }
+                               }, null); 
+                               
+                               $('#t1').treegrid('endEdit', editID); 
+                               editID = row.id;
+                               $('#t1').treegrid('beginEdit', editID);
+                           }
+                           
+                            curToolType = row.type;//tool bag bntool
+                            
+                            if(curToolType =="bntool")
+                            {
+                                curID = row.id.substr(1);
+                            }else{
+                                curID = row.id;
+                            }
+                        
+                           
                     },
                     onEndEdit:function(index,row,changes)
                     {
-                       if(CheckIng ==true && curCheckCode != ""){  
-                             var drow = $("#t1").datagrid('selectRecord',editID);
-                            // alert(JSON.stringify(drow));                           
+                    
+                       if(CheckIng ==true && (row.posid!=undefined || row.checkinfo !=undefined)){  
+                            json.cmd = "SetCheckMsg";
+                            json.id = curID;
+                            json.posid = row.posid==undefined?"undefined":row.posid;
+                            json.ckinfo = row.checkinfo==undefined?"undefined":row.checkinfo;
+                            json.tooltype=curToolType;//tool bntool bag
+                            MyAjax(json, function (data) {
+                                if (data.status == "success") {
+                                    
+                                } else {
+                                    $.messager.alert('错误', '信息设置失败!请重试');
+                                }
+                            }, null);                    
                        }
                     },
                     onUncheck:function(row,index){
-                            //alert(row.rkid);
+                              if(CheckIng ==true){  
+                               
+                               var json={};
+                                   json.cmd = "SetToolChecked";
+                                   json.ckcode = curCheckCode;
+                                   json.id = row.id;
+                                   json.checked = "0";
+                                   MyAjax(json, function (data) {
+                                        if (data.status == "success") {
+                                            
+                                        } else {
+                                            $.messager.alert('错误', '已盘点标志设置失败!');
+                                        }
+                                   }, null); 
+                               }
                     },
                     onClickCell:function(index,field,value)
                     {
@@ -707,23 +797,30 @@
                    }        
                    $("#t1").treegrid({columns: [initColumnBefore.concat(oo).concat(initColumnAfter)]});       
         }
-        
-        function doSearchForCheck(type) {
+        var doSearchForCheck_ckCode="";
+        function doSearchForCheck(Type) {
+            
             var json = {};
             json.cmd = "ToolSearchForCheck";
             json.Filter = Filter;
             json.name = $("#sName").val();
             json.rkid = $("#srkID").val();
             json.toolid = $("#sToolID").val();
-            var date = new Date();
-            if (type !="1"){//按条件生成查询结果，并更新查询码
-               TmpCkCode = "CK-" + date.pattern("yyyyMMddhhmmss");
+            var tPosID = $("#txtPosID").val();
+            var ToolState = $("#ToolState").combobox("getValue");
+            json.posid = tPosID==undefined || tPosID==""?"":tPosID;
+            json.toolstate = ToolState==undefined || ToolState==""?"":ToolState;
+           // alert(tPosID  + ToolState);
+            if (Type =="0"){//按条件生成查询结果，并更新查询码
                json.curcheckcode= TmpCkCode; 
-            }else{
+            }else if(Type=="1"){
                json.curcheckcode= curCheckCode;  
+            }else if(Type=="2")
+            {
+               json.curcheckcode= TmpCkCode;   
             }
-            
-            json.querytype = type;//0:按条件查询并标记，1:直接按标记checkcode查询
+            doSearchForCheck_ckCode = json.curcheckcode;
+            json.querytype = Type;//0:按条件查询并标记，1:直接按标记checkcode查询
             MyAjax(json, function(data) {
             $.messager.progress('close');
              if (data.status == "success") {
@@ -736,7 +833,11 @@
                     $("#ExcelReport").attr("href",data.url);
                     //alert(data.url);
                     //$("#t1").treegrid("loaded");
-
+                    
+                 
+                       GetCheckCount(doSearchForCheck_ckCode);
+                  
+                   
                 } else {
                     $.messager.alert('错误', data.msg);
                 }
@@ -781,7 +882,7 @@
                 BagID = row.bagid;
             }
             
-             $("#fr1").attr("src","ToolContentManage.aspx?rkID="+rkID+"&Type="+fakeType+"&ToolID="+ToolID+"&ClassID="+ClassID+"&ToolName="+ToolName + "&BagID="+BagID+"&BagName="+BagName);
+             $("#fr1").attr("src","ToolContentManage.aspx?NoMove=true&rkID="+rkID+"&Type="+fakeType+"&ToolID="+ToolID+"&ClassID="+ClassID+"&ToolName="+ToolName + "&BagID="+BagID+"&BagName="+BagName);
              $("#Win1").window({ title: "工具修改", modal: true, closed: false, onClose:function(){doSearch(); }});
           
        }
@@ -878,7 +979,10 @@
 		     MyAjax(oo,function(data){
 		        if(data.status == "success")
 		        {
-		            CheckIng =true;
+		        CheckIng =true;
+		           // $("#t1").treegrid({});
+		            //GridSet([]);
+		            
 		            $("#A2").linkbutton({disabled:true});
 		            $("#ExitCheck").linkbutton({disabled:false});
 		            $("#Check").linkbutton({disabled:true});		         
@@ -916,15 +1020,12 @@
                     $("#Check").linkbutton({disabled:false});		         
 		            $("#CheckList").combobox({disabled:false});
 		            $("#StopCheck").linkbutton({disabled:true});
-		            $("#t1").treegrid({data:[]});
+		            $("#t1").treegrid("loadData",[]);
 		            CheckIng =false;
-                    $("#t1").treegrid({
-                    onCheck:function (row,index){
-                     
-                    }});
-		        }else{
-		            $.messager.alert('提示',data.msg);
-		        }
+		            ChangeckCode();
+		            GetCheckCount(TmpCkCode);
+		       }
+                  
 		     });
 		    
        }
@@ -951,11 +1052,8 @@
 		           
 		            $("#CheckList").combobox({disabled:false});
 		            $("#CheckList").combobox('setValue', curCheckCode);
-		            $("#t1").treegrid({
-		               
-                        onCheck:function (row,index){
-                         
-                        }});
+		           	ChangeckCode();
+		            GetCheckCount(TmpCkCode);
 
 		        }else{
 		            $.messager.alert('提示',data.msg);
@@ -963,6 +1061,11 @@
 		     });
        }   
           
+      function ClearTmpCheck()
+      {
+        TmpCkCode = "CK-" + date.pattern("yyyyMMddhhmmss");
+        
+      }
             
             
             
@@ -974,7 +1077,7 @@
    <div id= "MContent" title = "工具盘点" region="center"">
     <div title="库存查询" >
        <div style="min-height:5px;height:auto;" class="btnbartitle" >
-           <div style="padding:5px;">范围:&nbsp;&nbsp;<select id ="ToolBagList" class="easyui-combobox" style = "width:150px; " ></select>&nbsp;&nbsp;名称: <input id="sName" style=" width:115px;"/>&nbsp;&nbsp;入库编号: <input id="srkID" style=" width:45px;"/>&nbsp;识别号: <input id="sToolID" style=" width:50px;"/>&nbsp;&nbsp;<a id="A2" class="easyui-linkbutton" onclick = "doSearchForCheck('0');">搜索</a></div>
+           <div style="padding:5px;">范围:&nbsp;&nbsp;<select id ="ToolBagList" class="easyui-combobox" style = "width:150px; " ></select>&nbsp;&nbsp;名称: <input id="sName" style=" width:115px;"/>&nbsp;&nbsp;入库编号: <input id="srkID" style=" width:45px;"/>&nbsp;识别号: <input id="sToolID" style=" width:50px;"/>&nbsp;&nbsp;位置编码: <input id="txtPosID" style=" width:70px;"/>状态:<select id ="ToolState" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<a id="A2" class="easyui-linkbutton" onclick = "doSearchForCheck('0');">搜索</a></div>
            <div style="padding:0px 5px 5px 5px;">条件:&nbsp;&nbsp;<select id ="ToolList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="PropertyList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="ValueList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp; <a id="opBtn" class="easyui-linkbutton" onclick = "FilterModify();">增加</a>&nbsp;&nbsp;<a id="A1" class="easyui-linkbutton" onclick = "">清空</a>&nbsp;&nbsp;</div>
            <div style="padding:0px 5px 5px 5px;">筛选:
                <input name = "rg"  id="Radio1" type="radio" checked= "checked">显示所有</input>
@@ -1016,12 +1119,15 @@
 <a id="Check" class="easyui-linkbutton" onclick = "doCheck();">开始盘点</a>
 <a id="ExitCheck" class="easyui-linkbutton" onclick = "ExitCheck();"  >退出盘点</a>
 <a id="StopCheck" class="easyui-linkbutton" onclick = "StopCheck();"  >停止盘点</a>
-        <span style="margin-left:360px;">操作:</span>
-       
+&nbsp;&nbsp;&nbsp;
+        <span style="margin-left:100px;">当前数量:</span>
+        <a id = "ckCount" style = "cursor:pointer;text-decoration:underline; color:Blue;font-weight:bold; margin-right:20px;margin-left:5px;">(0)</a>
+        <a href="#"  class="easyui-linkbutton" iconCls="icon-add" onclick = "ClearTmpCheck();">清空盘点</a>
+        
+        <span style="margin-left:100px;">操作:</span>
+        
         <a href="#"   class="easyui-linkbutton" style=" margin-right:5px;" onclick = "ModifyTool();">工具修改</a>
-        <a href="#"  class="easyui-linkbutton" style=" margin-right:5px;" onclick = "DePackBag();">拆包</a>
-        <a href="#"  class="easyui-linkbutton"  style=" margin-right:5px;" onclick = "AddToolBag();">手工加包</a>
-        <a href="#"  id="ExcelReport">结果导出(Excel)</a>
+             <a href="#"  id="ExcelReport">结果导出(Excel)</a>
     </div>
       <div id="Win1" class="easyui-window"  style = "padding:0px;width:550px;height:600px;" data-options="maximizable:false,minimizable:false,collapsible:false,closed:true,modal:true,title:'工具管理'" >
                <iframe id ="fr1"  width="97%" height="97%" frameborder="0"></iframe>

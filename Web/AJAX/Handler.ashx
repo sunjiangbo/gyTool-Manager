@@ -30,6 +30,7 @@ const int TOOL_BAG_TYPE          = 1;
 const int TOOL_BAG_PROPERTY      = 2;
 const int TOOL_IN_BAG            = 3;
 const int TOOL_IN_BAG_PROPERTY   = 4;
+public String g_DbgStr = "";
 public String GetGeneralJSONRetBySQL(String SQLTxt)
 {
     String ColName;
@@ -2016,7 +2017,9 @@ public String Test(HttpContext ctx)
         String ToolName = JO["name"].ToString().Trim();
         String CheckCode = JO["curcheckcode"].ToString().Trim();
         String CheckType = JO["querytype"].ToString().Trim();//0:普通查询 1:按查询标记查询
-
+        String DbgStr = "";
+        String PosID = JO["posid"].ToString();
+        String ToolState = JO["toolstate"].ToString();
         if (CheckType == "0")
         {
             if (Filter["range"].ToString() == "-1")
@@ -2041,13 +2044,30 @@ public String Test(HttpContext ctx)
             {
                 fw = 1;
             }
-            String NameLike1 = " OR ToolName like'%" + ToolName + "%' ", NameLike2 = " OR (ValueType in(1,3) AND Value like'%" + ToolName + "%') ";
-            if (ToolName == "" && (rkID != "" || ToolID != ""))
+            String pSQL = "",StateSQL="";
+            if (PosID != "")
             {
+                pSQL = " AND  PosID like '%" + PosID + "%' ";
+            }
+
+            if (ToolState != "")
+            {
+                StateSQL = " AND State='" + ToolState+"' ";  
+            } 
+            
+            
+            String NameLike1 = " OR ToolName like'%" + ToolName + "%' ", NameLike2 = " OR (ValueType in(1,3) AND Value like'%" + ToolName + "%') ";
+
+        if (ToolName == "" && (rkID != "" || ToolID != ""))
+           // if (ToolName == "" && rkID == "" && ToolID =="")
+            {
+                g_DbgStr += "到这了! ";
                 NameLike1 = NameLike2 = "";
             }
-            String t_SQL = "SELECT distinct ID AS CoreID FROM CoreTool WHERE rkID ='" + rkID + "' OR ToolID ='" + ToolID + "' " + NameLike1 + "UNION SELECT distinct CoreID FROM CoreToolValue WHERE rkID='" + rkID + "' " + NameLike2 + " OR ToolID ='" + ToolID + "'";
-            dt = MyManager.GetDataSet("SELECT distinct ID AS CoreID FROM CoreTool WHERE rkID ='" + rkID + "' OR ToolID ='" + ToolID + "' " + NameLike1 + "UNION SELECT distinct CoreID FROM CoreToolValue WHERE rkID='" + rkID + "' " + NameLike2 + " OR ToolID ='" + ToolID + "'");
+            String t_SQL = "SELECT distinct ID AS CoreID FROM CoreTool WHERE  rkID ='" + rkID + "' OR ToolID ='" + ToolID + "' " + NameLike1 +pSQL + StateSQL + " UNION SELECT distinct CoreID FROM CoreToolValue WHERE rkID='" + rkID + "' " + NameLike2 + " OR ToolID ='" + ToolID + "'";
+            g_DbgStr = "SELECT distinct ID AS CoreID FROM CoreTool WHERE 1=1 AND ( rkID ='" + rkID + "' OR ToolID ='" + ToolID + "' " + NameLike1 + ") " + pSQL + StateSQL + " UNION SELECT distinct CoreID FROM CoreToolValue WHERE rkID='" + rkID + "' " + NameLike2 + " OR ToolID ='" + ToolID + "'";
+
+            dt = MyManager.GetDataSet("SELECT distinct ID AS CoreID FROM CoreTool WHERE 1=1 AND ( rkID ='" + rkID + "' OR ToolID ='" + ToolID + "' " + NameLike1 + ") " + pSQL + StateSQL + (StateSQL=="" || pSQL!=""? "": " UNION SELECT distinct CoreID FROM CoreToolValue WHERE 1=1 AND (rkID='" + rkID + "' " + NameLike2 + " OR ToolID ='" + ToolID + "')" + StateSQL));
             for (k = 0, IDdl = "", IDbn = ""/*每次需将IDbn清空，获取最新集合，然后继续筛选*/; k < dt.Rows.Count; k++)
             {
                 IDbn += (IDbn == "" ? dt.Rows[k]["CoreID"].ToString() : "," + dt.Rows[k]["CoreID"].ToString());
@@ -2159,11 +2179,15 @@ public String Test(HttpContext ctx)
         jWrite.WriteStartArray();
 
         
+        
         if ((fw == 1 || fw == 0) && IDbn != "")
         {
-            dt = MyManager.GetDataSet("SELECT CheckInfo,PosID,CheckStatus,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType=1 AND  ID IN(" + (CheckType == "0" ? IDbn : " SELECT CoreID AS ID FROM CheckRelation WHERE CheckCode='" + CheckCode + "'") + ") ORDER BY ToolName");//工具包
-            dt1 = MyManager.GetDataSet("SELECT rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID WHERE (ValueType = 3 OR ValueType = 1) AND  CoreID IN(" + (CheckType == "0" ? IDbn : " SELECT CoreID  FROM CheckRelation WHERE CheckCode='" + CheckCode + "'") + ") ORDER BY ToolID ASC");//包内工具集合
-            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + (CheckType == "0" ? IDbn : " SELECT CoreID   FROM CheckRelation WHERE CheckCode='" + CheckCode + "'") + ")");//属性集合
+            dt = MyManager.GetDataSet("SELECT  " + (CheckType == "0" || CheckType == "2" ? "" : "D.CheckInfo,D.isChecked,") + "PosID,CheckStatus,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool  AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID " + (CheckType == "0" || CheckType == "2" ? "" : " Left Join CheckRelation AS D on A.ID = D.CoreID AND D.CheckCode = '" + CheckCode + "' AND D.IDType='0'") + " WHERE ModelType=1 AND  A.ID IN(" + (CheckType == "0" ? IDbn : CheckType == "2" ? "SELECT ID FROM CoreTool WHERE TmpCheckCode='" + CheckCode + "'" : " SELECT CoreID AS ID FROM CheckRelation WHERE IDType='0' AND CheckCode='" + CheckCode + "'") + ")  ORDER BY ToolName");//工具包
+            dt1 = MyManager.GetDataSet("SELECT " + (CheckType == "0" || CheckType == "2" ? "" : "D.CheckInfo,D.isChecked,") + "rkID,StateName,('V' + convert(varchar(10) ,A.ID)) as ID,A.ID as rID,A.[CoreID],[PropertyID],[Value] as name ,[ValueType],[ParentID],ToolID  FROM [CoreToolValue] AS A left join ToolState AS B on A.State = B.StateID " + (CheckType == "0" ? "" : " Left Join CheckRelation AS D on A.ID = D.CoreID AND D.CheckCode = '" + CheckCode + "' AND D.IDType='1'") + " WHERE (ValueType = 3 OR ValueType = 1) AND  A.CoreID IN(" + (CheckType == "0" ? IDbn : CheckType == "2" ? "SELECT ID FROM CoreTool WHERE TmpCheckCode='" + CheckCode + "'" : " SELECT CoreID  FROM CheckRelation WHERE IDType='0' AND CheckCode='" + CheckCode + "'") + ") ORDER BY ToolID ASC");//包内工具集合
+            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[ParentID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where (ValueType = 4 or ValueType = 2) AND  CoreID IN(" + (CheckType == "0" ? IDbn : CheckType == "2" ? "SELECT ID FROM CoreTool WHERE TmpCheckCode='" + CheckCode + "'" : " SELECT CoreID   FROM CheckRelation WHERE CheckCode='" + CheckCode + "'") + ")");//属性集合
+
+           // DbgStr += "SELECT  " + (CheckType == "0" ? "" : "D.CheckInfo,") + "PosID,CheckStatus,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool  AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID " + (CheckType == "0" ? "" : " Left Join CheckRelation AS D on A.ID = D.CoreID AND D.CheckCode = '" + CheckCode + "' AND D.IDType='0'") + " WHERE ModelType=1 AND  A.ID IN(" + (CheckType == "0" ? IDbn : CheckType == "2" ? "SELECT ID FROM CoreTool WHERE TmpCheckCode='" + CheckCode + "'" : " SELECT CoreID AS ID FROM CheckRelation WHERE IDType='0' AND CheckCode='" + CheckCode + "'") + ")  ORDER BY ToolName";//工具包
+      
             
             for (i = 0; i < dt.Rows.Count; i++)
             {
@@ -2196,6 +2220,14 @@ public String Test(HttpContext ctx)
                 jWrite.WriteValue(dt.Rows[i]["ModifyTime"].ToString());
                 jWrite.WritePropertyName("posid");
                 jWrite.WriteValue(dt.Rows[i]["PosID"].ToString());
+                
+                if (CheckType == "1")
+                {
+                    jWrite.WritePropertyName("checked");
+                    jWrite.WriteValue(dt.Rows[i]["isChecked"].ToString()=="1"?"true":"");
+                    jWrite.WritePropertyName("checkinfo");
+                    jWrite.WriteValue(dt.Rows[i]["CheckInfo"].ToString());
+                }
                 jWrite.WritePropertyName("iconCls");
                 jWrite.WriteValue("icon-toolbag");
                 jWrite.WritePropertyName("state");
@@ -2271,6 +2303,15 @@ public String Test(HttpContext ctx)
                     jWrite.WriteValue(dt.Rows[i]["ToolName"].ToString());
                     jWrite.WritePropertyName("classid");
                     jWrite.WriteValue(dr[j]["propertyid"].ToString());
+                    
+                    if (CheckType == "1")
+                    {
+                        jWrite.WritePropertyName("checked");
+                        jWrite.WriteValue(dr[j]["isChecked"].ToString() == "1" ? "true" : "");   
+                        jWrite.WritePropertyName("checkinfo");
+                        jWrite.WriteValue(dr[j]["CheckInfo"].ToString());
+                    }
+                    
                     jWrite.WritePropertyName("opt");
                     jWrite.WriteValue("修改");
                     jWrite.WritePropertyName("sx");
@@ -2312,9 +2353,9 @@ public String Test(HttpContext ctx)
 
         if ((fw == 2 || fw == 0) && IDdl != "")
         {
-            dt1 = MyManager.GetDataSet("SELECT CheckInfo,PosID,CheckStatus,A.ID,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID WHERE ModelType = 0 AND ID IN(" + (CheckType == "0" ? IDdl : " SELECT CoreID AS ID  FROM CheckRelation WHERE CheckCode='" + CheckCode + "'") + ") ORDER BY ToolName");//独立工具
-            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[CoreID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where ValueType = 0 AND  CoreID IN(" + (CheckType == "0" ? IDdl : " SELECT CoreID   FROM CheckRelation WHERE CheckCode='" + CheckCode + "'") + ")");//属性集合
-           
+            dt1 = MyManager.GetDataSet("SELECT " + (CheckType == "0" || CheckType == "2" ? "" : "D.CheckInfo,D.isChecked,") + "PosID,CheckStatus,A.ID,rkID,A.*,B.StateName,C.StateName as RStateName FROM CoreTool AS A left join ToolState AS B on A.State = B.StateID left join ToolState AS C on A.RealState = C.StateID " + (CheckType == "0" || CheckType == "2" ? "" : " Left Join CheckRelation AS D on A.ID = D.CoreID AND D.CheckCode = '" + CheckCode + "' AND D.IDType='0'") + "WHERE ModelType = 0 AND A.ID IN(" + (CheckType == "0" ? IDdl : CheckType == "2" ? "SELECT ID FROM CoreTool WHERE TmpCheckCode='" + CheckCode + "'" : " SELECT CoreID AS ID  FROM CheckRelation WHERE IDType='0' AND CheckCode='" + CheckCode + "'") + ") ORDER BY ToolName");//独立工具
+            dt2 = MyManager.GetDataSet("SELECT rkID,B.Name,[Value],A.[CoreID] FROM [CoreToolValue] as A join ClassPropertys as B on A.propertyID = B.ID  where ValueType = 0 AND  CoreID IN(" + (CheckType == "0" ? IDdl : CheckType == "2" ? "SELECT ID FROM CoreTool WHERE TmpCheckCode='" + CheckCode + "'" : " SELECT CoreID   FROM CheckRelation WHERE  IDType='0' AND  CheckCode='" + CheckCode + "'") + ")");//属性集合
+            DbgStr += " "+dt1.Rows.Count;
             for (i = 0; i < dt1.Rows.Count; i++)
             {
                 jWrite.WriteStartObject();
@@ -2344,9 +2385,18 @@ public String Test(HttpContext ctx)
                 jWrite.WriteValue(dt1.Rows[i]["PosID"].ToString());
                 jWrite.WritePropertyName("classid");
                 jWrite.WriteValue(dt1.Rows[i]["ModelID"].ToString());
-
-                jWrite.WritePropertyName("checkinfo");
-                jWrite.WriteValue(dt1.Rows[i]["CheckInfo"].ToString());
+               
+                if (CheckType == "1")
+                {
+                    jWrite.WritePropertyName("checked");
+                    jWrite.WriteValue(dt1.Rows[i]["isChecked"].ToString() == "1" ? "true" : "");
+                    ///
+                    //jWrite.WriteValue(true);
+                    //jWrite.WriteValue("true");
+                    jWrite.WritePropertyName("checkinfo");
+                   jWrite.WriteValue(dt1.Rows[i]["CheckInfo"].ToString());
+                    
+                }
 
                 jWrite.WritePropertyName("checkstatus");
 
@@ -2417,7 +2467,7 @@ public String Test(HttpContext ctx)
         String ExcelURL = "http://" + gCtx.Request.Url.Host + ":" + gCtx.Request.Url.Port + gCtx.Request.ApplicationPath + "/Report/" + ExcelName;
 
 
-        return "{\"status\":\"success\",\"url\":\"" + ExcelURL + "\",\"data\":" + sw.ToString() + ",\"newcolumns" + "\":" + newColumns + "}";
+        return "{\"status\":\"success\",\"url\":\"" + ExcelURL + "\",\"data\":" + sw.ToString() + ",\"newcolumns" + "\":" + newColumns + ",\"g_DgbStr\":\""+g_DbgStr+"\"}";
         //return "{\"status\":\"success\",\"data\":" + sw.ToString() + "}"; 
     }
     
@@ -4464,8 +4514,8 @@ public String Test(HttpContext ctx)
                
                 
                 MyManager.ExecSQL("INSERT INTO CheckList (CheckCode,CheckName,UserID,Name,StartTime) VALUES ('" +CheckCode + "','"+CheckName + "','"+gCtx.Session["UserID"].ToString()+"','"+gCtx.Session["Name"].ToString()+"','"+DateTime.Now.ToString()+"')");
-                MyManager.ExecSQL("INSERT INTO CheckRelation (IDType,CoreID,CheckCode) SELECT '0',ID,'"+CheckCode+"' FROM CoreTool WHERE TmpCheckCode = '" +CheckCode+"'");
-                MyManager.ExecSQL("INSERT INTO CheckRelation (IDType,CoreID,CheckCode) SELECT '1',ID,'" + CheckCode + "' FROM CoreToolValue WHERE CoreID IN(SELECT ID FROM CoreTool WHERE ModelType = '1' AND TmpCheckCode = '" + CheckCode + "'" +") AND ValueType = '3' )");
+                MyManager.ExecSQL("INSERT INTO CheckRelation (IDType,CoreID,CheckCode,isChecked) SELECT '0',ID,'"+CheckCode+"',0 FROM CoreTool WHERE TmpCheckCode = '" +CheckCode+"'");
+                MyManager.ExecSQL("INSERT INTO CheckRelation (IDType,CoreID,CheckCode,isChecked) SELECT '1',ID,'" + CheckCode + "',0 FROM CoreToolValue WHERE CoreID IN(SELECT ID FROM CoreTool WHERE ModelType = '1' AND TmpCheckCode = '" + CheckCode + "'" +") AND ValueType in('1','3') ");
  
             MyManager.ExecSQL("UPDATE CoreTool SET CheckStatus = 1,CheckCode='" + CheckCode + "' WHERE TmpCheckCode = '" + CheckCode + "'");
                 return "{\"status\":\"success\",\"msg\":\"创建盘点成功!!\"}";  
@@ -4476,6 +4526,15 @@ public String Test(HttpContext ctx)
     public String StopCheck(JObject JO) 
     {
         String CheckCode = JO["checkcode"].ToString().Trim();
+       //先检查是不是所有工具都被盘点了，即所有isChecked为1 
+        DataTable dt = MyManager.GetDataSet("SELECT ID FROM CheckRelation WHERE isChecked =0 AND CheckCode='" + CheckCode + "'");
+        if (dt.Rows.Count>0)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"不可结束盘点，存在尚未被盘点的工具!\"}";  
+        }
+        
+        
+        MyManager.ExecSQL("UPDATE CheckList SET EndTime = '"+DateTime.Now.ToString()+"' WHERE CheckCode='" + CheckCode + "'");    
         MyManager.ExecSQL("UPDATE CoreTool SET CheckStatus = '0' WHERE CheckCode='" + CheckCode + "'");
       
          return "{\"status\":\"success\",\"msg\":\"该盘点结束成功!\"}";  
@@ -4488,6 +4547,154 @@ public String Test(HttpContext ctx)
         MyManager.ExecSQL("UPDATE CoreTool SET CheckStatus = '0' WHERE CheckCode='" + CheckCode + "'");
 
         return "{\"status\":\"success\",\"msg\":\"该盘点结束成功!\"}";  
+    }
+
+    public String SetCheckMsg(JObject JO)
+    {
+        String CheckInfo = JO["ckinfo"].ToString();
+        String PosID = JO["posid"].ToString();
+        String ID = JO["id"].ToString();
+        String ToolType = JO["tooltype"].ToString();
+        String DeBugStr = "";
+        
+        if(PosID != "undefined"){
+            if (ToolType != "bntool" )//包内工具没有独立的PosID
+            {
+                DeBugStr += "1";
+                MyManager.ExecSQL("UPDATE CoreTool Set PosID = '" + PosID + "' WHERE  ID =" + ID);
+            }
+         }
+
+        if (CheckInfo != "undefined")
+        {
+            DeBugStr += "2";
+            DeBugStr += "-->" + ID;
+            if (ToolType == "bag" || ToolType == "tool")
+            {
+                MyManager.ExecSQL("UPDATE CheckRelation SET CheckInfo = '" + CheckInfo + "' WHERE IDType = '0' AND CoreID='" + ID + "'");
+            }
+            else if(ToolType == "bntool")
+            {
+                MyManager.ExecSQL("UPDATE CheckRelation SET CheckInfo = '" + CheckInfo + "' WHERE IDType='1' AND CoreID='" + ID + "'");
+            }
+        }
+        return "{\"status\":\"success\",\"msg\":\"修改成功!\",\"debugstr\":\""+DeBugStr+"\"}";  
+    }
+    public String GetAllState()
+    {
+        StringWriter sw = new StringWriter();
+        JsonWriter jWrite = new JsonTextWriter(sw);
+        DataTable dt = MyManager.GetDataSet("SELECT * FROM ToolState WHERE Type = '理论'");
+        jWrite.WriteStartArray();
+        for (int i = 0; i < dt.Rows.Count; i++)
+        {
+            jWrite.WriteStartObject();
+            jWrite.WritePropertyName("id");
+            jWrite.WriteValue(dt.Rows[i]["StateID"].ToString());
+            jWrite.WritePropertyName("name");
+            jWrite.WriteValue(dt.Rows[i]["StateName"].ToString());
+            jWrite.WriteEndObject();  
+        }
+        jWrite.WriteEndArray();
+
+        return "{\"status\":\"success\",\"msg\":\"获取成功!\",\"data\":" + sw.ToString() + "}";
+    }
+
+    public String GetCheckCount(JObject JO)
+    {
+        String ckCode = JO["ckcode"].ToString();
+        String Count = MyManager.GetFiledByInput("SELECT Count(ID) AS Count FROM CoreTool WHERE TmpCheckCode ='" +ckCode+ "'","Count");
+        return "{\"status\":\"success\",\"msg\":\"获取成功!\",\"count\":\"" + Count +"\"}";
+    }
+    public String SetToolChecked(JObject JO)
+    {
+        String ckCode = JO["ckcode"].ToString();
+        MyManager.ExecSQL("UPDATE CheckRelation SET isChecked = " + JO["checked"].ToString() + " WHERE CheckCode ='" + ckCode + "' AND CoreID =" + JO["id"].ToString());
+        return "{\"status\":\"success\",\"msg\":\"设置成功!\"}";    
+    }
+    public String CreateBagContentExcel(JObject JO)
+    {
+        int i, j, k, iCount = 1, t;
+        String Type="2", Note = "", mTableName, subTableName, zdName, State, pxzd, ToolName;/*批注*/
+        DataRow[] dr, dr1;
+        DataTable dt2;
+        String CoreID = JO["coreid"].ToString();
+  
+        mTableName = "CoreTool"; subTableName = "CoreToolValue"; zdName = "CoreID"; State = "1"; pxzd = "ToolID"; ToolName = "ToolName"; 
+
+        Aspose.Cells.Workbook workbook = new Aspose.Cells.Workbook(gCtx.Server.MapPath("./../") + "Template\\mb.xls");
+        Aspose.Cells.Worksheet sheet ;
+        Aspose.Cells.Cells cells;
+
+        DataTable dt = MyManager.GetDataSet("SELECT *,ID as StoredID FROM " + mTableName + " where ID = "+ CoreID);       
+        DataRow[] tdr = dt.Select("ModelType = 1");
+        
+        if (tdr.Length >= 0)
+        {
+            for (i = 0, iCount = 1; i < dt.Rows.Count; i++)
+            {
+
+                DataTable dt1 = MyManager.GetDataSet("SELECT A.*,B.Name FROM " + subTableName + " AS A join [CLassPropertys] AS B on A.PropertyID = B.ID Where " + zdName + " = '" + dt.Rows[i]["ID"].ToString() + "'" + " ORDER BY " + pxzd + " ASC");
+                sheet = workbook.Worksheets[workbook.Worksheets.AddCopy("Bak")];
+                cells = sheet.Cells;
+                dr = dt1.Select("ValueType = 3 ");
+                for (j = 0; j < dr.Length; j++)
+                {
+
+                    t = j % 44;//t始终在0-51内变化
+                    if (t == 0 && j != 0)/*证明本页已经填完，需要加页*/
+                    {
+                        sheet = workbook.Worksheets[workbook.Worksheets.AddCopy("Bak")];
+                        cells = sheet.Cells;
+                    }
+                    if (j % 22 == 0)/*页内或者页间表格切换*/
+                    {
+                        cells[2, (t / 22) * 6].PutValue("      工具箱序号:" + dt.Rows[i]["rkID"].ToString() + (Type == "2" ? "   编号:" + dt.Rows[i]["ToolID"].ToString() : "") + "   名称:" + dt.Rows[i][Type == "1" ? "StoredName" : "ToolName"].ToString());
+                        //------------------增加批注-----------------------
+
+                        dr1 = dt1.Select("ValueType = 2 AND ParentID = " + dt.Rows[i]["ID"].ToString());
+                        for (k = 0, Note = ""; k < dr1.Length; k++)
+                        {
+                            Note += dr1[k]["Name"].ToString().Trim() + ":" + dr1[k]["Value"].ToString() + "\n\r";
+                        }
+                        sheet.Comments.Add(2, (t / 22) * 6);
+                        sheet.Comments[2, (t / 22) * 6].Note = Note;
+                        //------------------------------------------------
+                    }
+
+                    cells[4 + t % 22, (t / 22) * 6].PutValue(j + 1);
+                    cells[4 + t % 22, (t / 22) * 6 + 1].PutValue(dr[j]["Value"].ToString());
+                    cells[4 + t % 22, (t / 22) * 6 + 2].PutValue(dr[j]["rkID"].ToString());
+                    if (Type == "2")
+                    {
+                        cells[4 + t % 22, (t / 22) * 6 + 3].PutValue(dr[j]["ToolID"].ToString());
+                    }
+                    //------------------增加批注-----------------------
+                    dr1 = dt1.Select("ValueType = 4 AND ParentID = " + dr[j]["ID"].ToString());
+                    for (k = 0, Note = ""; k < dr1.Length; k++)
+                    {
+                        Note += dr1[k]["Name"].ToString().Trim() + ":" + dr1[k]["Value"].ToString() + "\n\r";
+                    }
+                    sheet.Comments.Add(4 + t % 22, (t / 22) * 6 + 1);
+                    sheet.Comments[4 + t % 22, (t / 22) * 6 + 1].Note = Note;
+                    //------------------------------------------------
+
+                    iCount++;
+
+                }
+
+            }
+        }
+
+        String myPath = gCtx.Server.MapPath("~");
+        workbook.Worksheets.RemoveAt("Bak");
+        XlsSaveOptions saveOptions = new XlsSaveOptions();
+        String ExcelName = DateTime.Now.Ticks + ".xls";
+        String Path = myPath + "\\Report\\" + ExcelName;
+        workbook.Save(Path, saveOptions);
+        String ExcelURL = "http://" + gCtx.Request.Url.Host + ":" + gCtx.Request.Url.Port + gCtx.Request.ApplicationPath + "/Report/" + ExcelName;
+        return ExcelURL;
+           
     }
    public void ProcessRequest (HttpContext context) 
    {
@@ -4823,15 +5030,37 @@ public String Test(HttpContext ctx)
            {
                retJSON = ExitCheck(JO);
            }
-           
-           
+
+           if (Cmd == "SetCheckMsg")
+           {
+               retJSON = SetCheckMsg(JO); 
+           }
+
+           if (Cmd == "GetAllState")
+           {
+               retJSON = GetAllState();  
+           }
+           if (Cmd == "GetCheckCount")
+           {
+               retJSON = GetCheckCount(JO);    
+           }
+
+           if (Cmd == "SetToolChecked")
+           {
+               retJSON = SetToolChecked(JO);    
+           }
+
+           if (Cmd == "CreateBagContentExcel")
+           {
+               retJSON = "{\"status\":\"success\",\"msg\":\"生成表格成功!\",\"url\":\"" + CreateBagContentExcel(JO) + "\"}";
+           }
            
            context.Response.Write(retJSON);
         }
         catch (Exception ee)
         {
             context.Response.Write(json_old);
-            context.Response.Write("{\"status\":\"failed\",\"msg\":\""+ee.ToString()+ "\"}");
+            context.Response.Write("{\"status\":\"failed\",\"msg\":\""+ee.ToString()+ "\",\"g_DbgStr\":\""+g_DbgStr+"\"}");
         }
         
     }
