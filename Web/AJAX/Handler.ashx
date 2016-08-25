@@ -2934,7 +2934,7 @@ public String Test(HttpContext ctx)
     public String GetIdenticalTool(JObject JO)
     {
         String JsonRet = "";
-        String CoreID;
+        String CoreID="";
         
         String CmpOption = JO["cmpoption"].ToString();//比较选择，如果为1则进行全面比较，包括所有属性，0则进行“匹配属性比较”
         String ToolState = JO["toolstate"].ToString();//工具状态
@@ -2948,9 +2948,16 @@ public String Test(HttpContext ctx)
         if (JO["coreid"] != null) {
             CoreID = JO["coreid"].ToString();            
         }
-        else{
+        else if (JO["toolid"] != null)
+        {
             CoreID = MyManager.GetFiledByInput("SELECT ID AS CoreID From CoreTool Where ToolID ='" +JO["toolid"].ToString() +"'","CoreID");
         }
+        else if (JO["rkid"] != null)
+        {
+            CoreID = MyManager.GetFiledByInput("SELECT ID AS CoreID From CoreTool Where rkID ='" + JO["rkid"].ToString() + "'", "CoreID");
+        }
+        
+        
         if (CmpOption == "0")//只含匹配项目
         {
            
@@ -3022,7 +3029,7 @@ public String Test(HttpContext ctx)
                 }
                 if (bContinue==1) { //bCoutinue =1 证明符合要求
                     Total++;
-                    String ids = MyManager.GetFiledByInput("SELECT (convert(varchar, ID)+'|'+ToolID + '|'+ToolName) as ids FROM CoreTool Where ID = " + dr[i]["CoreID"].ToString(), "ids");
+                    String ids = MyManager.GetFiledByInput("SELECT (convert(varchar, ID)+'|'+ToolID + '|'+ToolName + '|' + rkID) as ids FROM CoreTool Where ID = " + dr[i]["CoreID"].ToString(), "ids");
                     String[] arr = ids.Split('|');
                     if (arr.Length > 0)
                     {
@@ -3034,6 +3041,8 @@ public String Test(HttpContext ctx)
                         jWrite.WriteValue(arr[1].ToString());
                         jWrite.WritePropertyName("coreid");
                         jWrite.WriteValue(arr[0].ToString());
+                        jWrite.WritePropertyName("rkid");
+                        jWrite.WriteValue(arr[3].ToString());
                         jWrite.WritePropertyName("pvcount");//属性和取值集合个数
                         jWrite.WriteValue(dr[i]["tNum"].ToString());
                         jWrite.WriteEndObject(); 
@@ -3081,12 +3090,13 @@ public String Test(HttpContext ctx)
               ,[Borrower]
               ,[State]
           */
-            MyManager.ExecSQL("INSERT INTO ToolApp (CoreID,TaskID,UserID,UserName,WantToolID,WantToolName,CreateTime,State) Values("
+            MyManager.ExecSQL("INSERT INTO ToolApp (CoreID,TaskID,UserID,UserName,WantToolID,WantrkID,WantToolName,CreateTime,State) Values("
                                     + JA[i]["coreid"].ToString() + ","
                                    + TaskID +
                               "," + UserID + 
                               ",'" + UserName +
                               "','" + JA[i]["toolid"].ToString() +
+                              "','" + JA[i]["rkid"].ToString() +
                               "','" + JA[i]["toolname"].ToString() + 
                               "','" + DateTime.Now.ToString() + "',0)");
                 
@@ -3144,6 +3154,10 @@ public String Test(HttpContext ctx)
             jWrite.WriteValue(i+1);
             jWrite.WritePropertyName("WantToolID");
             jWrite.WriteValue(dt.Rows[i]["WantToolID"].ToString());
+            jWrite.WritePropertyName("WantrkID");
+            jWrite.WriteValue(dt.Rows[i]["WantrkID"].ToString());
+            jWrite.WritePropertyName("BorrowedrkID");
+            jWrite.WriteValue(dt.Rows[i]["BorrowedrkID"].ToString());
             jWrite.WritePropertyName("coreid");
             jWrite.WriteValue(dt.Rows[i]["coreid"].ToString());
             jWrite.WritePropertyName("id");
@@ -3186,15 +3200,15 @@ public String Test(HttpContext ctx)
         MyManager.ExecSQL("DELETE FROM ToolApp WHERE ID = " + JO["appid"].ToString());
         return "删除成功！"; 
     }
-    public String GetToolState(String ToolID)
+    public String GetToolState(String rkID)
     {
-        return MyManager.GetFiledByInput("SELECT StateName From CoreTool join ToolState On CoreTool.State = ToolState.StateID Where ToolID = '" + ToolID + "'", "StateName");
+        return MyManager.GetFiledByInput("SELECT StateName From CoreTool join ToolState On CoreTool.State = ToolState.StateID Where rkID = '" + rkID + "'", "StateName");
     }
     public String  BorrowToolByID(JObject JO)
     {
 
         String Msg = "工具借用成功！";
-        String ToolID = JO["toolid"].ToString();
+        String rkID = JO["rkid"].ToString();
         String BorrowerName = JO["borrowername"].ToString().Trim();
         String TaskID = JO["taskid"].ToString();
         String CurState = "";
@@ -3210,7 +3224,7 @@ public String Test(HttpContext ctx)
             return "非管理人员，无法进行该操作！";
         }
 
-        CurState = MyManager.GetFiledByInput("SELECT StateName From CoreTool join ToolState on CoreTool.State = ToolState.StateID Where ToolID = '" + ToolID + "'", "StateName");
+        CurState = MyManager.GetFiledByInput("SELECT StateName From CoreTool join ToolState on CoreTool.State = ToolState.StateID Where rkID = '" + rkID + "'", "StateName");
         
         if (CurState !="在库")
         {
@@ -3218,7 +3232,7 @@ public String Test(HttpContext ctx)
         }
         
         //开始借工具 
-        String txt = MyManager.GetFiledByInput("SELECT (convert(varchar,ID)+'|'+ToolName)as txt From CoreTool Where ToolID = '" + ToolID + "'", "txt");
+        String txt = MyManager.GetFiledByInput("SELECT (convert(varchar,ID)+'|'+ToolName)as txt From CoreTool Where rkID = '" + rkID + "'", "txt");
         String[] arr = txt.Split('|');
         CoreID = arr[0];
         CurToolName = arr[1];
@@ -3244,7 +3258,7 @@ public String Test(HttpContext ctx)
           ,[BorrowAdminID]
           ,[BorrowAdminName]
          */
-        MyManager.ExecSQL("UPDATE ToolApp Set State=1,BorrowedToolID = '" + ToolID + "',BorrowedToolName='" + CurToolName + "',BorrowTime='" + DateTime.Now.ToString() + "',BorrowerName='" + BorrowerName + "',BorrowAdminID=" + gCtx.Session["UserID"].ToString() + ",BorrowAdminName='" + gCtx.Session["Name"].ToString() + "' WHERE ID = " +AppID);
+        MyManager.ExecSQL("UPDATE ToolApp Set State=1,BorrowedrkID = '" + rkID + "',BorrowedToolID='"+JO["toolid"].ToString()+"',BorrowedToolName='" + CurToolName + "',BorrowTime='" + DateTime.Now.ToString() + "',BorrowerName='" + BorrowerName + "',BorrowAdminID=" + gCtx.Session["UserID"].ToString() + ",BorrowAdminName='" + gCtx.Session["Name"].ToString() + "' WHERE ID = " +AppID);
         return Msg;
     }
     public String RefundToolByAppID(JObject  JO)
@@ -4612,23 +4626,77 @@ public String Test(HttpContext ctx)
         MyManager.ExecSQL("UPDATE CheckRelation SET isChecked = " + JO["checked"].ToString() + " WHERE CheckCode ='" + ckCode + "' AND CoreID =" + JO["id"].ToString());
         return "{\"status\":\"success\",\"msg\":\"设置成功!\"}";    
     }
+    public String  CreateExcelByBorrowTaskID(JObject JO)
+    {
+        String TaskID = JO["taskid"].ToString();
+
+        Aspose.Cells.Workbook workbook = new Aspose.Cells.Workbook(gCtx.Server.MapPath("./../") + "Template\\print_mb.xls");
+        Aspose.Cells.Worksheet sheet = workbook.Worksheets["借用工具清单"]; //指向独立工具表
+        Aspose.Cells.Cells cells = sheet.Cells;
+
+        DataTable dt = MyManager.GetDataSet("SELECT * FROM ToolApp Where State <>0 AND TaskID= " + TaskID);
+        DataTable dt1 = MyManager.GetDataSet("SELECT A.Name as TaskName,B.Name as UserName,A.CreateTime  FROM Tasks AS A left join UserList AS B on A.CreateUser = B.ID Where A.ID = " + TaskID);
+
+        if (dt.Rows.Count == 0)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"报告:还没有任何在借工,打印没有意义!\"}";      
+        }
+
+        if (dt1.Rows.Count == 0)
+        {
+            return "{\"status\":\"failed\",\"msg\":\"打印异常,任务列表中该任务不存在，内部错误!!\"}";
+        }
+        String MD5_Feed = "";
+        cells[1, 0].PutValue("  任务号:" + TaskID + "   创建人:"+dt1.Rows[0]["UserName"].ToString() + "   创建时间:" + dt1.Rows[0]["CreateTime"].ToString());
+        
+        for (int i = 0; i < dt.Rows.Count; i++)
+        {
+            cells[4 + i, 0].PutValue(i + 1);
+            cells[4 + i, 1].PutValue(dt.Rows[i]["BorrowedToolName"].ToString());
+            cells[4 + i, 2].PutValue(dt.Rows[i]["BorrowedrkID"].ToString());
+            cells[4 + i, 3].PutValue(dt.Rows[i]["BorrowedToolID"].ToString());
+            cells[4 + i, 4].PutValue( dt.Rows[i]["BorrowerName"].ToString());
+            cells[4 + i, 5].PutValue(dt.Rows[i]["BorrowTime"].ToString());
+            MD5_Feed += dt.Rows[i]["BorrowedToolName"].ToString() + dt.Rows[i]["BorrowedrkID"].ToString() + dt.Rows[i]["BorrowedToolID"].ToString() + dt.Rows[i]["BorrowerName"].ToString() + dt.Rows[i]["BorrowTime"].ToString();
+           
+            /* for (j = 0, Note = ""; j < tdt.Rows.Count; j++)
+            {
+                Note += tdt.Rows[j]["Name"].ToString().Trim() + ":" + tdt.Rows[j]["Value"].ToString().Trim() + "\n\r";
+            }
+            sheet.Comments.Add(1 + i, 1);
+            sheet.Comments[1 + i, 1].Note = Note;
+          */
+                     
+        }
+
+        cells[2, 0].PutValue("防篡改编码:"+System.Web.Security.FormsAuthentication.HashPasswordForStoringInConfigFile(MD5_Feed, "MD5").ToUpper());
+        String myPath = gCtx.Server.MapPath("~");
+        XlsSaveOptions saveOptions = new XlsSaveOptions();
+        String ExcelName = DateTime.Now.Ticks + ".xls";
+        String Path = myPath + "\\Report\\" + ExcelName;
+        workbook.Save(Path, saveOptions);
+        String ExcelURL = "http://" + gCtx.Request.Url.Host + ":" + gCtx.Request.Url.Port + gCtx.Request.ApplicationPath + "/Report/" + ExcelName;
+        return "{\"status\":\"success\",\"msg\":\"生成成功!\",\"url\":\"" + ExcelURL + "\"}";
+           
+    }
+
     public String CreateBagContentExcel(JObject JO)
     {
         int i, j, k, iCount = 1, t;
-        String Type="2", Note = "", mTableName, subTableName, zdName, State, pxzd, ToolName;/*批注*/
+        String Type = "2", Note = "", mTableName, subTableName, zdName, State, pxzd, ToolName;/*批注*/
         DataRow[] dr, dr1;
         DataTable dt2;
         String CoreID = JO["coreid"].ToString();
-  
-        mTableName = "CoreTool"; subTableName = "CoreToolValue"; zdName = "CoreID"; State = "1"; pxzd = "ToolID"; ToolName = "ToolName"; 
+
+        mTableName = "CoreTool"; subTableName = "CoreToolValue"; zdName = "CoreID"; State = "1"; pxzd = "ToolID"; ToolName = "ToolName";
 
         Aspose.Cells.Workbook workbook = new Aspose.Cells.Workbook(gCtx.Server.MapPath("./../") + "Template\\mb.xls");
-        Aspose.Cells.Worksheet sheet ;
+        Aspose.Cells.Worksheet sheet;
         Aspose.Cells.Cells cells;
 
-        DataTable dt = MyManager.GetDataSet("SELECT *,ID as StoredID FROM " + mTableName + " where ID = "+ CoreID);       
+        DataTable dt = MyManager.GetDataSet("SELECT *,ID as StoredID FROM " + mTableName + " where ID = " + CoreID);
         DataRow[] tdr = dt.Select("ModelType = 1");
-        
+
         if (tdr.Length >= 0)
         {
             for (i = 0, iCount = 1; i < dt.Rows.Count; i++)
@@ -4694,8 +4762,9 @@ public String Test(HttpContext ctx)
         workbook.Save(Path, saveOptions);
         String ExcelURL = "http://" + gCtx.Request.Url.Host + ":" + gCtx.Request.Url.Port + gCtx.Request.ApplicationPath + "/Report/" + ExcelName;
         return ExcelURL;
-           
+
     }
+    
    public void ProcessRequest (HttpContext context) 
    {
 
@@ -4868,7 +4937,7 @@ public String Test(HttpContext ctx)
                retJSON = "{\"status\":\"success\",\"msg\":\"" + DelBorrowApp(JO) + "\"}";
            }
            if (Cmd == "GetToolState") {
-               retJSON = "{\"status\":\"success\",\"toolstate\":\"" + GetToolState(JO["toolid"].ToString()) + "\"}";
+               retJSON = "{\"status\":\"success\",\"toolstate\":\"" + GetToolState(JO["rkid"].ToString()) + "\"}";
            }
            if (Cmd == "BorrowToolByID")
            {
@@ -5053,6 +5122,11 @@ public String Test(HttpContext ctx)
            if (Cmd == "CreateBagContentExcel")
            {
                retJSON = "{\"status\":\"success\",\"msg\":\"生成表格成功!\",\"url\":\"" + CreateBagContentExcel(JO) + "\"}";
+           }
+
+           if (Cmd == "CreateExcelByBorrowTaskID")
+           {
+               retJSON = CreateExcelByBorrowTaskID(JO);                
            }
            
            context.Response.Write(retJSON);

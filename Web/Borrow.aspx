@@ -46,21 +46,21 @@
                 $("#Table_Type3").css("display", "none");
                 $("#Table_Type2").css("display", "");
                 $("#Table_Type1").css("display", "none");
-                $("#WantToolID").text(rowDat.WantToolID);
+                $("#WantrkID").text(rowDat.WantrkID);
                 $("#WantToolName").text(rowDat.WantToolName);
                 jdat = {};
                 jdat.cmd = "GetIdenticalTool";
                 jdat.cmpoption = 0;//只比较匹配属性
                 jdat.toolstate = 0; //在库
-                jdat.toolid = rowDat.WantToolID;
+                jdat.rkid = rowDat.WantrkID;
                 MyAjax(jdat, function (data) {
-                    $("#CanBorrow").combobox({ editable: false, textField: "toolid", valueField: "coreid", data: data.data });
+                    $("#CanBorrow").combobox({ editable: false, textField: "rkid", valueField: "toolid", data: data.data });
                 }, null);
                 jdat.cmd = "GetToolState";
                 MyAjax(jdat, function (data) {
                     $("#StatusSpan").text(data.toolstate);
                     if (data.toolstate == '在库') {
-                        $("#ToBorrow").text(rowDat.WantToolID);
+                        $("#ToBorrow").text(rowDat.WantrkID);
                     }
                 }, null);
             }
@@ -93,7 +93,7 @@
         function DelBorrowApp() {
             var rowDat = $('#tb').datagrid('getSelected');
             if (rowDat == null) { $.messager.alert("提示", "没有选择任何行呢！"); return; }
-            $.messager.confirm('提醒', "确定要删除件号为" + rowDat.WantToolID + "的" + rowDat.WantToolName+ "吗？", function (r) {
+            $.messager.confirm('提醒', "确定要删除件号为" + rowDat.WantrkID + "的" + rowDat.WantToolName+ "吗？", function (r) {
                 if (r) {
                     json = {};
                     json.cmd = "DelBorrowApp";
@@ -113,16 +113,18 @@
         }
         function Borrow() {
             var rowDat = $('#tb').datagrid('getSelected');
-            var ToolID = $.trim($("#ToBorrow").text());
+            var rkid = $.trim($("#ToBorrow").text());
+            var ToolID = $.trim($("#CanBorrow").combobox('getValue'));
             var BorrowerName = $.trim($("#Borrower").val());
 
-            if (ToolID == "" || rowDat == null) { $.messager.alert("提示", "没有选择要借出的工具"); }
+            if (rkid == "" || rowDat == null) { $.messager.alert("提示", "没有选择要借出的工具"); }
             if (BorrowerName == "") { $.messager.alert("提示", "请输入借用人");return;}
 
             json = {};
             json.cmd = "BorrowToolByID";
             json.appid = rowDat.id;
             json.taskid = TaskID;
+            json.rkid = rkid;
             json.toolid = ToolID;
             json.borrowername = BorrowerName;
             MyAjax(json, function (dat) {
@@ -144,12 +146,12 @@
         function ClassChange(record) {
             $("#Frm2").attr("src", "ToolBag.aspx?Type=2&BagID="+record.coreid);
             jdat = {};
-            jdat.toolid = record.toolid;
+            jdat.rkid = record.rkid;
             jdat.cmd = "GetToolState";
             MyAjax(jdat, function (data) {
                 // $("#StatusSpan").text(data.toolstate);
                 if (data.toolstate == '在库') {
-                    $("#ToBorrow").text(record.toolid);
+                    $("#ToBorrow").text(record.rklid);
                 } else {
                     $.messager.alert("提示", "件号为" + record.toolid + "的工具，状态为" + data.toolstate + ",不可借出，请刷新!");
                 }
@@ -245,12 +247,31 @@
              // $("#Win").window({ closed: true });
              GetbrwerCount();
         });
+        
+       function  Print()
+       {
+              oo = {};
+                    oo.cmd = "CreateExcelByBorrowTaskID";
+                    oo.taskid = TaskID;
+                    MyAjax(oo,function(data){
+                        $.messager.alert('提示',data.msg);
+                        if(data.status=="success"){
+                           
+                            $("#Excel").attr("href",data.url);
+                        }
+                    });
+	          
+       } 
+        
     </script>
 </head>
 <body class="easyui-layout">
     <form id="form1" runat="server">
 		<div data-options="region:'north'" style=" float:left; overflow:hidden;padding:10px">
 			<a id = "retBtn"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "GoBack();"><--返回</a>
+			&nbsp;&nbsp;<a id = "Print"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "Print();">生成工具清单</a>
+			 <a href="#"  id="Excel">包内清单</a>
+			 &nbsp;&nbsp;
             领用人:
              <a id = "brwerCount" style = "cursor:pointer;text-decoration:underline; color:Blue;font-weight:bold; margin-right:20px;margin-left:5px;">(0)</a>
 		      &nbsp;&nbsp;&nbsp;<a id = "BtnClose"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "CloseTheTask();">关闭任务</a>
@@ -267,11 +288,13 @@
 					<tr>
 						<th data-options="field:'xh'" width="30">序号</th>
                         <th data-options="field:'status'" width="50">状态</th>
-						<th data-options="field:'WantToolID'" width="60">欲借件号</th>
+						<th data-options="field:'WantrkID'" width="60">欲借件号</th>
+						<th data-options="field:'WantToolID'" width="60">欲借识别号</th>
 						<th data-options="field:'WantToolName'" width="100">工具名称</th>
 						<th data-options="field:'UserName'" width="80">添加人</th>
 						<th data-options="field:'createtime'" width="150">添加时间</th>
-                        <th data-options="field:'BorrowedToolID'" width="80">已借出件号</th>
+                        <th data-options="field:'BorrowedrkID'" width="80">已借出件号</th>
+                         <th data-options="field:'BorrowedToolID'" width="80">已借出识别号</th>
                         <th data-options="field:'BorrowedToolName'" width="120">借出工具名称</th>
 						<th data-options="field:'BorrowerName'" width="80">借用人</th>
                         <th data-options="field:'BorrowAdminName'" width="80">借出人</th>
@@ -310,7 +333,7 @@
                     欲借件号
                 </td>
                 <td>
-                    <span id= "WantToolID" style = "color :Blue; font-weight:bold;"></span>
+                    <span id= "WantrkID" style = "color :Blue; font-weight:bold;"></span>
                 </td>
                 </tr>
              <tr>
