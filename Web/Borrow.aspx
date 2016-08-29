@@ -68,7 +68,7 @@
                 $("#Table_Type3").css("display", "");
                 $("#Table_Type2").css("display", "none");
                 $("#Table_Type1").css("display", "none");
-                $("#rToolID").text(rowDat.BorrowedToolID);
+                $("#rToolID").text(rowDat.BorrowedrkID);
                 $("#rToolName").text(rowDat.BorrowedToolName);
             }
             if (rowDat.status == "已归还") {
@@ -117,7 +117,10 @@
             var ToolID = $.trim($("#CanBorrow").combobox('getValue'));
             var BorrowerName = $.trim($("#Borrower").val());
 
-            if (rkid == "" || rowDat == null) { $.messager.alert("提示", "没有选择要借出的工具"); }
+            if (ToolID == "" || rkid == "" || rowDat == null) { 
+                    $.messager.alert("提示", "没有选择要借出的工具"); 
+                    return;
+            }
             if (BorrowerName == "") { $.messager.alert("提示", "请输入借用人");return;}
 
             json = {};
@@ -127,6 +130,7 @@
             json.rkid = rkid;
             json.toolid = ToolID;
             json.borrowername = BorrowerName;
+           
             MyAjax(json, function (dat) {
                 if (dat.status == "success") {
                     $.messager.alert("提示", dat.msg);
@@ -269,8 +273,8 @@
     <form id="form1" runat="server">
 		<div data-options="region:'north'" style=" float:left; overflow:hidden;padding:10px">
 			<a id = "retBtn"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "GoBack();"><--返回</a>
-			&nbsp;&nbsp;<a id = "Print"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "Print();">生成工具清单</a>
-			 <a href="#"  id="Excel">包内清单</a>
+			&nbsp;&nbsp;<a id = "Print"  style = "margin-right:20px;" class="easyui-linkbutton" onclick = "Print();">生成借用清单</a>
+			 <a href="#"  id="Excel">借用清单</a>
 			 &nbsp;&nbsp;
             领用人:
              <a id = "brwerCount" style = "cursor:pointer;text-decoration:underline; color:Blue;font-weight:bold; margin-right:20px;margin-left:5px;">(0)</a>

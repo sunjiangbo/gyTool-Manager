@@ -34,7 +34,7 @@ public partial class CreateTask : System.Web.UI.Page
             Response.Redirect("Login.htm");
         }
         if (IsPostBack) return;
-        TextBox1.Text = Session["Name"].ToString().Trim() + "借工具";
+        TextBox1.Text = Session["Name"].ToString().Trim() + "  " + string.Format("{0:MM-dd HH:mm}", DateTime.Now);
         TaskCode = "GJ-" + string.Format("{0:yyMMddHHmmss}", DateTime.Now);
         Label1.Text = TaskCode;
        // MyManager.FillList(DropDownList1, "SELECT TypeName,(Convert(varchar(4),TypeID) + '|' + TypeCode) AS Value FROM [TaskTypes]", "TypeName", "Value", true);

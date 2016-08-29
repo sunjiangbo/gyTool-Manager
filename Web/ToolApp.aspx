@@ -154,14 +154,20 @@
                     MyAjax(json, function (data) {
                         $.messager.progress('close');
                         if (data.status == "success") {
-
+                            
                             var TotalCanBorow = data.total;
-                            $.messager.prompt('选择', '当前该工具库存数量为:' + TotalCanBorow + '.请输入您欲数量。', function (v) {
+                            $.messager.prompt('选择', '当前该工具库存数量为:' + TotalCanBorow + '.想借几件?(默认为:1)。', function (v) {
+                                if(v==undefined)
+                                {
+                                    return;
+                                }
+                                if (v == null || v == "") { v=1; }
+                                
                                 if (v > TotalCanBorow || v <= 0) {
                                     $.messager.alert("提示", "欲借数量大于库存数量或者输入错误!请修改.");
                                     return;
                                 }
-                                if (v == null || v == "") { return; }
+                                
                                 jDat = {};
                                 jDat.taskid = TaskID;
                                 jDat.cmd = "AddToBorrow";
