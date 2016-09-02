@@ -102,7 +102,7 @@ public partial class LoadToolFromExcel : System.Web.UI.Page
         int rkIDOV;//用户提供的入库编号已经存在  2:无预制序列号 1：重复 0：不重复
         String rkID = "",CoreID="";
         int rkIDCol = 9;
-        for (curRow = 2; cells[curRow, 1].StringValue.Trim() != ""; curRow++)
+        for (curRow = 1; cells[curRow, 1].StringValue.Trim() != ""; curRow++)
         {
             ToolName = cells[curRow, 1].StringValue.Trim();
 

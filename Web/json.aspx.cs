@@ -6,7 +6,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data;
 using System.Data.SqlClient;
-public partial class Default3 : System.Web.UI.Page
+public partial class json : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
     {

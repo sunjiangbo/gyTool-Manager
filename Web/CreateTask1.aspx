@@ -71,7 +71,7 @@
         </tr>
         <tr>
         <td>
-          <div style="width:100%;height:1200px;">
+          <div style="width:100%;height:5000px;">
             <iframe   id = "tgFrm" scrolling="auto" frameborder="no" border="0" style="width:100%;height:100%;" src=""></iframe>
          </div>
          </td>

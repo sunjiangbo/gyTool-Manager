@@ -2943,7 +2943,7 @@ public String Test(HttpContext ctx)
         StringWriter sw = new StringWriter();
         JsonWriter jWrite = new JsonTextWriter(sw);
         DataTable dt,dt1,dt2;
-        
+        String rkID = "";
         //检查输入json中有无coreid 若没有则自动生成
         if (JO["coreid"] != null) {
             CoreID = JO["coreid"].ToString();            
@@ -2951,11 +2951,20 @@ public String Test(HttpContext ctx)
         else if (JO["toolid"] != null)
         {
             CoreID = MyManager.GetFiledByInput("SELECT ID AS CoreID From CoreTool Where ToolID ='" +JO["toolid"].ToString() +"'","CoreID");
+        
         }
         else if (JO["rkid"] != null)
         {
+          
             CoreID = MyManager.GetFiledByInput("SELECT ID AS CoreID From CoreTool Where rkID ='" + JO["rkid"].ToString() + "'", "CoreID");
         }
+
+      /*  if (rkID == "")
+        {
+            rkID = MyManager.GetFiledByInput("SELECT rkID  From CoreTool Where ID ='" + CoreID + "'", "rkID");
+
+        }
+       */
         
         
         if (CmpOption == "0")//只含匹配项目
@@ -2967,9 +2976,11 @@ public String Test(HttpContext ctx)
                  dt1 = MyManager.GetDataSet("SELECT coreid ,count(A.id) as tNum from coretoolvalue AS A join CLassPropertys AS B  on A.propertyid = B.ID  where B.ptype = 0 AND coreid in (select id from coretool where state = " + ToolState + " AND modelid in (select modelid from coretool where id =" + CoreID + ")) Group By coreid");
                 dt2 = MyManager.GetDataSet("SELECT * from coretoolvalue AS A join CLassPropertys AS B  on A.propertyid = B.ID  where B.ptype = 0 AND coreid in (select id from coretool where state = " + ToolState + " AND modelid in (select modelid from coretool where id =" + CoreID + "))");
               */
-            //2016-03-29修改，比较时，不管其工具包或者独立工具的模型是否一致，只要求其除了工具箱本体及其属性之外的条目大于待比较工具箱的相关条目
+            //2016-03-29修改，比较时，不管其工具包或者独立工具的模型是否一致，只要求其除了工具箱本体1及其属性2之外的条目大于待比较工具箱的相关条目
             dt = MyManager.GetDataSet("SELECT * from coretoolvalue AS A join CLassPropertys AS B  on A.propertyid = B.ID and B.pType = 0 AND a.coreid = " + CoreID + " Where A.ValueType not in (1,2)" ); //只含匹配项目
             Count = dt.Rows.Count;
+            
+            
             dt1 = MyManager.GetDataSet("SELECT coreid ,count(A.id) as tNum from coretoolvalue AS A join CLassPropertys AS B  on A.propertyid = B.ID  where B.ptype = 0 AND coreid in (select id from coretool where state = " + ToolState + " ) AND A.ValueType not in(1,2) Group By coreid");
             dt2 = MyManager.GetDataSet("SELECT * from coretoolvalue");
         
@@ -2983,12 +2994,38 @@ public String Test(HttpContext ctx)
             dt2 = MyManager.GetDataSet("SELECT *  from coretoolvalue ");//1021日，将coretoolvalue 改为coretool
             
         }
-
+        int Total = 0;
+        
+        if (Count == 0)/*Count等于0证明该工具的匹配属性个数为0，没有比较的必要了，就他自己跟自己一样了*/
+        {
+            jWrite.WriteStartArray(); 
+            String ids = MyManager.GetFiledByInput("SELECT (convert(varchar, ID)+'|'+ToolID + '|'+ToolName + '|' + rkID) as ids FROM CoreTool Where ID = " + CoreID, "ids");
+            String[] arr = ids.Split('|');
+            if (arr.Length > 0)
+            {
+                // txt += "SELECT (ID+'|'+ToolID) as ids FROM CoreTool Where ID = " + dr[i]["CoreID"].ToString();
+                jWrite.WriteStartObject();
+                jWrite.WritePropertyName("toolname");
+                jWrite.WriteValue(arr[2].ToString());
+                jWrite.WritePropertyName("toolid");
+                jWrite.WriteValue(arr[1].ToString());
+                jWrite.WritePropertyName("coreid");
+                jWrite.WriteValue(arr[0].ToString());
+                jWrite.WritePropertyName("rkid");
+                jWrite.WriteValue(arr[3].ToString());
+                jWrite.WritePropertyName("pvcount");//属性和取值集合个数
+                jWrite.WriteValue("0");
+                jWrite.WriteEndObject();
+            }
+            jWrite.WriteEndArray();
+            return "{\"status\":\"success\",\"coreid\":\"" + CoreID + "\",\"total\":1,\"data\":" + sw.ToString() + "}";
+        }
+        
 
         DataView dv;
         int bContinue = 1 ;
-        DataRow[] dr2,dr1,dr = dt1.Select(" tNum >= " + Count );//选取属性数量一致或大于的工具包CoreID，放入dr
-        int Total = 0;
+        DataRow[] dr2,dr1,dr = dt1.Select(" tNum >= " + Count);//选取属性数量一致或大于的工具包CoreID，放入dr
+       
         
         jWrite.WriteStartArray();
         for (i = 0; i < dr.Length; i++)
@@ -3050,7 +3087,7 @@ public String Test(HttpContext ctx)
                 }
         }
         jWrite.WriteEndArray();
-        return "{\"status\":\"success\",\"total\":" + Total + ",\"data\":" + sw.ToString() +"}";
+        return "{\"status\":\"success\",\"coreid\":\""+CoreID+"\",\"total\":" + Total + ",\"data\":" + sw.ToString() +"}";
  
     }
     public int GetWantToBorrowCount(int TaskID)

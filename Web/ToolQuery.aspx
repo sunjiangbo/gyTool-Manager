@@ -309,16 +309,15 @@
                     title: '',
                     width: document.body.clientWidth * 2.5,
                     height: 1200,
-                    method: "get",
-                    fitColumns: true,
                     idField: 'id',
                     treeField: 'name',
                      toolbar: '#tb',
-                     nowrap:true,
                      striped:true,
                     rownumbers: true,
-                    loadMsg:"正在加载",
+                    fitColumns:true,
                     onLoadSuccess: function (row, data) {
+                    
+                    return;
                         for (i = 0; i < data.length; i++) {                            
                             $("#btn"+data[i].id).linkbutton();
                             if (data[i].children != null && data[i].children.length != 0) {

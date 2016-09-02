@@ -143,9 +143,16 @@
             var row = $('#t1').datagrid('getSelected');
             if (row == null) { $.messager.alert('错误', '没选择工具呢!!'); return; }
             if (row) {
+                
                 if (row.type == 'bntool') { $.messager.alert("提示", "包内工具不能单独借出!"); return; }
-                else
+                 else
                 {
+                   
+                  if(row.toolstate!="在库")
+                  {
+                     $.messager.alert("提示", "该工具已经被借出去!!!"); return;   
+                  }
+                 
                    var json = {};
                     json.cmd = "GetIdenticalTool";
                     json.coreid = row.id; //对于独立工具和工具包来说，id = CoreID
@@ -247,7 +254,7 @@
                $("#t1").treegrid({
                     title: '',
                     width: document.body.clientWidth * 2.5,
-                    height: 1200,
+                    height: 4800,
                     method: "get",
                     fitColumns: true,
                     idField: 'id',
