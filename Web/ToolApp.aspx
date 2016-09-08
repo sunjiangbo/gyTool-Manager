@@ -629,6 +629,15 @@
                    $("#t1").treegrid({columns: [initColumnBefore.concat(oo).concat(initColumnAfter)]});       
         }
          function doSearch() {
+            
+            if($("#sName").val()=="" && $("#srkID").val()=="" && $("#sToolID").val()=="")
+            {
+                 $("#errSpan").text("请输入要查询的名称关键字或者入库编号!!");
+                    return;      
+            }else{      
+                 $("#errSpan").text("查询中……请稍候。"); 
+            }
+         
             var json = {};
             json.cmd = "ToolSearch";
             json.Filter = Filter;
@@ -637,6 +646,7 @@
             json.toolid = $("#sToolID").val();
             MyAjax(json, function(data) {
             $.messager.progress('close');
+             $("#errSpan").text(""); 
              if (data.status == "success") {
                     
                     AfterSearch(data);  //增加属性列               
@@ -662,7 +672,7 @@
    <div id= "MContent" title = "查询" region="center"">
     <div title="库存查询" >
        <div style="min-height:5px;height:auto;" class="btnbartitle" >
-            <div style="padding:5px;">范围:&nbsp;&nbsp;<select id ="ToolBagList" class="easyui-combobox" style = "width:150px; " ></select>&nbsp;&nbsp;名称: <input id="sName" style=" width:115px;"/>&nbsp;&nbsp;入库编号: <input id="srkID" style=" width:45px;"/>&nbsp;识别号: <input id="sToolID" style=" width:50px;"/>&nbsp;&nbsp;<a id="A3" class="easyui-linkbutton" onclick = "doSearch();">搜索</a></div>
+            <div style="padding:5px;">范围:&nbsp;&nbsp;<select id ="ToolBagList" class="easyui-combobox" style = "width:150px; " ></select>&nbsp;&nbsp;名称: <input id="sName" style=" width:115px;"/>&nbsp;&nbsp;入库编号: <input id="srkID" style=" width:45px;"/>&nbsp;识别号: <input id="sToolID" style=" width:50px;"/>&nbsp;&nbsp;<a id="A3" class="easyui-linkbutton" onclick = "doSearch();">搜索</a><span id="errSpan" style="color:red; font-weight:bolder; margin-left:50px;"></span></div>
             <div style="padding:0px 5px 5px 5px;">包含:&nbsp;&nbsp;<select id ="ToolList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="PropertyList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp;<select id ="ValueList" class="easyui-combobox" style = "width:150px; "  ></select>&nbsp;&nbsp; <a id="opBtn" class="easyui-linkbutton" onclick = "FilterModify();">增加</a>&nbsp;&nbsp;</div>
            <div style="padding:0px 5px 5px 5px;">筛选:
                <input name = "rg"  id="Radio1" type="radio" checked= "checked">显示所有</input>
